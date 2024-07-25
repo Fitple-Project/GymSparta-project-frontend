@@ -1,4 +1,3 @@
-<!-- src/components/AppHeader.vue -->
 <template>
   <div>
     <div class="header">
@@ -11,7 +10,7 @@
           <div class="text-wrapper-2">강남구 논현동</div>
         </div>
         <div class="auth-menu">
-          <button class="button">
+          <button class="button" @click="handleSearch">
             <div class="text-wrapper">로그인/회원가입</div>
           </button>
           <img class="button-popper" alt="Button popper" src="button-popper-element-button.svg" />
@@ -37,10 +36,10 @@ export default {
   background-color: #ffffff;
   border-bottom: 2.5px solid #F26921;
   width: 100%;
-  position: fixed;
+  position: fixed; /* 고정 위치 */
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 1000; /* 상위 컴포넌트가 위에 있도록 설정 */
 }
 
 .container {

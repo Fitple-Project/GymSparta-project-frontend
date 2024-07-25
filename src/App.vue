@@ -1,16 +1,18 @@
 <template>
   <div id="app">
     <AppHeader />
-    <!-- 기타 내용 -->
+    <SearchContainer />
   </div>
 </template>
 
 <script>
 import AppHeader from './components/AppHeader.vue';
+import SearchContainer from './components/SearchContainer.vue';
 
 export default {
   components: {
-    AppHeader
+    AppHeader,
+    SearchContainer
   }
 }
 </script>
@@ -22,6 +24,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 60px; /* 헤더 높이만큼의 마진을 추가 */
 }
 </style>
