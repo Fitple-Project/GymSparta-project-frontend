@@ -11,10 +11,13 @@
           <div class="text-wrapper-2">강남구 논현동</div>
         </div>
         <div class="auth-menu">
-          <button class="button">
-            <div class="text-wrapper">로그인/회원가입</div>
-          </button>
-          <img class="button-popper" alt="Button popper" src="button-popper-element-button.svg" />
+          <div class="button" @click="handleClick">
+            <img class="login-signup-button" src="../assets/login_signup_Button.svg" />
+          </div>
+          <img class="button-popper" alt="Button popper" src="../assets/button-popper-element-button.svg" @click="showListTab" />
+          <div class="list-tab" v-if="isListTabShown">
+            <div class="profile-tab">프로필</div>
+          </div>
         </div>
       </div>
     </div>
@@ -29,6 +32,19 @@ export default {
   components: {
     LocationOn,
   },
+  data() {
+    return {
+      isListTabShown: false
+    }
+  },
+  methods: {
+    showListTab() {
+      this.isListTabShown =!this.isListTabShown;
+    },
+    handleClick() {
+      console.log('클릭 이벤트 발생!');
+    }
+  }
 };
 </script>
 
@@ -74,21 +90,24 @@ export default {
   align-items: center;
   flex: 2; /* 더 많은 공간을 차지하도록 설정 */
   justify-content: center; /* 가운데 정렬 */
+  margin-left: -8px; /* LocationOn 컴포넌트를 왼쪽으로 옮깁니다 */
 }
 
 .text-wrapper-2 {
   color: #000000;
   font-family: "NanumGothic-ExtraBold", Helvetica;
-  font-size: 14px;
+  font-size: 16px; /* 글씨 크기를 증가합니다 */
   font-weight: 800;
   text-align: center;
   white-space: nowrap;
-  margin-left: 8px;
+  margin-left: 4px; /* 글씨와 LocationOn 컴포넌트 간의 간격을 조정합니다 */
 }
 
 .location-on {
-  height: 24px;
-  width: 24px;
+  height: 26px;
+  width: 26px;
+  margin-right: -10px; /* LocationOn 컴포넌트를 오른쪽으로 옮깁니다 */
+  margin-top: 3px; /* 이미지의 위치를 조정합니다 */
 }
 
 .auth-menu {
@@ -99,7 +118,6 @@ export default {
 }
 
 .button {
-  all: unset;
   background-color: #ffffff;
   border: 1px solid #ebebeb;
   border-radius: 8px;
@@ -109,17 +127,31 @@ export default {
   justify-content: center;
   padding: 0 16px;
   margin-right: 8px;
-}
-
-.text-wrapper {
-  color: #333333;
-  font-family: "Inter-SemiBold", Helvetica;
-  font-size: 10px;
-  font-weight: 600;
+  cursor: pointer; /* 클릭 이벤트를 작동하게 하기 위해 커서를 포인터로 설정합니다. */
 }
 
 .button-popper {
   height: 40px;
   width: 40px;
 }
+
+.list-tab {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  padding: 10px;
+}
+
+.profile-tab {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.login-signup-button {
+  height: 40px;
+  width: 120px;
+}
+
 </style>

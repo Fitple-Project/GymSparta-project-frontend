@@ -1,7 +1,7 @@
 <!-- src/components/LocationOn.vue -->
 <template>
   <div class="location-on">
-    <img class="icon" alt="Icon" src="location_on.svg">
+    <img class="icon" alt="Icon" src="../assets/location_on.svg">
   </div>
 </template>
 
