@@ -1,4 +1,3 @@
-<!-- src/components/AppHeader.vue -->
 <template>
   <div>
     <div class="header">
@@ -11,15 +10,21 @@
           <div class="text-wrapper-2">강남구 논현동</div>
         </div>
         <div class="auth-menu">
-          <div class="button" @click="handleClick">
+          <div class="button" @click="toggleTab">
             <img class="login-signup-button" src="../assets/login_signup_Button.svg" />
           </div>
-          <img class="button-popper" alt="Button popper" src="../assets/button-popper-element-button.svg" @click="showListTab" />
-          <div class="list-tab" v-if="isListTabShown">
-            <div class="profile-tab">프로필</div>
-          </div>
+          <img class="button-popper" alt="Button popper" src="../assets/button-popper-element-button.svg" @click="toggleTab" />
         </div>
       </div>
+    </div>
+    <div
+        v-if="showTab"
+        class="tab-container"
+        @mouseover="handleMouseOver"
+        @mouseleave="handleMouseLeave"
+    >
+      <div class="tab-item" @click="goToPage('mypage')">마이페이지</div>
+      <div class="tab-item" @click="goToPage('payment')">결제내역</div>
     </div>
   </div>
 </template>
@@ -34,15 +39,34 @@ export default {
   },
   data() {
     return {
-      isListTabShown: false
-    }
+      showTab: false,
+      hideTabTimeout: null,
+    };
   },
   methods: {
-    showListTab() {
-      this.isListTabShown =!this.isListTabShown;
+    toggleTab() {
+      this.showTab = !this.showTab;
     },
-    handleClick() {
-      console.log('클릭 이벤트 발생!');
+    goToPage(page) {
+      if (page === 'mypage') {
+        // 마이페이지로 이동하는 로직 추가
+        alert('마이페이지로 이동합니다.');
+      } else if (page === 'payment') {
+        // 결제내역 페이지로 이동하는 로직 추가
+        alert('결제내역 페이지로 이동합니다.');
+      }
+      this.showTab = false; // 탭을 숨깁니다.
+    },
+    handleMouseOver() {
+      if (this.hideTabTimeout) {
+        clearTimeout(this.hideTabTimeout);
+        this.hideTabTimeout = null;
+      }
+    },
+    handleMouseLeave() {
+      this.hideTabTimeout = setTimeout(() => {
+        this.showTab = false;
+      }, 1500); // 마우스를 뗀 후 1.5초 후에 탭을 숨깁니다.
     }
   }
 };
@@ -115,38 +139,25 @@ export default {
   align-items: center;
   flex: 1; /* 남은 공간을 차지하도록 설정 */
   justify-content: flex-end; /* 오른쪽 정렬 */
+  margin-right: 0; /* 오른쪽 여백을 없앱니다 */
 }
 
 .button {
   background-color: #ffffff;
-  border: 1px solid #ebebeb;
   border-radius: 8px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 16px;
-  margin-right: 8px;
   cursor: pointer; /* 클릭 이벤트를 작동하게 하기 위해 커서를 포인터로 설정합니다. */
 }
 
 .button-popper {
   height: 40px;
   width: 40px;
-}
-
-.list-tab {
-  position: absolute;
-  top: 60px;
-  right: 20px;
-  background-color: #ffffff;
-  border: 1px solid #dddddd;
-  padding: 10px;
-}
-
-.profile-tab {
-  padding: 10px;
   cursor: pointer;
+  z-index: 1; /* 버튼이 다른 요소 위에 나타날 수 있도록 설정 */
 }
 
 .login-signup-button {
@@ -154,4 +165,29 @@ export default {
   width: 120px;
 }
 
+.tab-container {
+  position: fixed;
+  top: 49px; /* 상단에서 50px 떨어지도록 조정 */
+  right: 27px; /* 오른쪽 끝에서 30px 떨어지도록 조정 */
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* 상위 컴포넌트가 위에 있도록 설정 */
+}
+
+.tab-item {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab-item:last-child {
+  border-bottom: none; /* 마지막 아이템의 경계선을 제거 */
+}
+
+.tab-item:hover {
+  background-color: #f5f5f5;
+}
 </style>

@@ -4,14 +4,14 @@
       <div class="search">
         <div class="background-wrapper">
           <div class="background">
-            <img class="SVG" alt="Svg" src="SVG.svg" />
+            <img class="SVG" alt="Svg" src="../assets/Reading_glasses.svg" />
             <div class="input">
               <input type="text" v-model="searchKeyword" placeholder="원하시는 운동을 검색해보세요" />
             </div>
           </div>
-          <button class="button" @click="handleSearch">
-            <span class="button-text">검색</span>
-          </button>
+          <div class="button" @click="handleSearch">
+            <img class="main-search-button" src="../assets/Main_Search_Button.svg" />
+          </div>
         </div>
       </div>
     </div>
@@ -120,9 +120,12 @@ export default {
   font-family: "Inter-SemiBold", Helvetica;
   font-size: 15.1px;
   font-weight: 600;
+  cursor: pointer; /* 클릭 이벤트를 작동하게 하기 위해 커서를 포인터로 설정합니다. */
 }
 
-.button-text {
-  text-align: center;
+.main-search-button {
+  height: 40px;
+  width: 120px;
 }
+
 </style>
