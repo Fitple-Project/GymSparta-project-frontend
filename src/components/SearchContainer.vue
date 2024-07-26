@@ -104,6 +104,11 @@ export default {
   font-size: 15px;
   font-weight: 400;
   color: #c2c2c2;
+  outline: none; /* 검은색 테두리 제거 */
+}
+
+.input input[type="text"]:focus {
+  outline: none; /* 검은색 테두리 제거 */
 }
 
 .button {
@@ -127,5 +132,4 @@ export default {
   height: 40px;
   width: 120px;
 }
-
 </style>

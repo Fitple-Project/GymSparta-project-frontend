@@ -1,4 +1,3 @@
-<!-- src/components/LocationOn.vue -->
 <template>
   <div class="location-on">
     <img class="icon" alt="Icon" src="../assets/location_on.svg">
@@ -18,11 +17,11 @@ export default {
   width: 24px;
 }
 
-.location-on .icon{
+.location-on .icon {
   height: 20px;
   left: 5px;
   position: absolute;
   top: 2px;
   width: 14px;
 }
-</style>;
+</style>
