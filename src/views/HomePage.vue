@@ -1,14 +1,17 @@
 <template>
   <div>
+    <SearchContainer />
     <TrainerSection title="트레이너" :trainers="trainers" />
     <GymSection title="주변 운동시설" :gyms="gyms" />
     <GymSection title="최근 둘러본 운동시설" :gyms="recentGyms" />
+    <AppFooter />
   </div>
 </template>
 
 <script>
 import TrainerSection from "@/components/TrainerSection.vue";
 import GymSection from "@/components/GymSection.vue";
+import AppFooter from "@/components/AppFooter.vue";
 import mk1 from '@/assets/Gym_image/mk1.svg';
 import dy1 from '@/assets/Gym_image/dy1.svg';
 import h1 from '@/assets/Gym_image/h1.svg';
@@ -22,7 +25,8 @@ export default {
   name: "HomePage",
   components: {
     TrainerSection,
-    GymSection
+    GymSection,
+    AppFooter,
   },
   data() {
     return {
