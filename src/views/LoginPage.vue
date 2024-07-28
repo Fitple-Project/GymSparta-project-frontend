@@ -4,22 +4,22 @@
       <h1>로그인</h1>
       <div class="input-field">
         <label for="user-id">User ID</label>
-        <input type="text" id="user-id" placeholder="User ID" />
+        <input type="text" id="user-id" v-model="userId" placeholder="User ID" />
       </div>
       <div class="input-field">
         <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Password" />
+        <input type="password" id="password" v-model="password" placeholder="Password" />
       </div>
       <div class="additional-options">
         <div class="checkbox-wrapper">
-          <input type="checkbox" id="remember-me" />
+          <input type="checkbox" id="remember-me" v-model="rememberMe" />
           <label for="remember-me">자동 로그인</label>
         </div>
       </div>
-      <button class="login-button">로그인</button>
+      <button class="login-button" @click="handleLogin">로그인</button>
       <div class="links">
         <a href="#">아이디/비밀번호 찾기</a>
-        <a href="#">회원 가입</a>
+        <router-link to="/signup" class="signup-link">회원가입</router-link>
       </div>
     </div>
     <div class="spacer">
@@ -39,6 +39,24 @@
 <script>
 export default {
   name: "LoginPage",
+  data() {
+    return {
+      userId: "",
+      password: "",
+      rememberMe: false,
+    };
+  },
+  methods: {
+    handleLogin() {
+      // 로그인 처리를 위한 로직을 여기에 작성
+      if (this.userId && this.password) {
+        alert(`로그인 시도: ID - ${this.userId}, 비밀번호 - ${this.password}, 자동 로그인 - ${this.rememberMe}`);
+        // 실제 로그인 API 호출 등을 여기에 추가
+      } else {
+        alert("아이디와 비밀번호를 입력해주세요.");
+      }
+    },
+  },
 };
 </script>
 
@@ -130,7 +148,8 @@ input {
   margin-top: 20px;
 }
 
-.links a {
+.links a,
+.signup-link {
   font-size: 12px;
   color: #000000;
   text-decoration: none;
