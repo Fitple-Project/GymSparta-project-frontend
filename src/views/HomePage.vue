@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import SearchContainer from "@/components/SearchContainer.vue";
+
 import TrainerSection from "@/components/TrainerSection.vue";
 import GymSection from "@/components/GymSection.vue";
 import AppFooter from "@/components/AppFooter.vue";
@@ -24,6 +26,7 @@ import trainer4 from '@/assets/Trainer_image/Bumstead.svg';
 export default {
   name: "HomePage",
   components: {
+    SearchContainer,
     TrainerSection,
     GymSection,
     AppFooter,

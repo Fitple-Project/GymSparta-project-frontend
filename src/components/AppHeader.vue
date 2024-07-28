@@ -1,20 +1,18 @@
 <template>
-  <div>
-    <div class="header">
-      <div class="container">
-        <div class="logo" @click="goToMainPage">
-          <div class="div">Fitple</div>
+  <div class="header">
+    <div class="container">
+      <div class="logo" @click="goToMainPage">
+        <div class="div">Fitple</div>
+      </div>
+      <div v-if="showLocation" class="location-wrapper">
+        <LocationOn class="location-on" />
+        <div class="text-wrapper-2">강남구 논현동</div>
+      </div>
+      <div class="auth-menu">
+        <div class="button" @click="goToLoginPage">
+          <img class="login-signup-button" src="../assets/login_signup_Button.svg" />
         </div>
-        <div class="location-wrapper">
-          <LocationOn class="location-on" />
-          <div class="text-wrapper-2">강남구 논현동</div>
-        </div>
-        <div class="auth-menu">
-          <div class="button" @click="goToLoginPage">
-            <img class="login-signup-button" src="../assets/login_signup_Button.svg" />
-          </div>
-          <img class="button-popper" alt="Button popper" src="../assets/button-popper-element-button.svg" @click="toggleTab" />
-        </div>
+        <img class="button-popper" alt="Button popper" src="../assets/button-popper-element-button.svg" @click="toggleTab" />
       </div>
     </div>
     <div
@@ -45,6 +43,11 @@ export default {
       hideTabTimeout: null,
       tabLeft: 0,
     };
+  },
+  computed: {
+    showLocation() {
+      return this.$route.name === 'main';
+    }
   },
   methods: {
     toggleTab() {

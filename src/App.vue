@@ -1,21 +1,18 @@
 <template>
   <div id="app">
     <AppHeader />
-    <SearchContainer />
     <router-view />
   </div>
 </template>
 
 <script>
 import AppHeader from './components/AppHeader.vue';
-import SearchContainer from './components/SearchContainer.vue';
 
 export default {
   components: {
     AppHeader,
-    SearchContainer
-  }
-}
+  },
+};
 </script>
 
 <style>
