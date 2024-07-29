@@ -3,7 +3,10 @@ import HomePage from '@/views/HomePage.vue';
 import LoginPage from '@/views/LoginPage.vue';
 import SignupPage from '@/views/SignupPage.vue';
 import BusinessSignupPage from '@/views/BusinessSignupPage.vue';
-import StoreSearchPage from '@/views/StoreSearchPage.vue'; // 추가된 라우트
+import StoreSearchPage from '@/views/StoreSearchPage.vue';
+import TrainerComparePage from '@/views/TrainerComparePage.vue';
+import TrainerDetailPage from '@/views/TrainerDetailPage.vue';
+import TrainerReviewsPage from '@/views/TrainerReviewsPage.vue'; // TrainerReviewsPage 라우트 추가
 
 const routes = [
   {
@@ -27,9 +30,24 @@ const routes = [
     component: BusinessSignupPage,
   },
   {
-    path: '/store-search', // 매장 조회 페이지 경로 추가
+    path: '/store-search',
     name: 'store-search',
     component: StoreSearchPage,
+  },
+  {
+    path: '/trainer-compare',
+    name: 'trainer-compare',
+    component: TrainerComparePage,
+  },
+  {
+    path: '/trainer-detail/:id',
+    name: 'trainer-detail',
+    component: TrainerDetailPage,
+  },
+  {
+    path: '/trainer-detail/:id/reviews',
+    name: 'trainer-reviews',
+    component: TrainerReviewsPage,
   },
 ];
 
