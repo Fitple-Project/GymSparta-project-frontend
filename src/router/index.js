@@ -6,7 +6,9 @@ import BusinessSignupPage from '@/views/BusinessSignupPage.vue';
 import StoreSearchPage from '@/views/StoreSearchPage.vue';
 import TrainerComparePage from '@/views/TrainerComparePage.vue';
 import TrainerDetailPage from '@/views/TrainerDetailPage.vue';
-import TrainerReviewsPage from '@/views/TrainerReviewsPage.vue'; // TrainerReviewsPage 라우트 추가
+import TrainerReviewsPage from '@/views/TrainerReviewsPage.vue';
+import StoreManagementPage from "@/views/StoreManagementPage.vue";
+import MembershipPage from '@/views/MembershipPage.vue';
 
 const routes = [
   {
@@ -48,6 +50,16 @@ const routes = [
     path: '/trainer-detail/:id/reviews',
     name: 'trainer-reviews',
     component: TrainerReviewsPage,
+  },
+  {
+    path: "/store-management",
+    name: "store-management",
+    component: StoreManagementPage,
+  },
+  {
+    path: '/membership',
+    name: 'membership',
+    component: MembershipPage
   },
 ];
 
