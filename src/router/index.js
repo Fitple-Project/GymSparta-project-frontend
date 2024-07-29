@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HomePage from '@/views/HomePage.vue';
 import LoginPage from '@/views/LoginPage.vue';
 import SignupPage from '@/views/SignupPage.vue';
+import BusinessSignupPage from '@/views/BusinessSignupPage.vue'; // 추가된 라우트
 
 const routes = [
   {
@@ -18,6 +19,11 @@ const routes = [
     path: '/signup',
     name: 'signup',
     component: SignupPage,
+  },
+  {
+    path: '/business-signup',
+    name: 'business-signup',
+    component: BusinessSignupPage,
   },
 ];
 
