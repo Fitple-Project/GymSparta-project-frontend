@@ -5,8 +5,8 @@
         <div class="div">Fitple</div>
       </div>
       <div v-if="showLocation" class="location-wrapper">
-        <LocationOn class="location-on" />
-        <div class="text-wrapper-2">강남구 논현동</div>
+        <LocationOn class="location-on" @click="confirmLocationUpdate"/>
+        <div class="text-wrapper-2">{{ locationText }}</div>
       </div>
       <div class="auth-menu">
         <div class="button" @click="goToLoginPage">
@@ -30,7 +30,8 @@
 
 <script>
 import LocationOn from './LocationOn.vue';
-import router from '@/router'; // router를 임포트합니다.
+import router from '@/router';
+import { getCurrentLocation, getAddressFromCoordinates } from '@/utils/location';
 
 export default {
   name: "AppHeader",
@@ -42,6 +43,7 @@ export default {
       showTab: false,
       hideTabTimeout: null,
       tabLeft: 0,
+      locationText: '위치 불러오는 중...'
     };
   },
   computed: {
@@ -56,20 +58,16 @@ export default {
     },
     goToPage(page) {
       if (page === 'mypage') {
-        // 마이페이지로 이동하는 로직 추가
         alert('마이페이지로 이동합니다.');
       } else if (page === 'payment') {
-        // 결제내역 페이지로 이동하는 로직 추가
         alert('결제내역 페이지로 이동합니다.');
       }
-      this.showTab = false; // 탭을 숨깁니다.
+      this.showTab = false;
     },
     goToLoginPage() {
-      // 로그인 페이지로 이동하는 로직 추가
       router.push({ name: 'login' });
     },
     goToMainPage() {
-      // 메인 페이지로 이동하는 로직 추가
       router.push({ name: 'main' });
     },
     handleMouseOver() {
@@ -81,7 +79,7 @@ export default {
     handleMouseLeave() {
       this.hideTabTimeout = setTimeout(() => {
         this.showTab = false;
-      }, 1500); // 마우스를 뗀 후 1.5초 후에 탭을 숨깁니다.
+      }, 1500);
     },
     updateTabPosition() {
       const button = this.$el.querySelector('.button-popper');
@@ -89,10 +87,25 @@ export default {
         this.tabLeft = button.getBoundingClientRect().left;
       }
     },
+    async fetchLocation() {
+      try {
+        const { latitude, longitude } = await getCurrentLocation();
+        const address = await getAddressFromCoordinates(latitude, longitude);
+        this.locationText = address;
+      } catch (error) {
+        this.locationText = '위치 불러오기 실패';
+      }
+    },
+    confirmLocationUpdate() {
+      if (confirm('위치를 다시 조회하시겠습니까?')) {
+        this.fetchLocation();
+      }
+    }
   },
   mounted() {
     this.updateTabPosition();
     window.addEventListener('resize', this.updateTabPosition);
+    this.fetchLocation();
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.updateTabPosition);
@@ -101,37 +114,42 @@ export default {
 </script>
 
 <style scoped>
+@font-face {
+  font-family: "NanumGothic";
+  src: url("@/assets/fonts/NanumGothic.ttf") format("truetype");
+}
+
 .header {
   background-color: #ffffff;
   border-bottom: 2.5px solid #F26921;
   width: 100%;
-  position: fixed; /* 고정 위치 */
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000; /* 상위 컴포넌트가 위에 있도록 설정 */
+  z-index: 1000;
 }
 
 .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: 1200px; /* 컨테이너 너비를 줄입니다 */
+  max-width: 1200px;
   margin: 0 auto;
   height: 60px;
   padding: 0 20px;
   box-sizing: border-box;
-  position: relative; /* 부모 컨테이너를 상대 위치로 설정 */
+  position: relative;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  cursor: pointer; /* 클릭 가능하도록 커서를 포인터로 설정 */
+  cursor: pointer;
 }
 
 .div {
   color: #f26921;
-  font-family: "NanumGothic-ExtraBold", Helvetica;
+  font-family: "NanumGothic", sans-serif;
   font-size: 20px;
   font-weight: 800;
   white-space: nowrap;
@@ -148,30 +166,31 @@ export default {
 .location {
   display: flex;
   align-items: center;
-  margin-left: -8px; /* LocationOn 컴포넌트를 왼쪽으로 옮깁니다 */
+  margin-left: -8px;
 }
 
 .text-wrapper-2 {
   color: #000000;
-  font-family: "NanumGothic-ExtraBold", Helvetica;
-  font-size: 16px; /* 글씨 크기를 증가합니다 */
+  font-family: "NanumGothic", sans-serif;
+  font-size: 16px;
   font-weight: 800;
   white-space: nowrap;
-  margin-left: 4px; /* 글씨와 LocationOn 컴포넌트 간의 간격을 조정합니다 */
+  margin-left: 4px;
 }
 
 .location-on {
-  height: 26px;
-  width: 26px;
-  margin-right: -10px; /* LocationOn 컴포넌트를 오른쪽으로 옮깁니다 */
-  margin-top: 3px; /* 이미지의 위치를 조정합니다 */
+  height: 30px;
+  width: 30px;
+  margin-right: -10px;
+  margin-top: 5px;
+  cursor: pointer;
 }
 
 .auth-menu {
   display: flex;
   align-items: center;
-  justify-content: flex-end; /* 오른쪽 정렬 */
-  position: relative; /* 상대 위치 설정 */
+  justify-content: flex-end;
+  position: relative;
 }
 
 .button {
@@ -182,15 +201,15 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 0 16px;
-  cursor: pointer; /* 클릭 이벤트를 작동하게 하기 위해 커서를 포인터로 설정합니다. */
+  cursor: pointer;
 }
 
 .button-popper {
   height: 40px;
   width: 40px;
   cursor: pointer;
-  z-index: 1; /* 버튼이 다른 요소 위에 나타날 수 있도록 설정 */
-  position: relative; /* 버튼 위치를 상대적으로 설정 */
+  z-index: 1;
+  position: relative;
 }
 
 .login-signup-button {
@@ -200,13 +219,13 @@ export default {
 
 .tab-container {
   position: absolute;
-  top: 50px; /* 버튼 바로 밑으로 위치를 조정합니다 */
+  top: 50px;
   background-color: #ffffff;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1000; /* 상위 컴포넌트가 위에 있도록 설정 */
-  overflow: hidden; /* 탭 목록이 화면을 벗어나지 않도록 숨김 */
+  z-index: 1000;
+  overflow: hidden;
 }
 
 .tab-item {
@@ -214,11 +233,11 @@ export default {
   font-size: 16px;
   cursor: pointer;
   border-bottom: 1px solid #ddd;
-  white-space: nowrap; /* 텍스트가 잘리지 않도록 설정 */
+  white-space: nowrap;
 }
 
 .tab-item:last-child {
-  border-bottom: none; /* 마지막 아이템의 경계선을 제거 */
+  border-bottom: none;
 }
 
 .tab-item:hover {
@@ -227,8 +246,8 @@ export default {
 
 @media (max-width: 768px) {
   .tab-container {
-    width: auto; /* 탭 컨테이너가 화면에 맞게 자동 조정되도록 설정 */
-    right: 0; /* 오른쪽에 고정 */
+    width: auto;
+    right: 0;
   }
 }
 </style>

@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@googlemaps/js-api-loader": "^1.16.6",
     "core-js": "^3.8.3",
     "ldrs": "^1.0.2",
     "normalize.css": "^8.0.1",

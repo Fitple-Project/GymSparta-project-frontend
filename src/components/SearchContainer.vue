@@ -103,7 +103,7 @@ export default {
   font-family: "Inter-Regular", Helvetica;
   font-size: 15px;
   font-weight: 400;
-  color: #c2c2c2;
+  color: #000000;
   outline: none; /* 검은색 테두리 제거 */
 }
 
