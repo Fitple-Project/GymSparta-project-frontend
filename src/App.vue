@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <AppHeader />
-    <!-- 기타 내용 -->
+    <router-view />
   </div>
 </template>
 
@@ -10,9 +10,9 @@ import AppHeader from './components/AppHeader.vue';
 
 export default {
   components: {
-    AppHeader
-  }
-}
+    AppHeader,
+  },
+};
 </script>
 
 <style>
@@ -20,8 +20,7 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 60px; /* 헤더 높이만큼의 마진을 추가 */
 }
 </style>
