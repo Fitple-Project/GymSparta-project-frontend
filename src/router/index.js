@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import HomePage from '@/views/HomePage.vue';
 import LoginPage from '@/views/LoginPage.vue';
 import SignupPage from '@/views/SignupPage.vue';
-import BusinessSignupPage from '@/views/BusinessSignupPage.vue'; // 추가된 라우트
+import BusinessSignupPage from '@/views/BusinessSignupPage.vue';
+import StoreSearchPage from '@/views/StoreSearchPage.vue'; // 추가된 라우트
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
     path: '/business-signup',
     name: 'business-signup',
     component: BusinessSignupPage,
+  },
+  {
+    path: '/store-search', // 매장 조회 페이지 경로 추가
+    name: 'store-search',
+    component: StoreSearchPage,
   },
 ];
 
