@@ -9,6 +9,9 @@ import TrainerDetailPage from '@/views/TrainerDetailPage.vue';
 import TrainerReviewsPage from '@/views/TrainerReviewsPage.vue';
 import StoreManagementPage from "@/views/StoreManagementPage.vue";
 import MembershipPage from '@/views/MembershipPage.vue';
+import CartPage from '@/views/CartPage.vue';
+import PaymentsPage from '@/views/PaymentsPage.vue';
+import PaymentCompletePage from '@/views/PaymentCompletePage.vue';
 
 const routes = [
   {
@@ -60,6 +63,21 @@ const routes = [
     path: '/membership',
     name: 'membership',
     component: MembershipPage
+  },
+  {
+    path: '/cart',
+    name: 'cart',
+    component: CartPage
+  },
+  {
+    path: '/payments',
+    name: 'Payments',
+    component: PaymentsPage
+  },
+  {
+    path: '/payment-complete',
+    name: 'PaymentComplete',
+    component: PaymentCompletePage,
   },
 ];
 
