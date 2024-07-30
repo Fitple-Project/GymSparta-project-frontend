@@ -5,6 +5,14 @@ module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
     port: process.env.VUE_APP_PORT || 7070,
+    proxy: {
+    '/api': {
+        target: "http://localhost:8080",
+        changeOrigin:true,
+        pathRewrite: {
+          '^/api': ''}
+       }
+    }
   },
   configureWebpack: {
     plugins: [

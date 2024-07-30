@@ -21,8 +21,8 @@
           <img :src="store.image" alt="store image" class="store-image" />
           <div class="store-info">
             <h3>{{ store.name }}</h3>
-            <p>{{ store.location }}</p>
-            <p>{{ store.price }}</p>
+            <p>{{ store.address }}</p>
+            <p>{{ store.phoneNumber }}</p>
           </div>
         </div>
       </section>
@@ -99,6 +99,7 @@
 
 <script>
 import TrainerModal from '../components/TrainerModal.vue';
+import axios from 'axios';
 
 export default {
   components: {
@@ -106,51 +107,21 @@ export default {
   },
   data() {
     return {
-      activeSection: 'storeList',
-      isTrainerModalVisible: false,
-      trainerModalType: 'register',
-      stores: [
-        {
-          id: 1,
-          image: require('@/assets/Gym_image/dy1.svg'),
-          name: 'Fitple 헬스',
-          location: '서울특별시 강남구',
-          price: '40,000원~/월'
-        },
-        {
-          id: 2,
-          image: require('@/assets/Gym_image/h1.svg'),
-          name: '스파르타 짐',
-          location: '서울특별시 강남구',
-          price: '30,000원~/월'
-        }
-      ],
-      trainers: [
-        {
-          id: 1,
-          image: require('@/assets/Trainer_image/kim.svg'),
-          name: '이민수',
-          location: 'Fitple 헬스',
-          price: '40,000원~/회당'
-        },
-        {
-          id: 2,
-          image: require('@/assets/Trainer_image/Ronnie.svg'),
-          name: '김창수',
-          location: '스파르타 짐',
-          price: '50,000원~/회당'
-        }
-      ],
-      storeName: '',
-      storeAddress: '',
-      storeIntro: '',
-      services: '',
-      operatingHours: '',
-      phoneNumber: '',
-      membership: '',
-      ptSession: '',
-      trainerList: ''
-    };
+          activeSection: 'storeList',
+          isTrainerModalVisible: false,
+          trainerModalType: 'register',
+          stores: [],
+          trainers: [],
+          storeName: '',
+          storeAddress: '',
+          storeIntro: '',
+          services: '',
+          operatingHours: '',
+          phoneNumber: '',
+          membership: '',
+          ptSession: '',
+          trainerList: ''
+        };
   },
   methods: {
     changeSection(section) {
@@ -171,26 +142,28 @@ export default {
     },
     registerStore() {
       // 주석 처리하여 나중에 API 연결 시 사용할 수 있도록 함
-      // const payload = {
-      //   name: this.storeName,
-      //   address: this.storeAddress,
-      //   intro: this.storeIntro,
-      //   services: this.services,
-      //   operatingHours: this.operatingHours,
-      //   phoneNumber: this.phoneNumber,
-      //   membership: this.membership,
-      //   ptSession: this.ptSession,
-      //   trainerList: this.trainerList
-      // };
-      // axios.post('/api/stores/register', payload)
-      //   .then(response => {
-      //     // 성공 처리
-      //   })
-      //   .catch(error => {
-      //     // 에러 처리
-      //   });
-      alert('매장 등록이 완료되었습니다.');
-      this.clearStoreForm();
+       const payload = {
+         name: this.storeName,
+         address: this.storeAddress,
+         intro: this.storeIntro,
+         services: this.services,
+         operatingHours: this.operatingHours,
+         phoneNumber: this.phoneNumber,
+         membership: this.membership,
+         ptSession: this.ptSession,
+         trainerList: this.trainerList
+       };
+       axios.post('http://localhost:8080/stores/owners', payload)
+         .then(() => {
+           alert('매장 등록이 완료되었습니다');
+           this.clearStoreForm();
+           this.changeSection('storeList');
+           this.fetchStores();
+         })
+         .catch((error) => {
+           console.error(error);
+           alert('매장 등록 중 오류가 발생했습니다.');
+         });
     },
     cancelStoreRegistration() {
       alert('매장 등록이 취소되었습니다.');
@@ -206,9 +179,21 @@ export default {
       this.membership = '';
       this.ptSession = '';
       this.trainerList = '';
-    }
+    },
+    fetchStores() {
+          axios.get('http://localhost:8080/stores')
+            .then(response => {
+              this.stores = response.data;
+            })
+            .catch(error => {
+              console.error(error);
+            });
+        }
+  },
+  mounted() {
+    this.fetchStores();
   }
-};
+}
 </script>
 
 <style scoped>
