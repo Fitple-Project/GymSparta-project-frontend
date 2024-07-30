@@ -56,41 +56,41 @@
       <div class="fieldset">
         <div v-if="currentSection === 'terms'" class="horizontal-border"></div>
         <div class="input-group">
-          <label for="user-id">아이디</label>
+          <label for="user-id">아이디 <span class="required">*</span></label>
           <div class="id-input-wrapper">
-            <input type="text" id="user-id" placeholder="아이디 입력 (6~20자)" maxlength="20" />
+            <input type="text" id="user-id" placeholder="아이디 입력 (6~20자)" maxlength="20" v-model="userId" />
             <button class="black-button">아이디 확인</button>
           </div>
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="password">비밀번호</label>
+          <label for="password">비밀번호 <span class="required">*</span></label>
           <input type="password" id="password" v-model="password" placeholder="비밀번호 입력 (문자, 숫자, 특수문자 포함 8~20자)" @input="checkPasswords" />
         </div>
         <div class="input-group">
-          <label for="password-confirm">비밀번호 확인</label>
+          <label for="password-confirm">비밀번호 확인 <span class="required">*</span></label>
           <input type="password" id="password-confirm" v-model="passwordConfirm" placeholder="비밀번호 재입력" @input="checkPasswords" />
         </div>
         <div v-if="passwordError" class="error-message">{{ passwordError }}</div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="name">이름</label>
-          <input type="text" id="name" placeholder="이름을 입력해주세요." />
+          <label for="name">이름 <span class="required">*</span></label>
+          <input type="text" id="name" v-model="name" placeholder="이름을 입력해주세요." />
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="email">이메일</label>
-          <input type="email" id="email" placeholder="이메일을 입력해주세요." />
+          <label for="email">이메일 <span class="required">*</span></label>
+          <input type="email" id="email" v-model="email" placeholder="이메일을 입력해주세요." />
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
           <label for="phone">전화번호</label>
           <div class="phone-input-wrapper">
-            <input type="tel" id="phone" placeholder="‘-’ 제외 11자리 입력" maxlength="13" />
+            <input type="tel" id="phone" v-model="phone" placeholder="‘-’ 제외 11자리 입력" maxlength="13" />
             <button class="black-button">인증번호 발송</button>
           </div>
         </div>
@@ -104,13 +104,14 @@
           </div>
         </div>
       </div>
+      <div v-if="formError" class="error-message">{{ formError }}</div>
       <div class="buttons">
         <div class="extended-fab gray" @click="goToTerms">
           <div class="state-layer">
             <div class="label-text">뒤로</div>
           </div>
         </div>
-        <div class="extended-fab orange" @click="goToComplete" :disabled="passwordError">
+        <div class="extended-fab orange" @click="goToComplete" :disabled="formError">
           <div class="state-layer">
             <div class="label-text">가입 완료</div>
           </div>
@@ -155,10 +156,14 @@ export default {
       agreePrivacy: false,
       showModal: false,
       modalMessage: '',
+      userId: '',
       password: '',
       passwordConfirm: '',
       passwordError: '',
-      name: '', // 이름을 저장하기 위한 변수
+      name: '',
+      email: '',
+      phone: '',
+      formError: '',
     };
   },
   methods: {
@@ -186,6 +191,11 @@ export default {
         this.passwordError = '비밀번호가 일치하지 않습니다.';
         return;
       }
+      if (!this.userId || !this.password || !this.passwordConfirm || !this.name || !this.email) {
+        this.formError = '모든 필수 항목을 입력해주세요.';
+        return;
+      }
+      this.formError = '';
       this.name = document.getElementById('name').value; // 이름을 저장
       this.currentSection = 'complete';
     },
@@ -383,7 +393,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 70%; /* 너비를 70%로 줄임 */
+  width: 100%; /* 너비를 100%로 설정 */
 }
 
 .input-group label {
@@ -416,12 +426,9 @@ export default {
   gap: 10px; /* 버튼과 입력 필드 사이에 공간을 만듭니다 */
 }
 
-.id-input-wrapper input {
-  width: calc(100% - 130px); /* 버튼의 크기 고려 */
-}
-
+.id-input-wrapper input,
 .phone-input-wrapper input {
-  width: calc(100% - 130px); /* 버튼의 크기 고려 */
+  flex: 1;
 }
 
 .black-button {
