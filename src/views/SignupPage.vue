@@ -167,11 +167,40 @@ export default {
     };
   },
   methods: {
+    async registerUser() {
+      try {
+        const response = await fetch('http://localhost:8080/api/user/signup', { // 백엔드 포트 확인
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            accountId: this.userId,
+            password: this.password,
+            email: this.email,
+            phoneNumber: this.phone,
+            userName: this.name,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          this.currentSection = 'complete';
+        } else {
+          this.showModalMessage(data.message || '회원가입에 실패했습니다.');
+        }
+      } catch (error) {
+        this.showModalMessage('회원가입 중 오류가 발생했습니다.');
+      }
+    },
+
     toggleAll() {
       const newValue = this.agreeAll;
       this.agreeTerms = newValue;
       this.agreePrivacy = newValue;
     },
+
     handleNext() {
       if (!this.agreeTerms && !this.agreePrivacy) {
         this.showModalMessage('회원가입 약관에 모두 동의 해주세요.');
@@ -183,9 +212,7 @@ export default {
         this.currentSection = 'signup';
       }
     },
-    goToTerms() {
-      this.currentSection = 'terms';
-    },
+
     goToComplete() {
       if (this.password !== this.passwordConfirm) {
         this.passwordError = '비밀번호가 일치하지 않습니다.';
@@ -196,22 +223,30 @@ export default {
         return;
       }
       this.formError = '';
-      this.name = document.getElementById('name').value; // 이름을 저장
-      this.currentSection = 'complete';
+      this.registerUser();
     },
+
+    goToTerms() {
+      this.currentSection = 'terms';
+    },
+
     goToHomePage() {
-      this.$router.push({ name: 'main' }); // 'home' 대신 'main'으로 변경
+      this.$router.push({name: 'main'});
     },
+
     showModalMessage(message) {
       this.modalMessage = message;
       this.showModal = true;
     },
+
     closeModal() {
       this.showModal = false;
     },
+
     goToLoginPage() {
-      this.$router.push({ name: 'login' });
+      this.$router.push({name: 'login'});
     },
+
     checkPasswords() {
       if (this.password !== this.passwordConfirm) {
         this.passwordError = '비밀번호가 일치하지 않습니다.';
@@ -219,24 +254,8 @@ export default {
         this.passwordError = '';
       }
     },
-  },
-  watch: {
-    agreeTerms(val) {
-      if (!val) {
-        this.agreeAll = false;
-      } else if (this.agreePrivacy) {
-        this.agreeAll = true;
-      }
-    },
-    agreePrivacy(val) {
-      if (!val) {
-        this.agreeAll = false;
-      } else if (this.agreeTerms) {
-        this.agreeAll = true;
-      }
-    },
-  },
-};
+  }
+}
 </script>
 
 <style scoped>
