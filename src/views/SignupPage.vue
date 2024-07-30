@@ -200,7 +200,7 @@ export default {
       this.currentSection = 'complete';
     },
     goToHomePage() {
-      this.$router.push({ name: 'home' }); // 홈으로 이동하는 메소드
+      this.$router.push({ name: 'main' }); // 'home' 대신 'main'으로 변경
     },
     showModalMessage(message) {
       this.modalMessage = message;
