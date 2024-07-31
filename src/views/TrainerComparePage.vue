@@ -19,39 +19,32 @@
 export default {
   data() {
     return {
-      trainers: [
-        {
-          id: 1,
-          image: "image1.png", // 트레이너 이미지 경로
-          name: "이민수 선생님",
-          location: "서울특별시 ㅇㅇ구",
-          price: "40,000원~/회당"
-        },
-        {
-          id: 2,
-          image: "image2.png", // 트레이너 이미지 경로
-          name: "김창수 선생님",
-          location: "서울특별시 ㅇㅇ구",
-          price: "50,000원~/회당"
-        },
-        {
-          id: 3,
-          image: "image3.png", // 트레이너 이미지 경로
-          name: "박철수 선생님",
-          location: "서울특별시 ㅇㅇ구",
-          price: "35,000원~/회당"
-        },
-        {
-          id: 4,
-          image: "image4.png", // 트레이너 이미지 경로
-          name: "최승욱 선생님",
-          location: "서울특별시 ㅇㅇ구",
-          price: "60,000원~/회당"
-        }
-      ]
+      trainers: []
     };
   },
+  created() {
+    this.fetchTrainers();
+  },
   methods: {
+    async fetchTrainers() {
+      try {
+        const response = await fetch('http://localhost:8080/api/trainers', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        this.trainers = await response.json(); // 서버로부터 받은 데이터를 trainers 배열에 저장
+      } catch (error) {
+        console.error('Error fetching trainers:', error);
+      }
+    },
+
     trainerClicked(id) {
       console.log("Trainer clicked:", id);
       // 상세 페이지로 이동
