@@ -30,6 +30,12 @@ const routes = [
     component: SignupPage,
   },
   {
+
+    path: '/store/:id', // Add a dynamic route for store details
+    name: 'storeDetail',
+    component: StoreDetailPage,
+  },
+  {
     path: '/business-signup',
     name: 'business-signup',
     component: BusinessSignupPage,
