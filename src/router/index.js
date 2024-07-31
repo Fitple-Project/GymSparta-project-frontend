@@ -12,6 +12,8 @@ import MembershipPage from '@/views/MembershipPage.vue';
 import CartPage from '@/views/CartPage.vue';
 import PaymentsPage from '@/views/PaymentsPage.vue';
 import PaymentCompletePage from '@/views/PaymentCompletePage.vue';
+import StoreDetailPage from '@/views/StoreDetailPage.vue';
+import ProfilePage from "@/views/ProfilePage.vue"; // Import the StoreDetailPage component
 
 const routes = [
   {
@@ -78,6 +80,17 @@ const routes = [
     path: '/payment-complete',
     name: 'PaymentComplete',
     component: PaymentCompletePage,
+  },
+  {
+    path: '/store/:id', // Add a dynamic route for store details
+    name: 'storeDetail',
+    component: StoreDetailPage,
+  },
+
+  {
+    path: '/profile', // Add a dynamic route for store details
+    name: 'profile',
+    component: ProfilePage,
   },
 ];
 
