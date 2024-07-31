@@ -3,7 +3,7 @@
   <div class="membership-section">
     <div class="heading">
       <div class="heading-text">{{ title }}</div>
-      <div class="more-link">더보기</div>
+      <div class="more-link">더보기 </div>
     </div>
     <div class="membership-list">
       <img v-if="startIndex > 0" src="@/assets/Card_Next_Button.svg" class="card-prev-button" @click="scrollPrev" />

@@ -15,7 +15,7 @@
         />
       </div>
       <img v-if="startIndex + 5 < trainers.length" src="@/assets/Card_Next_Button.svg" class="card-next-button" @click="scrollNext" />
-    </div>
+    </div> 
   </div>
 </template>
 
