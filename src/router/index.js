@@ -13,6 +13,7 @@ import CartPage from '@/views/CartPage.vue';
 import PaymentsPage from '@/views/PaymentsPage.vue';
 import PaymentCompletePage from '@/views/PaymentCompletePage.vue';
 import StoreDetailPage from '@/views/StoreDetailPage.vue';
+import StoreReviewPage from '@/views/StoreReviewPage.vue';
 
 const routes = [
   {
@@ -31,10 +32,14 @@ const routes = [
     component: SignupPage,
   },
   {
-
     path: '/store/:id',
     name: 'storeDetail',
     component: StoreDetailPage,
+  },
+  {
+    path: '/store/:id/reviews',
+    name: 'storeReviews',
+    component: StoreReviewPage,
   },
   {
     path: '/business-signup',

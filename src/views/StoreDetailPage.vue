@@ -1,17 +1,46 @@
-<!-- src/views/StoreDetailPage.vue -->
+<template>
+  <div v-if="storeDetails" class="store-detail-page">
+    <div class="store-header">
+      <img :src="storeDetails.image" alt="Store Image" class="store-image" />
+      <h1 class="store-name">{{ storeDetails.name }}</h1>
+      <p class="store-rating">⭐ {{ storeDetails.rating }}</p>
+      <p class="store-location">{{ storeDetails.location }}</p>
+      <p class="store-phone">전화번호: {{ storeDetails.phone }}</p>
+    </div>
+    <div class="store-info">
+      <h2>회원권</h2>
+      <MembershipSection :memberships="storeDetails.memberships" @more-click="goToMembershipsPage"/>
+      <h2>1:1 P.T 상담</h2>
+      <TrainerSection :trainers="storeDetails.ptConsultations" title="PT 상담" @more-click="goToPtConsultationsPage"/>
+      <h2>운영 시간</h2>
+      <p class="operating-hours">{{ storeDetails.operatingHours }}</p>
+      <h2>부가 서비스</h2>
+      <ul class="additional-services">
+        <li v-for="service in storeDetails.additionalServices" :key="service">{{ service }}</li>
+      </ul>
+      <h2>리뷰</h2>
+      <ReviewSection :reviews="storeDetails.reviewscontents.slice(0, 3)" @more-click="goToReviewsPage" />
+    </div>
+  </div>
+  <div v-else>
+    <p>Loading...</p>
+  </div>
+</template>
+
 <script setup>
 import dy1 from '@/assets/Gym_image/dy1.svg';
 import hm1 from '@/assets/Gym_image/hm1.svg';
 import trainer1 from '@/assets/Trainer_image/kim.svg';
 import trainer2 from '@/assets/Trainer_image/hcs.svg';
 import trainer3 from '@/assets/Trainer_image/Ronnie.svg';
-import GymSection from '@/components/GymSection.vue';
+import TrainerSection from '@/components/TrainerSection.vue';
 import MembershipSection from '@/components/MembershipSection.vue';
 import ReviewSection from '@/components/ReviewSection.vue';
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import {ref, onMounted} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
 
 const route = useRoute();
+const router = useRouter();
 const storeDetails = ref(null);
 
 const fetchStoreDetails = async (id) => {
@@ -28,21 +57,21 @@ const fetchStoreDetails = async (id) => {
       reviews: '2,952명 평가',
       image: hm1,
       memberships: [
-        { name: '1개월 이용권', price: '29,000원' },
-        { name: '3개월 이용권', price: '80,000원' },
-        { name: '6개월 이용권', price: '150,000원' },
+        {name: '1개월 이용권', price: '29,000원'},
+        {name: '3개월 이용권', price: '80,000원'},
+        {name: '6개월 이용권', price: '150,000원'},
       ],
       ptConsultations: [
-        { id: 1, image: trainer1, name: '김트레이너', price: '100,000원' },
-        { id: 2, image: trainer2, name: '이트레이너', price: '120,000원' },
-        { id: 3, image: trainer3, name: '박트레이너', price: '150,000원' },
+        {id: 1, image: trainer1, name: '김트레이너', price: '100,000원'},
+        {id: 2, image: trainer2, name: '이트레이너', price: '120,000원'},
+        {id: 3, image: trainer3, name: '박트레이너', price: '150,000원'},
       ],
       operatingHours: '월-금: 06:00 - 22:00, 토-일: 08:00 - 20:00',
       additionalServices: ['라커', '수건', 'WiFi'],
       reviewscontents: [
-        { user: '홍길동', rating: '5', comment: '매우 만족합니다!', image: dy1 },
-        { user: '김철수', rating: '4', comment: '좋아요!', image: dy1 },
-        { user: '이영희', rating: '3', comment: '괜찮아요.', image: dy1 },
+        {user: '홍길동', rating: '5', comment: '매우 만족합니다!', image: dy1},
+        {user: '김철수', rating: '4', comment: '좋아요!', image: dy1},
+        {user: '이영희', rating: '3', comment: '괜찮아요.', image: dy1},
       ],
     },
   ];
@@ -53,36 +82,19 @@ const fetchStoreDetails = async (id) => {
 onMounted(() => {
   fetchStoreDetails(route.params.id);
 });
-</script>
 
-<template>
-  <div v-if="storeDetails" class="store-detail-page">
-    <div class="store-header">
-      <img :src="storeDetails.image" alt="Store Image" class="store-image" />
-      <h1 class="store-name">{{ storeDetails.name }}</h1>
-      <p class="store-rating">⭐ {{ storeDetails.rating }}</p>
-      <p class="store-location">{{ storeDetails.location }}</p>
-      <p class="store-phone">전화번호: {{ storeDetails.phone }}</p>
-    </div>
-    <div class="store-info">
-      <h2>회원권</h2>
-      <MembershipSection :memberships="storeDetails.memberships" />
-      <h2>1:1 P.T 상담</h2>
-      <GymSection :gyms="storeDetails.ptConsultations"/>
-      <h2>운영 시간</h2>
-      <p class="operating-hours">{{ storeDetails.operatingHours }}</p>
-      <h2>부가 서비스</h2>
-      <ul class="additional-services">
-        <li v-for="service in storeDetails.additionalServices" :key="service">{{ service }}</li>
-      </ul>
-      <h2>리뷰</h2>
-      <ReviewSection :reviews="storeDetails.reviewscontents.slice(0, 3)" />
-    </div>
-  </div>
-  <div v-else>
-    <p>Loading...</p>
-  </div>
-</template>
+const goToReviewsPage = () => {
+  router.push({name: 'storeReviews', params: {id: route.params.id}});
+};
+
+const goToMembershipsPage = () => {
+  // 여기에 회원권 페이지로 이동하는 로직을 추가합니다.
+};
+
+const goToPtConsultationsPage = () => {
+  // 여기에 PT 상담 페이지로 이동하는 로직을 추가합니다.
+};
+</script>
 
 <style scoped>
 .store-detail-page {
@@ -191,5 +203,12 @@ onMounted(() => {
   font-size: 1em;
   color: #666;
   margin: 8px 0;
+}
+
+.more-link {
+  color: blue;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
 }
 </style>
