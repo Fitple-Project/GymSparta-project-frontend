@@ -1,0 +1,10 @@
+:root {
+    --small-text-font-family: 'Inter-Medium', sans-serif;
+    --small-text-font-size: 16px;
+    --small-text-line-height: 150%;
+    --small-text-font-weight: 500;
+    --presets-body2-font-family: 'Inter-Regular', sans-serif;
+    --presets-body2-font-size: 16px;
+    --presets-body2-line-height: 24px;
+    --presets-body2-font-weight: 400;
+}

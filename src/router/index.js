@@ -14,6 +14,7 @@ import PaymentsPage from '@/views/PaymentsPage.vue';
 import PaymentCompletePage from '@/views/PaymentCompletePage.vue';
 import StoreDetailPage from '@/views/StoreDetailPage.vue';
 import StoreReviewPage from '@/views/StoreReviewPage.vue';
+import ProfilePage from "@/views/ProfilePage.vue";
 
 const routes = [
   {
@@ -90,6 +91,11 @@ const routes = [
     path: '/payment-complete',
     name: 'PaymentComplete',
     component: PaymentCompletePage,
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: ProfilePage,
   },
 ];
 

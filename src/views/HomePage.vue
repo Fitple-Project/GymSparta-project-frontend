@@ -10,7 +10,6 @@
 
 <script>
 import SearchContainer from "@/components/SearchContainer.vue";
-
 import TrainerSection from "@/components/TrainerSection.vue";
 import GymSection from "@/components/GymSection.vue";
 import AppFooter from "@/components/AppFooter.vue";
