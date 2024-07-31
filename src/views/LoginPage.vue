@@ -47,9 +47,32 @@ export default {
     };
   },
   methods: {
-    handleLogin() {
+    async handleLogin() {
       if (this.userId && this.password) {
-        alert(`로그인 시도: ID - ${this.userId}, 비밀번호 - ${this.password}, 자동 로그인 - ${this.rememberMe}`);
+        try {
+          const response = await fetch('http://localhost:8080/api/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              accountId: this.userId,
+              password: this.password,
+            }),
+          });
+
+          if (response.ok) {
+            // const data = await response.json(); // 이 부분을 제거합니다.
+            alert("로그인 성공");
+            this.$store.dispatch('setLoggedIn', true);  // Vuex 스토어에 로그인 상태 업데이트
+            this.$router.push({ path: '/' });  // 홈 페이지로 리디렉션
+          } else {
+            const errorData = await response.json();
+            alert("로그인 실패: " + (errorData.message || '알 수 없는 오류'));
+          }
+        } catch (error) {
+          alert("로그인 오류: " + error.message);
+        }
       } else {
         alert("아이디와 비밀번호를 입력해주세요.");
       }

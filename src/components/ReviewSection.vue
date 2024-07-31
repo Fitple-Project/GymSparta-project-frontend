@@ -1,9 +1,8 @@
-<!-- src/components/ReviewSection.vue -->
 <template>
   <div class="review-section">
     <div class="heading">
       <div class="heading-text">{{ title }}</div>
-      <div class="more-link">더보기 </div>
+      <div class="more-link" @click="$emit('more-click')">더보기</div>
     </div>
     <div class="review-list">
       <div v-for="review in reviews" :key="review.user" class="review-card">
