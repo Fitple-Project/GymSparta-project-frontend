@@ -30,6 +30,7 @@ const routes = [
     component: SignupPage,
   },
   {
+
     path: '/business-signup',
     name: 'business-signup',
     component: BusinessSignupPage,
