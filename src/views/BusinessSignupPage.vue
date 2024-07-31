@@ -2,17 +2,17 @@
   <div class="signup-page">
     <div v-if="currentSection === 'terms'" class="title-container">
       <div class="title">약관 동의</div>
-      <div class="subtitle">회원가입</div>
+      <div class="subtitle">비즈니스 회원가입</div>
       <div class="subtitle-complete">가입 완료</div>
     </div>
     <div v-if="currentSection === 'signup'" class="title-container">
       <div class="subtitle-terms">약관 동의</div>
-      <div class="title">회원가입</div>
+      <div class="title">비즈니스 회원가입</div>
       <div class="subtitle-complete">가입 완료</div>
     </div>
     <div v-if="currentSection === 'complete'" class="title-container complete-title-container">
       <div class="subtitle-terms">약관 동의</div>
-      <div class="subtitle">회원가입</div>
+      <div class="subtitle">비즈니스 회원가입</div>
       <div class="title">가입 완료</div>
     </div>
 
@@ -54,35 +54,61 @@
 
     <div v-if="currentSection === 'signup'" class="form signup-form">
       <div class="fieldset">
-        <div v-if="currentSection === 'terms'" class="horizontal-border"></div>
         <div class="input-group">
-          <label for="user-id">아이디 <span class="required">*</span></label>
+          <label for="business-name">상호명(법인명)</label>
+          <input type="text" id="business-name" v-model="businessName" placeholder="상호명(법인명)" required />
+        </div>
+      </div>
+      <div class="section signup-section">
+        <div class="input-group">
+          <label for="business-number">사업자등록번호</label>
+          <input type="text" id="business-number" v-model="businessNumber" placeholder="사업자등록번호" required />
+        </div>
+      </div>
+      <div class="section signup-section">
+        <div class="input-group">
+          <label for="postal-code">사업체 주소</label>
+          <div class="postal-code-wrapper">
+            <input type="text" id="postal-code" v-model="postalCode" placeholder="우편번호" required />
+            <button class="black-button" @click="searchAddress">주소 검색</button>
+          </div>
+        </div>
+        <div class="input-group">
+          <input type="text" id="main-address" v-model="mainAddress" placeholder="메인주소" required />
+        </div>
+        <div class="input-group">
+          <input type="text" id="detail-address" v-model="detailAddress" placeholder="상세주소" />
+        </div>
+      </div>
+      <div class="section signup-section">
+        <div class="input-group">
+          <label for="user-id">아이디</label>
           <div class="id-input-wrapper">
-            <input type="text" id="user-id" placeholder="아이디 입력 (6~20자)" maxlength="20" v-model="userId" />
+            <input type="text" id="user-id" v-model="userId" placeholder="아이디 입력 (6~20자)" maxlength="20" />
             <button class="black-button">아이디 확인</button>
           </div>
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="password">비밀번호 <span class="required">*</span></label>
+          <label for="password">비밀번호</label>
           <input type="password" id="password" v-model="password" placeholder="비밀번호 입력 (문자, 숫자, 특수문자 포함 8~20자)" @input="checkPasswords" />
         </div>
         <div class="input-group">
-          <label for="password-confirm">비밀번호 확인 <span class="required">*</span></label>
+          <label for="password-confirm">비밀번호 확인</label>
           <input type="password" id="password-confirm" v-model="passwordConfirm" placeholder="비밀번호 재입력" @input="checkPasswords" />
         </div>
         <div v-if="passwordError" class="error-message">{{ passwordError }}</div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="name">이름 <span class="required">*</span></label>
+          <label for="name">이름</label>
           <input type="text" id="name" v-model="name" placeholder="이름을 입력해주세요." />
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="email">이메일 <span class="required">*</span></label>
+          <label for="email">이메일</label>
           <input type="email" id="email" v-model="email" placeholder="이메일을 입력해주세요." />
         </div>
       </div>
@@ -99,19 +125,18 @@
         <div class="input-group">
           <label for="phone-verification">인증번호 확인</label>
           <div class="phone-input-wrapper">
-            <input type="text" id="phone-verification" placeholder="인증번호 입력" />
+            <input type="text" id="phone-verification" v-model="phoneVerification" placeholder="인증번호 입력" />
             <button class="black-button">인증번호 확인</button>
           </div>
         </div>
       </div>
-      <div v-if="formError" class="error-message">{{ formError }}</div>
       <div class="buttons">
         <div class="extended-fab gray" @click="goToTerms">
           <div class="state-layer">
             <div class="label-text">뒤로</div>
           </div>
         </div>
-        <div class="extended-fab orange" @click="goToComplete" :disabled="formError">
+        <div class="extended-fab orange" @click="goToComplete" :disabled="passwordError">
           <div class="state-layer">
             <div class="label-text">가입 완료</div>
           </div>
@@ -120,7 +145,7 @@
     </div>
 
     <div v-if="currentSection === 'complete'" class="complete-section">
-      <p>{{ name }}님의 회원가입이 완료되었습니다.<br />지금 바로 운동 시설을 이용해보세요!</p>
+      <p>{{ name }}님의 비즈니스 회원가입이 완료되었습니다.<br />지금 바로 서비스를 이용해보세요!</p>
       <div class="buttons">
         <div class="extended-fab home-button" @click="goToHomePage">
           <div class="state-layer">
@@ -147,7 +172,7 @@
 
 <script>
 export default {
-  name: 'SignupPage',
+  name: 'BusinessSignupPage',
   data() {
     return {
       currentSection: 'terms',
@@ -156,6 +181,11 @@ export default {
       agreePrivacy: false,
       showModal: false,
       modalMessage: '',
+      businessName: '',
+      businessNumber: '',
+      postalCode: '',
+      mainAddress: '',
+      detailAddress: '',
       userId: '',
       password: '',
       passwordConfirm: '',
@@ -163,44 +193,15 @@ export default {
       name: '',
       email: '',
       phone: '',
-      formError: '',
+      phoneVerification: '',
     };
   },
   methods: {
-    async registerUser() {
-      try {
-        const response = await fetch('http://localhost:8080/api/user/signup', { // 백엔드 포트 확인
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            accountId: this.userId,
-            password: this.password,
-            email: this.email,
-            phoneNumber: this.phone,
-            userName: this.name,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          this.currentSection = 'complete';
-        } else {
-          this.showModalMessage(data.message || '회원가입에 실패했습니다.');
-        }
-      } catch (error) {
-        this.showModalMessage('회원가입 중 오류가 발생했습니다.');
-      }
-    },
-
     toggleAll() {
       const newValue = this.agreeAll;
       this.agreeTerms = newValue;
       this.agreePrivacy = newValue;
     },
-
     handleNext() {
       if (!this.agreeTerms && !this.agreePrivacy) {
         this.showModalMessage('회원가입 약관에 모두 동의 해주세요.');
@@ -212,41 +213,58 @@ export default {
         this.currentSection = 'signup';
       }
     },
-
+    goToTerms() {
+      this.currentSection = 'terms';
+    },
     goToComplete() {
       if (this.password !== this.passwordConfirm) {
         this.passwordError = '비밀번호가 일치하지 않습니다.';
         return;
       }
-      if (!this.userId || !this.password || !this.passwordConfirm || !this.name || !this.email) {
-        this.formError = '모든 필수 항목을 입력해주세요.';
-        return;
-      }
-      this.formError = '';
-      this.registerUser();
-    },
+      this.name = document.getElementById('name').value; // 이름을 저장
+      this.currentSection = 'complete';
 
-    goToTerms() {
-      this.currentSection = 'terms';
-    },
+      const signupData = {
+        businessName: this.businessName,
+        businessNumber: this.businessNumber,
+        postalCode: this.postalCode,
+        mainAddress: this.mainAddress,
+        detailAddress: this.detailAddress,
+        userId: this.userId,
+        password: this.password,
+        name: this.name,
+        email: this.email,
+        phone: this.phone,
+      };
 
+      console.log('회원가입 데이터:', signupData);
+
+      // 예시: 실제 API 호출
+      // axios.post('/api/signup', signupData)
+      //   .then(response => {
+      //     console.log('회원가입 성공:', response.data);
+      //   })
+      //   .catch(error => {
+      //     console.error('회원가입 실패:', error);
+      //   });
+    },
+    searchAddress() {
+      // 주소 검색 로직을 여기에 추가하세요.
+      alert('주소 검색 기능이 구현되어야 합니다.');
+    },
     goToHomePage() {
-      this.$router.push({name: 'main'});
+      this.$router.push({ name: 'home' }); // 홈으로 이동하는 메소드
     },
-
     showModalMessage(message) {
       this.modalMessage = message;
       this.showModal = true;
     },
-
     closeModal() {
       this.showModal = false;
     },
-
     goToLoginPage() {
-      this.$router.push({name: 'login'});
+      this.$router.push({ name: 'login' });
     },
-
     checkPasswords() {
       if (this.password !== this.passwordConfirm) {
         this.passwordError = '비밀번호가 일치하지 않습니다.';
@@ -254,8 +272,24 @@ export default {
         this.passwordError = '';
       }
     },
-  }
-}
+  },
+  watch: {
+    agreeTerms(val) {
+      if (!val) {
+        this.agreeAll = false;
+      } else if (this.agreePrivacy) {
+        this.agreeAll = true;
+      }
+    },
+    agreePrivacy(val) {
+      if (!val) {
+        this.agreeAll = false;
+      } else if (this.agreeTerms) {
+        this.agreeAll = true;
+      }
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -263,10 +297,11 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 100px;
+  padding-top: 20px; /* 간격 조정 */
+  padding-bottom: 20px; /* 하단 패딩 추가 */
   height: 100vh;
   background-color: #f7f7f7;
-  overflow: hidden; /* 스크롤 비활성화 */
+  overflow-y: auto; /* 스크롤 가능하게 변경 */
 }
 
 .title-container {
@@ -277,8 +312,6 @@ export default {
   border-bottom: 2px solid #3D435F;
   display: flex;
   justify-content: space-around;
-  position: fixed;
-  top: 100px;
 }
 
 .complete-title-container {
@@ -338,7 +371,7 @@ export default {
 
 .fieldset {
   position: relative;
-  height: 58.23px;
+  height: auto;
   margin-bottom: 20px;
 }
 
@@ -412,7 +445,8 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 100%; /* 너비를 100%로 설정 */
+  width: 70%; /* 너비를 70%로 설정 */
+  margin-bottom: 15px; /* 입력 필드 간격 조정 */
 }
 
 .input-group label {
@@ -432,22 +466,25 @@ export default {
   border-radius: 5px;
   font-family: 'NanumGothic', sans-serif;
   font-size: 14px;
-  color: #b0b0b0;
+  color: #000000;
   outline: none; /* outline 제거 */
   box-shadow: none; /* box-shadow 제거 */
 }
 
 .id-input-wrapper,
-.phone-input-wrapper {
+.phone-input-wrapper,
+.postal-code-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 10px; /* 버튼과 입력 필드 사이에 공간을 만듭니다 */
+  width: 100%; /* 전체 너비를 사용 */
 }
 
 .id-input-wrapper input,
-.phone-input-wrapper input {
-  flex: 1;
+.phone-input-wrapper input,
+.postal-code-wrapper input {
+  width: calc(70% - 10px); /* 버튼의 크기 고려하여 70%로 설정 */
 }
 
 .black-button {
