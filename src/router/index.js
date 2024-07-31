@@ -14,6 +14,16 @@ import PaymentsPage from '@/views/PaymentsPage.vue';
 import PaymentCompletePage from '@/views/PaymentCompletePage.vue';
 import StoreDetailPage from '@/views/StoreDetailPage.vue';
 import ProfilePage from "@/views/ProfilePage.vue"; // Import the StoreDetailPage component
+import BusinessSignupPage from '@/views/BusinessSignupPage.vue';
+import StoreSearchPage from '@/views/StoreSearchPage.vue';
+import TrainerComparePage from '@/views/TrainerComparePage.vue';
+import TrainerDetailPage from '@/views/TrainerDetailPage.vue';
+import TrainerReviewsPage from '@/views/TrainerReviewsPage.vue';
+import StoreManagementPage from "@/views/StoreManagementPage.vue";
+import MembershipPage from '@/views/MembershipPage.vue';
+import CartPage from '@/views/CartPage.vue';
+import PaymentsPage from '@/views/PaymentsPage.vue';
+import PaymentCompletePage from '@/views/PaymentCompletePage.vue';
 
 const routes = [
   {
@@ -82,15 +92,60 @@ const routes = [
     component: PaymentCompletePage,
   },
   {
+
     path: '/store/:id', // Add a dynamic route for store details
     name: 'storeDetail',
     component: StoreDetailPage,
   },
-
   {
-    path: '/profile', // Add a dynamic route for store details
-    name: 'profile',
-    component: ProfilePage,
+    path: '/business-signup',
+    name: 'business-signup',
+    component: BusinessSignupPage,
+  },
+  {
+    path: '/store-search',
+    name: 'store-search',
+    component: StoreSearchPage,
+  },
+  {
+    path: '/trainer-compare',
+    name: 'trainer-compare',
+    component: TrainerComparePage,
+  },
+  {
+    path: '/trainer-detail/:id',
+    name: 'trainer-detail',
+    component: TrainerDetailPage,
+  },
+  {
+    path: '/trainer-detail/:id/reviews',
+    name: 'trainer-reviews',
+    component: TrainerReviewsPage,
+  },
+  {
+    path: "/store-management",
+    name: "store-management",
+    component: StoreManagementPage,
+  },
+  {
+    path: '/membership',
+    name: 'membership',
+    component: MembershipPage
+  },
+  {
+    path: '/cart',
+    name: 'cart',
+    component: CartPage
+  },
+  {
+    path: '/payments',
+    name: 'Payments',
+    component: PaymentsPage
+  },
+  {
+    path: '/payment-complete',
+    name: 'PaymentComplete',
+    component: PaymentCompletePage,
   },
 ];
 
