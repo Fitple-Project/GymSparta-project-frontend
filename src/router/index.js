@@ -14,7 +14,8 @@ import PaymentsPage from '@/views/PaymentsPage.vue';
 import PaymentCompletePage from '@/views/PaymentCompletePage.vue';
 import StoreDetailPage from '@/views/StoreDetailPage.vue';
 import StoreReviewPage from '@/views/StoreReviewPage.vue';
-import ProfilePage from "@/views/ProfilePage.vue";
+import UserProfilePage from '@/views/UserProfilePage.vue';
+import OwnerProfilePage from '@/views/OwnerProfilePage.vue';
 
 const routes = [
   {
@@ -93,9 +94,14 @@ const routes = [
     component: PaymentCompletePage,
   },
   {
-    path: '/profile',
+    path: '/profile/:userId',
     name: 'profile',
-    component: ProfilePage,
+    component: UserProfilePage,
+  },
+  {
+    path: '/owner-profile',
+    name: 'ownerProfile',
+    component: OwnerProfilePage,
   },
 ];
 
