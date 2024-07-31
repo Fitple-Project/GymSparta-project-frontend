@@ -31,7 +31,7 @@
       <img src="@/assets/Login_Button/Google_Button.svg" alt="구글 로그인" class="social-button" />
     </div>
     <div class="business-login">
-      <a href="#" class="business-login-link">비즈니스 로그인/회원가입</a>
+      <button @click="goToBusinessSignupPage" class="business-login-link">비즈니스 회원가입</button>
     </div>
   </div>
 </template>
@@ -48,14 +48,15 @@ export default {
   },
   methods: {
     handleLogin() {
-      // 로그인 처리를 위한 로직을 여기에 작성
       if (this.userId && this.password) {
         alert(`로그인 시도: ID - ${this.userId}, 비밀번호 - ${this.password}, 자동 로그인 - ${this.rememberMe}`);
-        // 실제 로그인 API 호출 등을 여기에 추가
       } else {
         alert("아이디와 비밀번호를 입력해주세요.");
       }
     },
+    goToBusinessSignupPage() {
+      this.$router.push({ name: 'business-signup' });
+    }
   },
 };
 </script>
@@ -76,7 +77,7 @@ export default {
   border-radius: 10px;
   width: 300px;
   text-align: center;
-  margin-bottom: 20px; /* 로그인 섹션과 소셜 로그인 섹션 사이의 간격 */
+  margin-bottom: 20px;
 }
 
 h1 {
@@ -107,8 +108,8 @@ input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px; /* 위로 조금 이동 */
-  margin-top: -10px; /* 위로 조금 이동 */
+  margin-bottom: 10px;
+  margin-top: -10px;
 }
 
 .checkbox-wrapper {
@@ -116,18 +117,17 @@ input {
   align-items: center;
   font-family: 'NanumGothic';
   font-weight: 700;
-  font-size: 13px; /* 폰트 크기 조정 */
+  font-size: 13px;
   line-height: 13px;
   color: #FF8500;
-  text-decoration: none;
 }
 
 .checkbox-wrapper input {
-  margin-right: 5px; /* 위치 조정 */
+  margin-right: 5px;
 }
 
 .checkbox-wrapper label {
-  white-space: nowrap; /* 텍스트 한 줄로 유지 */
+  white-space: nowrap;
 }
 
 .login-button {
@@ -138,8 +138,8 @@ input {
   border-radius: 5px;
   cursor: pointer;
   width: 100%;
-  margin-bottom: 20px; /* 로그인 버튼과 아래 링크 사이의 간격 */
-  margin-top: 20px; /* 로그인 버튼과 아래 링크 사이의 간격 */
+  margin-bottom: 20px;
+  margin-top: 20px;
 }
 
 .links {
@@ -165,11 +165,11 @@ input {
 .social-login-buttons {
   display: flex;
   flex-direction: column;
-  gap: 15px; /* 소셜 로그인 버튼 사이의 간격 */
+  gap: 15px;
 }
 
 .social-button {
-  width: 300px; /* 로그인 박스와 동일한 너비 */
+  width: 300px;
   cursor: pointer;
 }
 
@@ -178,8 +178,11 @@ input {
 }
 
 .business-login-link {
+  background: none;
+  border: none;
   font-size: 14px;
   color: #0000EE;
+  cursor: pointer;
   text-decoration: none;
 }
 </style>
