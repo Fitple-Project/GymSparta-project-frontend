@@ -13,8 +13,11 @@ import CartPage from '@/views/CartPage.vue';
 import PaymentsPage from '@/views/PaymentsPage.vue';
 import PaymentCompletePage from '@/views/PaymentCompletePage.vue';
 import StoreDetailPage from '@/views/StoreDetailPage.vue';
-import ProfilePage from "@/views/ProfilePage.vue";
-
+import StoreReviewPage from '@/views/StoreReviewPage.vue';
+import UserProfilePage from '@/views/UserProfilePage.vue';
+import OwnerProfilePage from '@/views/OwnerProfilePage.vue';
+import StoreEditPage from '@/views/StoreEditPage.vue';
+import TrainerEditPage from '@/views/TrainerEditPage.vue';
 
 const routes = [
   {
@@ -36,6 +39,11 @@ const routes = [
     path: '/store/:id',
     name: 'storeDetail',
     component: StoreDetailPage,
+  },
+  {
+    path: '/store/:id/reviews',
+    name: 'storeReviews',
+    component: StoreReviewPage,
   },
   {
     path: '/business-signup',
@@ -88,9 +96,24 @@ const routes = [
     component: PaymentCompletePage,
   },
   {
-    path: '/profile',
+    path: '/profile/:userId',
     name: 'profile',
-    component: ProfilePage,
+    component: UserProfilePage,
+  },
+  {
+    path: '/profile/:ownerId',
+    name: 'ownerProfile',
+    component: OwnerProfilePage,
+  },
+  {
+    path: '/store/owner/:id',
+    name: 'storeedit',
+    component: StoreEditPage,
+  },
+  {
+    path: '/trainer/owner/:id',
+    name: 'traineredit',
+    component: TrainerEditPage,
   },
 ];
 
