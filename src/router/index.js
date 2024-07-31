@@ -16,6 +16,8 @@ import StoreDetailPage from '@/views/StoreDetailPage.vue';
 import StoreReviewPage from '@/views/StoreReviewPage.vue';
 import UserProfilePage from '@/views/UserProfilePage.vue';
 import OwnerProfilePage from '@/views/OwnerProfilePage.vue';
+import StoreEditPage from '@/views/StoreEditPage.vue';
+import TrainerEditPage from '@/views/TrainerEditPage.vue';
 
 const routes = [
   {
@@ -99,9 +101,19 @@ const routes = [
     component: UserProfilePage,
   },
   {
-    path: '/owner-profile',
+    path: '/profile/:ownerId',
     name: 'ownerProfile',
     component: OwnerProfilePage,
+  },
+  {
+    path: '/store/owner/:id',
+    name: 'storeedit',
+    component: StoreEditPage,
+  },
+  {
+    path: '/trainer/owner/:id',
+    name: 'traineredit',
+    component: TrainerEditPage,
   },
 ];
 
