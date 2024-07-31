@@ -12,6 +12,7 @@ import MembershipPage from '@/views/MembershipPage.vue';
 import CartPage from '@/views/CartPage.vue';
 import PaymentsPage from '@/views/PaymentsPage.vue';
 import PaymentCompletePage from '@/views/PaymentCompletePage.vue';
+import StoreDetailPage from '@/views/StoreDetailPage.vue';
 
 const routes = [
   {
@@ -31,7 +32,7 @@ const routes = [
   },
   {
 
-    path: '/store/:id', // Add a dynamic route for store details
+    path: '/store/:id',
     name: 'storeDetail',
     component: StoreDetailPage,
   },
