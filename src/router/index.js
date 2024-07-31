@@ -15,6 +15,7 @@ import PaymentCompletePage from '@/views/PaymentCompletePage.vue';
 import StoreDetailPage from '@/views/StoreDetailPage.vue';
 import ProfilePage from "@/views/ProfilePage.vue";
 
+
 const routes = [
   {
     path: '/',
@@ -32,7 +33,7 @@ const routes = [
     component: SignupPage,
   },
   {
-    path: '/store/:id', // Add a dynamic route for store details
+    path: '/store/:id',
     name: 'storeDetail',
     component: StoreDetailPage,
   },
