@@ -64,9 +64,7 @@ export default {
   },
   methods: {
     cardClicked(id) {
-      console.log("Card clicked:", id);
-      // 여기서 id를 이용해 상세 페이지로 이동할 수 있도록 라우팅 로직 추가
-      // this.$router.push({ name: 'store-detail', params: { id } });
+      this.$router.push({ name: 'storeDetail', params: { id } });
     }
   }
 };
@@ -98,6 +96,11 @@ export default {
   align-items: center;
   padding: 0 14px;
   margin-top: 20px;
+}
+
+.search-input {
+  display: flex;
+  flex: 1;
 }
 
 .search-input input {
