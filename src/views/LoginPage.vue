@@ -37,6 +37,8 @@
 </template>
 
 <script>
+import eventBus from '@/eventBus';
+
 export default {
   name: "LoginPage",
   data() {
@@ -62,10 +64,11 @@ export default {
           });
 
           if (response.ok) {
-            // const data = await response.json(); // 이 부분을 제거합니다.
+            const data = await response.json();
             alert("로그인 성공");
-            this.$store.dispatch('setLoggedIn', true);  // Vuex 스토어에 로그인 상태 업데이트
-            this.$router.push({ path: '/' });  // 홈 페이지로 리디렉션
+            localStorage.setItem('accessToken', data.data.accessToken);
+            eventBus.emit('login');
+            this.$router.push({ path: '/' });
           } else {
             const errorData = await response.json();
             alert("로그인 실패: " + (errorData.message || '알 수 없는 오류'));
@@ -81,6 +84,14 @@ export default {
       this.$router.push({ name: 'business-signup' });
     }
   },
+  beforeRouteEnter (to, from, next) {
+    const isLoggedIn = !!localStorage.getItem('accessToken');
+    if (isLoggedIn) {
+      next({ name: 'main' });
+    } else {
+      next();
+    }
+  }
 };
 </script>
 
