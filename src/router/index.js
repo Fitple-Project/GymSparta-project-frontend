@@ -47,32 +47,32 @@ const routes = [
   },
   {
     path: '/business/signup',
-    name: 'business/signup',
+    name: 'business-signup',
     component: BusinessSignupPage,
   },
   {
     path: '/store/search',
-    name: 'store/search',
+    name: 'store-search',
     component: StoreSearchPage,
   },
   {
     path: '/trainer/compare',
-    name: 'trainer/compare',
+    name: 'trainer-compare',
     component: TrainerComparePage,
   },
   {
     path: '/trainer/detail/:id',
-    name: 'trainer/detail',
+    name: 'trainer-detail',
     component: TrainerDetailPage,
   },
   {
     path: '/trainer/detail/:id/reviews',
-    name: 'trainer/reviews',
+    name: 'trainer-reviews',
     component: TrainerReviewsPage,
   },
   {
     path: "/store/management",
-    name: "store/management",
+    name: "store-management",
     component: StoreManagementPage,
   },
   {
@@ -96,12 +96,12 @@ const routes = [
     component: PaymentCompletePage,
   },
   {
-    path: '/profile/:userId',
+    path: '/profile/user/:userId',
     name: 'profile',
     component: UserProfilePage,
   },
   {
-    path: '/profile/:ownerId',
+    path: '/profile/owner/:ownerId',
     name: 'ownerProfile',
     component: OwnerProfilePage,
   },

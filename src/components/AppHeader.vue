@@ -27,6 +27,7 @@
     >
       <div class="tab-item" @click="goToPage('mypage')">마이페이지</div>
       <div class="tab-item" @click="goToPage('payment')">결제내역</div>
+      <div class="tab-item" @click="handleDeleteAccount">회원탈퇴</div>
     </div>
   </div>
 </template>
@@ -135,6 +136,36 @@ export default {
       } catch (error) {
         alert(`로그아웃 오류: ${error.message}`);
       }
+    },
+    async handleDeleteAccount() {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        alert("로그인 먼저 해주세요.");
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:8080/api/profile/owners/signout', {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          localStorage.removeItem('accessToken');
+          this.isLoggedIn = false;
+          eventBus.emit('logout');
+          alert("회원탈퇴 성공");
+          router.push({ name: 'main' });
+        } else {
+          const errorData = await response.json();
+          alert(`회원탈퇴 실패: ${errorData.message || '알 수 없는 오류'}`);
+        }
+      } catch (error) {
+        alert(`회원탈퇴 오류: ${error.message}`);
+      }
     }
   },
   created() {
@@ -159,7 +190,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 @font-face {
