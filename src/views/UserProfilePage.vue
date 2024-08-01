@@ -21,41 +21,41 @@
         <div class="profile">
           <div class="avatar"></div>
           <div class="frame">
-            <div class="nickname">닉네임</div>
+            <div class="nickname">{{ user.nickname }}</div>
             <div class="batch">Java_5기</div>
           </div>
         </div>
         <div class="input-group">
           <div class="username">Username</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input type="text" class="label" v-model="user.username" />
           </div>
         </div>
         <div class="input-group">
           <div class="nickname">Nickname</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input type="text" class="label" v-model="user.nickname" />
           </div>
         </div>
         <div class="input-group">
           <div class="input-title">Input title</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input type="text" class="label" v-model="user.zipcode" />
           </div>
         </div>
         <div class="input-group">
           <div class="phone-number">Phone Number</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input type="text" class="label" v-model="user.phoneNumber" />
           </div>
         </div>
         <div class="input-list">
           <div class="address">Address</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input type="text" class="label" v-model="user.mainAddress" />
           </div>
           <div class="field">
-            <div class="label">Label</div>
+            <input type="text" class="label" v-model="user.detailedAddress" />
           </div>
         </div>
         <div class="input-group">
@@ -190,10 +190,17 @@ export default {
       showDeleteModal: false,
       showEditModal: false,
       profileData: {},
-      userId: 1, // 예시로 사용자 ID를 설정
-      currentView: 'profile', // 초기 뷰 설정
+      user: {
+        nickname: '',
+        username: '',
+        zipcode: '',
+        phoneNumber: '',
+        mainAddress: '',
+        detailedAddress: ''
+      },
       oldPassword: '',
       newPassword: '',
+      currentView: 'profile', // 초기 뷰 설정
       searchTerm: '',
       currentEditId: null,
       currentEditContent: '',
@@ -207,6 +214,9 @@ export default {
       ],
       filteredReviews: [],
     };
+  },
+  created() {
+    this.fetchUserProfile();
   },
   computed: {
     filteredPayments() {
@@ -240,7 +250,49 @@ export default {
     searchPayments() {
       // 필터링은 computed를 통해 이미 수행되고 있으므로 추가 로직 불필요
     },
-    editProfile() {
+    async fetchUserProfile() {
+      try {
+        const response = await fetch('http://localhost:8080/api/profile/user', {
+          // TODO: 헤더에서 토큰 값 가져오기 구현
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZWwxMjEiLCJpYXQiOjE3MjI0ODk4NDEsImV4cCI6MTcyMjQ5MTY0MX0.V7sq4F0F6DTXSvERKQ1iUsRrxcUWQajaW5CizGQsYEq'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        this.user = await response.json();
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    },
+    async editProfile() {
+      try {
+        const response = await fetch('http://localhost:8080/api/profile/user', {
+          // TODO: 헤더에서 토큰 값 가져오기 구현
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZWwxMjEiLCJpYXQiOjE3MjI0NjE0ODEsImV4cCI6MTcyMjQ2MzI4MX0.O8CeQ1ev4O6oHAgI1uWedY1njopRxNopSNQgJ38dChg'
+          },
+          body: JSON.stringify({
+            nickname: this.user.nickname,
+            zipcode: this.user.zipcode,
+            mainAddress: this.user.mainAddress,
+            detailedAddress: this.user.detailedAddress,
+            password: 'ael121667'
+          }),
+        });
+
+        if (response.ok) {
+          this.currentSection = 'complete';
+        }
+      } catch (error) {
+        this.showModalMessage('프로필 수정 중 오류가 발생했습니다.');
+      }
       // 프로필 수정 로직
       // this.$axios.post('/api/profile/edit', this.profileData)
       //   .then(response => {
