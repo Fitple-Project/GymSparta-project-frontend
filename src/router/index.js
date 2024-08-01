@@ -7,7 +7,6 @@ import StoreSearchPage from '@/views/StoreSearchPage.vue';
 import TrainerComparePage from '@/views/TrainerComparePage.vue';
 import TrainerDetailPage from '@/views/TrainerDetailPage.vue';
 import TrainerReviewsPage from '@/views/TrainerReviewsPage.vue';
-import StoreManagementPage from "@/views/StoreManagementPage.vue";
 import MembershipPage from '@/views/MembershipPage.vue';
 import CartPage from '@/views/CartPage.vue';
 import PaymentsPage from '@/views/PaymentsPage.vue';
@@ -18,6 +17,7 @@ import UserProfilePage from '@/views/UserProfilePage.vue';
 import OwnerProfilePage from '@/views/OwnerProfilePage.vue';
 import StoreEditPage from '@/views/StoreEditPage.vue';
 import TrainerEditPage from '@/views/TrainerEditPage.vue';
+import StoreManagementPage from '@/views/StoreManagementPage.vue';
 
 const routes = [
   {
@@ -46,33 +46,33 @@ const routes = [
     component: StoreReviewPage,
   },
   {
-    path: '/business-signup',
-    name: 'business-signup',
+    path: '/business/signup',
+    name: 'business/signup',
     component: BusinessSignupPage,
   },
   {
-    path: '/store-search',
-    name: 'store-search',
+    path: '/store/search',
+    name: 'store/search',
     component: StoreSearchPage,
   },
   {
-    path: '/trainer-compare',
-    name: 'trainer-compare',
+    path: '/trainer/compare',
+    name: 'trainer/compare',
     component: TrainerComparePage,
   },
   {
-    path: '/trainer-detail/:id',
-    name: 'trainer-detail',
+    path: '/trainer/detail/:id',
+    name: 'trainer/detail',
     component: TrainerDetailPage,
   },
   {
-    path: '/trainer-detail/:id/reviews',
-    name: 'trainer-reviews',
+    path: '/trainer/detail/:id/reviews',
+    name: 'trainer/reviews',
     component: TrainerReviewsPage,
   },
   {
-    path: "/store-management",
-    name: "store-management",
+    path: "/store/management",
+    name: "store/management",
     component: StoreManagementPage,
   },
   {
@@ -91,7 +91,7 @@ const routes = [
     component: PaymentsPage
   },
   {
-    path: '/payment-complete',
+    path: '/payment/complete',
     name: 'PaymentComplete',
     component: PaymentCompletePage,
   },
@@ -120,6 +120,16 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const isLoggedIn = !!localStorage.getItem('accessToken');
+
+  if (to.matched.some(record => record.meta.requiresGuest) && isLoggedIn) {
+    next({ name: 'main' });
+  } else {
+    next();
+  }
 });
 
 export default router;
