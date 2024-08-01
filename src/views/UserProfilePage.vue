@@ -28,50 +28,47 @@
         <div class="input-group">
           <div class="username">Username</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.username" class="label" placeholder="Enter Username" />
           </div>
         </div>
         <div class="input-group">
           <div class="nickname">Nickname</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.nickname" class="label" placeholder="Enter Nickname" />
           </div>
         </div>
         <div class="input-group">
-          <div class="input-title">Input title</div>
+          <div class="input-title">Email</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.email" class="label" placeholder="Enter Email" />
           </div>
         </div>
         <div class="input-group">
           <div class="phone-number">Phone Number</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.phoneNumber" class="label" placeholder="Enter Phone Number" />
           </div>
         </div>
         <div class="input-list">
           <div class="address">Address</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.address" class="label" placeholder="Enter Address" />
           </div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.detailAddress" class="label" placeholder="Enter Detail Address" />
           </div>
         </div>
         <div class="input-group">
           <div class="confirm-password">Confirm Password</div>
-          <div class="field confirm-password-field">
-            <div class="label">Label</div>
+          <div class="confirm-password-field">
+            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />
+            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />
             <button @click="showPasswordModal = true" class="change-button">변경</button>
           </div>
         </div>
         <div class="buttons">
           <button @click="editProfile" class="edit-button">수정</button>
-          <!-- 프로필 수정 API 연결 예시 -->
-          <!-- this.$axios.post('/api/profile/edit', this.profileData) -->
           <button @click="showDeleteModal = true" class="delete-button">회원탈퇴</button>
-          <!-- 회원탈퇴 API 연결 예시 -->
-          <!-- this.$axios.post('/api/profile/delete', { userId: this.userId }) -->
         </div>
       </div>
       <div v-if="currentView === 'payments'" class="payments-view">
@@ -147,8 +144,6 @@
         <div class="modal-footer">
           <button @click="showPasswordModal = false" class="cancel-button">취소</button>
           <button @click="confirmPasswordChange" class="confirm-button">확인</button>
-          <!-- 비밀번호 변경 API 연결 예시 -->
-          <!-- this.$axios.post('/api/password/change', { oldPassword: this.oldPassword, newPassword: this.newPassword }) -->
         </div>
       </div>
     </div>
@@ -164,12 +159,9 @@
         <div class="modal-footer">
           <button @click="showDeleteModal = false" class="cancel-button">취소</button>
           <button @click="confirmDeleteAccount" class="confirm-button">확인</button>
-          <!-- 회원탈퇴 API 연결 예시 -->
-          <!-- this.$axios.post('/api/profile/delete', { userId: this.userId }) -->
         </div>
       </div>
     </div>
-    <!-- 수정 모달 -->
     <div id="editModal" class="modal" v-if="showEditModal">
       <div class="modal-content">
         <span class="close" @click="showEditModal = false">&times;</span>
@@ -182,6 +174,8 @@
 </template>
 
 <script>
+import eventBus from '@/eventBus';
+
 export default {
   name: 'UserProfilePage',
   data() {
@@ -189,33 +183,64 @@ export default {
       showPasswordModal: false,
       showDeleteModal: false,
       showEditModal: false,
-      profileData: {},
-      userId: 1, // 예시로 사용자 ID를 설정
-      currentView: 'profile', // 초기 뷰 설정
+      profileData: {
+        username: '',
+        nickname: '',
+        email: '',
+        phoneNumber: '',
+        address: '',
+        detailAddress: '',
+        password: '',
+        confirmPassword: ''
+      },
+      userId: 1,
+      currentView: 'profile',
       oldPassword: '',
       newPassword: '',
       searchTerm: '',
       currentEditId: null,
       currentEditContent: '',
       payments: [],
-      reviews: [
-        { id: 1, type: 'gym', target: '파워짐', content: '시설이 깨끗하고 넓어서 좋아요.', date: '2023-05-01' },
-        { id: 2, type: 'trainer', target: '김철수 트레이너', content: '친절하고 전문적인 지도를 해주십니다.', date: '2023-05-02' },
-        { id: 3, type: 'gym', target: '헬스월드', content: '24시간 운영이라 편리해요.', date: '2023-05-03' },
-        { id: 4, type: 'trainer', target: '박영희 트레이너', content: '맞춤형 운동 프로그램을 짜주셔서 효과적이에요.', date: '2023-05-04' },
-        { id: 5, type: 'gym', target: '피트니스팩토리', content: '다양한 운동기구가 있어서 좋아요.', date: '2023-05-05' }
-      ],
-      filteredReviews: [],
+      reviews: [{
+        id: 1,
+        type: 'gym',
+        target: '파워짐',
+        content: '시설이 깨끗하고 넓어서 좋아요.',
+        date: '2023-05-01'
+      }, {
+        id: 2,
+        type: 'trainer',
+        target: '김철수 트레이너',
+        content: '친절하고 전문적인 지도를 해주십니다.',
+        date: '2023-05-02'
+      }, {
+        id: 3,
+        type: 'gym',
+        target: '헬스월드',
+        content: '24시간 운영이라 편리해요.',
+        date: '2023-05-03'
+      }, {
+        id: 4,
+        type: 'trainer',
+        target: '박영희 트레이너',
+        content: '맞춤형 운동 프로그램을 짜주셔서 효과적이에요.',
+        date: '2023-05-04'
+      }, {
+        id: 5,
+        type: 'gym',
+        target: '피트니스팩토리',
+        content: '다양한 운동기구가 있어서 좋아요.',
+        date: '2023-05-05'
+      }],
+      filteredReviews: []
     };
   },
   computed: {
     filteredPayments() {
-      return this.payments.filter((payment) => {
-        return Object.values(payment).some((value) =>
-            typeof value === 'string' && value.toLowerCase().includes(this.searchTerm.toLowerCase())
-        );
+      return this.payments.filter(payment => {
+        return Object.values(payment).some(value => typeof value === 'string' && value.toLowerCase().includes(this.searchTerm.toLowerCase()));
       });
-    },
+    }
   },
   methods: {
     changeView(view) {
@@ -251,14 +276,33 @@ export default {
       //   });
     },
     deleteAccount() {
-      // 회원탈퇴 로직
-      // this.$axios.post('/api/profile/delete', { userId: this.userId })
-      //   .then(response => {
-      //     console.log('Account deleted successfully');
-      //   })
-      //   .catch(error => {
-      //     console.error('Error deleting account:', error);
-      //   });
+      const token = localStorage.getItem('accessToken'); // localStorage에서 토큰을 가져옵니다.
+      if (!token) {
+        alert("로그인 먼저 해주세요.");
+        return;
+      }
+
+      fetch('http://localhost:8080/api/profile/users/signout', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }).then(response => {
+        if (response.ok) {
+          alert('회원탈퇴가 완료되었습니다.');
+          localStorage.removeItem('accessToken');
+          eventBus.emit('logout');
+          this.$router.push({
+            name: 'main'
+          });
+        } else {
+          response.json().then(data => {
+            alert(`회원탈퇴 실패: ${data.message}`);
+          });
+        }
+      }).catch(error => {
+        alert(`회원탈퇴 실패: ${error.message}`);
+      });
     },
     confirmPasswordChange() {
       // 비밀번호 변경 로직
@@ -272,14 +316,7 @@ export default {
       this.showPasswordModal = false;
     },
     confirmDeleteAccount() {
-      // 회원탈퇴 로직
-      // this.$axios.post('/api/profile/delete', { userId: this.userId })
-      //   .then(response => {
-      //     console.log('Account deleted successfully');
-      //   })
-      //   .catch(error => {
-      //     console.error('Error deleting account:', error);
-      //   });
+      this.deleteAccount();
       this.showDeleteModal = false;
     },
     filterReviews(type) {
@@ -302,7 +339,7 @@ export default {
         this.reviews.splice(index, 1);
         this.filterReviews('all');
       }
-    },
+    }
   },
   mounted() {
     this.filteredReviews = this.reviews;
@@ -472,10 +509,14 @@ export default {
   font-size: 16px;
   line-height: 24px;
   color: #000000;
+  border: none;
+  outline: none;
 }
 
 .confirm-password-field {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
   justify-content: space-between;
 }
 
