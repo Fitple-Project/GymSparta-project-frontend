@@ -20,9 +20,9 @@
         <div class="store-card" v-for="store in stores" :key="store.id" @click="storeClicked(store.id)">
           <img :src="store.image" alt="store image" class="store-image" />
           <div class="store-info">
-            <h3>{{ store.name }}</h3>
-            <p>{{ store.address }}</p>
-            <p>{{ store.phoneNumber }}</p>
+            <h3>{{ store.store_name }}</h3>
+            <p>{{ store.store_address }}</p>
+            <p class="store-price">{{ store.price }}원~/월</p>
           </div>
         </div>
       </section>
@@ -79,6 +79,10 @@
           <textarea id="membership" v-model="membership" placeholder="등록할 회원권의 기간과 가격을 입력하세요"></textarea>
         </div>
         <div class="form-field">
+            <label for="price">가격</label>
+            <input type="text" id="price" v-model="price" placeholder="가격을 입력하세요" />
+          </div>
+        <div class="form-field">
           <label for="ptSession">PT 세션</label>
           <textarea id="ptSession" v-model="ptSession" placeholder="등록할 PT 세션의 내용을 입력하세요"></textarea>
         </div>
@@ -99,7 +103,6 @@
 
 <script>
 import TrainerModal from '../components/TrainerModal.vue';
-import axios from 'axios';
 
 export default {
   components: {
@@ -107,23 +110,27 @@ export default {
   },
   data() {
     return {
-          activeSection: 'storeList',
-          isTrainerModalVisible: false,
-          trainerModalType: 'register',
-          stores: [],
-          trainers: [],
-          storeName: '',
-          storeAddress: '',
-          storeIntro: '',
-          services: '',
-          operatingHours: '',
-          phoneNumber: '',
-          membership: '',
-          ptSession: '',
-          trainerList: ''
-        };
+      activeSection: 'storeList',
+      isTrainerModalVisible: false,
+      trainerModalType: 'register',
+      stores: [],
+      trainers: [],
+      storeName: '',
+      storeAddress: '',
+      storeIntro: '',
+      services: '',
+      operatingHours: '',
+      phoneNumber: '',
+      membership: '',
+      ptSession: '',
+      trainerList: '',
+      price: '',
+    };
   },
   methods: {
+    getAuthToken() {
+      return localStorage.getItem('Authorization');
+    },
     changeSection(section) {
       this.activeSection = section;
     },
@@ -135,64 +142,102 @@ export default {
       this.isTrainerModalVisible = false;
     },
     storeClicked(storeId) {
-      alert(`Store ID: ${storeId} 클릭됨`);
+      console.log('Store ID:', storeId); // 디버그용 로그 추가
+      if (!storeId) {
+        console.error('Store ID is undefined or null');
+        return;
+      }
+      this.$router.push({ name: 'storeedit', params: { id: storeId } });
     },
     goToTrainerDetail(trainerId) {
       this.$router.push({ name: 'trainer-detail', params: { id: trainerId } });
     },
     registerStore() {
-      // 주석 처리하여 나중에 API 연결 시 사용할 수 있도록 함
-       const payload = {
-         name: this.storeName,
-         address: this.storeAddress,
-         intro: this.storeIntro,
-         services: this.services,
-         operatingHours: this.operatingHours,
-         phoneNumber: this.phoneNumber,
-         membership: this.membership,
-         ptSession: this.ptSession,
-         trainerList: this.trainerList
-       };
-       axios.post('http://localhost:8080/stores/owners', payload)
-         .then(() => {
-           alert('매장 등록이 완료되었습니다');
-           this.clearStoreForm();
-           this.changeSection('storeList');
-           this.fetchStores();
-         })
-         .catch((error) => {
-           console.error(error);
-           alert('매장 등록 중 오류가 발생했습니다.');
-         });
+      const payload = {
+        storeName: this.storeName || null,
+        address: this.storeAddress || null,
+        storeInfo: this.storeIntro || null,
+        storeHour: this.operatingHours || null,
+        storeTel: this.phoneNumber || null,
+        services: this.services ? this.services.split(',') : [],
+        memberships: this.membership ? this.membership.split('\n') : [],
+        ptConsultations: this.ptSession ? this.ptSession.split('\n') : [],
+        trainerList: this.trainerList ? this.trainerList.split(',') : [],
+        price: this.price || null,
+      };
+
+      fetch('http://localhost:8080/api/stores/owners', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.getAuthToken()}`
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('매장 등록 중 오류가 발생했습니다.');
+          }
+          return response.json();
+        })
+        .then(() => {
+          alert('매장 등록이 완료되었습니다');
+          this.clearStoreForm();
+          this.changeSection('storeList');
+          this.fetchStores();
+        })
+        .catch((error) => {
+          console.error(error);
+          alert('매장 등록 중 오류가 발생했습니다.');
+        });
     },
-    cancelStoreRegistration() {
-      alert('매장 등록이 취소되었습니다.');
-      this.clearStoreForm();
-    },
-    clearStoreForm() {
-      this.storeName = '';
-      this.storeAddress = '';
-      this.storeIntro = '';
-      this.services = '';
-      this.operatingHours = '';
-      this.phoneNumber = '';
-      this.membership = '';
-      this.ptSession = '';
-      this.trainerList = '';
-    },
+
     fetchStores() {
-          axios.get('http://localhost:8080/stores')
-            .then(response => {
-              this.stores = response.data;
-            })
-            .catch(error => {
-              console.error(error);
-            });
+      console.log('Fetching stores...');
+
+      fetch(`http://localhost:8080/api/stores/owners`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.getAuthToken()}`,
+          'Content-Type': 'application/json'
         }
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Fetched stores:', data); // 서버 응답 데이터 로그 출력
+
+          if (data.data && Array.isArray(data.data)) {
+            // 서버에서 반환된 데이터를 Vue 상태에 저장
+            this.stores = data.data.map(store => {
+              console.log('Store:', store); // 각 매장 데이터 로그 출력
+              console.log('Store price:', store.price); // 가격 속성 로그 출력
+              return {
+                id: store.storeId, // 서버에서 반환된 데이터 속성 이름 확인
+                store_name: store.storeName, // 서버에서 반환된 데이터 속성 이름 확인
+                store_address: store.storeAddress, // 서버에서 반환된 데이터 속성 이름 확인
+                price: store.storePrice || 'N/A', // 가격 속성 매핑 확인
+                image: store.image || 'default-image-url' // 이미지가 없을 경우 기본 이미지 사용
+              };
+            });
+            console.log('Mapped stores:', this.stores);
+          } else {
+            console.error('Unexpected data format:', data);
+          }
+        })
+        .catch(error => {
+          console.error('There has been a problem with your fetch operation:', error);
+        });
+    }
   },
   mounted() {
     this.fetchStores();
   }
+
 }
 </script>
 
@@ -254,11 +299,12 @@ export default {
 .trainer-card {
   display: flex;
   padding: 20px;
-  background: #f1f1f1;
-  border: 1px solid #ebebeb;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
   margin-bottom: 20px;
   cursor: pointer;
+  position: relative;
 }
 
 .store-card .store-image,

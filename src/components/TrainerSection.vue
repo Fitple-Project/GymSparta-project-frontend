@@ -15,7 +15,7 @@
         />
       </div>
       <img v-if="startIndex + 5 < trainers.length" src="@/assets/Card_Next_Button.svg" class="card-next-button" @click="scrollNext" />
-    </div> 
+    </div>
   </div>
 </template>
 
@@ -34,7 +34,7 @@ export default {
     },
     trainers: {
       type: Array,
-      required: true
+      default: () => []  // 기본값을 빈 배열로 설정
     }
   },
   data() {
@@ -44,6 +44,9 @@ export default {
   },
   computed: {
     visibleTrainers() {
+      if (!Array.isArray(this.trainers)) {
+        return []; // trainers가 배열이 아닐 경우 빈 배열 반환
+      }
       return this.trainers.slice(this.startIndex, this.startIndex + 5);
     }
   },

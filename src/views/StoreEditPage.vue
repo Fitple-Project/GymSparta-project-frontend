@@ -1,33 +1,41 @@
 <template>
   <div v-if="storeDetails" class="store-edit-page">
     <div class="store-header">
-      <img :src="storeDetails.image" alt="Store Image" class="store-image" />
-      <h1 class="store-name">{{ storeDetails.name }}</h1>
-      <p class="store-rating">⭐ {{ storeDetails.rating }}</p>
-      <p class="store-location">{{ storeDetails.location }}</p>
-      <p class="store-phone">전화번호: {{ storeDetails.phone }}</p>
+      <img :src="storeDetails.image || 'default-image-url'" alt="매장 이미지" class="store-image" />
+      <div class="store-info-header">
+        <h1 class="store-name">{{ storeDetails.storeName }}</h1>
+        <p class="store-rating">⭐ {{ storeDetails.rating }}</p>
+        <p class="store-location">{{ storeDetails.address }}</p>
+        <p class="store-phone">전화번호: {{ storeDetails.storeTel }}</p>
+      </div>
     </div>
     <div class="store-info">
-      <h2>회원권</h2>
-      <MembershipSection :memberships="storeDetails.memberships" @more-click="goToMembershipsPage"/>
-      <h2>1:1 P.T 상담</h2>
-      <TrainerSection :trainers="storeDetails.ptConsultations" title="PT 상담" @more-click="goToPtConsultationsPage"/>
-      <h2>운영 시간</h2>
-      <p class="operating-hours">{{ storeDetails.operatingHours }}</p>
-      <h2>부가 서비스</h2>
-      <ul class="additional-services">
-        <li v-for="service in storeDetails.additionalServices" :key="service">{{ service }}</li>
-      </ul>
-      <h2>리뷰</h2>
-      <ReviewSection :reviews="storeDetails.reviewscontents.slice(0, 3)" @more-click="goToReviewsPage" />
+      <div class="section">
+        <h2>회원권</h2>
+        <MembershipSection :title="'회원권'" :memberships="storeDetails.memberships" @more-click="goToMembershipsPage" />
+      </div>
+      <div class="section">
+        <h2>1:1 P.T 상담</h2>
+        <TrainerSection :trainers="storeDetails.ptConsultations" title="PT 상담" @more-click="goToPtConsultationsPage" />
+      </div>
+      <div class="section">
+        <h2>운영 시간</h2>
+        <p class="operating-hours">{{ storeDetails.storeHour }}</p>
+      </div>
+      <div class="section">
+        <h2>부가 서비스</h2>
+        <ul class="additional-services">
+          <li v-for="service in storeDetails.services" :key="service">{{ service }}</li>
+        </ul>
+      </div>
+      <div class="section">
+        <h2>리뷰</h2>
+        <ReviewSection :reviews="(storeDetails.reviews || []).slice(0, 3)" @more-click="goToReviewsPage" />
+      </div>
     </div>
     <div class="buttons">
-      <button @click="editStore" class="edit-button">수정</button>
-      <!-- 매장 수정 API 연결 예시 -->
-      <!-- this.$axios.post('/api/store/edit', this.storeDetails) -->
+      <button @click="goToEditPage" class="edit-button">수정</button>
       <button @click="deleteStore" class="delete-button">삭제</button>
-      <!-- 매장 삭제 API 연결 예시 -->
-      <!-- this.$axios.post('/api/store/delete', { storeId: this.storeDetails.id }) -->
     </div>
   </div>
   <div v-else>
@@ -36,59 +44,59 @@
 </template>
 
 <script setup>
-import dy1 from '@/assets/Gym_image/dy1.svg';
-import hm1 from '@/assets/Gym_image/hm1.svg';
-import trainer1 from '@/assets/Trainer_image/kim.svg';
-import trainer2 from '@/assets/Trainer_image/hcs.svg';
-import trainer3 from '@/assets/Trainer_image/Ronnie.svg';
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import TrainerSection from '@/components/TrainerSection.vue';
 import MembershipSection from '@/components/MembershipSection.vue';
 import ReviewSection from '@/components/ReviewSection.vue';
-import { ref, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
 const storeDetails = ref(null);
 
-const fetchStoreDetails = async (id) => {
-  const stores = [
-    {
-      id: 1,
-      name: '휴메이크휘트니스 논현점',
-      location: '서울 강남구 강남대로 546 지하2층',
-      phone: '02-123-4567',
-      info: '헬스 이용권',
-      price: '29,000~100,000원',
-      originalPrice: '',
-      rating: '4.6',
-      reviews: '2,952명 평가',
-      image: hm1,
-      memberships: [
-        { name: '1개월 이용권', price: '29,000원' },
-        { name: '3개월 이용권', price: '80,000원' },
-        { name: '6개월 이용권', price: '150,000원' },
-      ],
-      ptConsultations: [
-        { id: 1, image: trainer1, name: '김트레이너', price: '100,000원' },
-        { id: 2, image: trainer2, name: '이트레이너', price: '120,000원' },
-        { id: 3, image: trainer3, name: '박트레이너', price: '150,000원' },
-      ],
-      operatingHours: '월-금: 06:00 - 22:00, 토-일: 08:00 - 20:00',
-      additionalServices: ['라커', '수건', 'WiFi'],
-      reviewscontents: [
-        { user: '홍길동', rating: '5', comment: '매우 만족합니다!', image: dy1 },
-        { user: '김철수', rating: '4', comment: '좋아요!', image: dy1 },
-        { user: '이영희', rating: '3', comment: '괜찮아요.', image: dy1 },
-      ],
-    },
-  ];
+const getAuthToken = () => {
+  return localStorage.getItem('Authorization');
+};
 
-  storeDetails.value = stores.find(store => store.id === parseInt(id));
+const fetchStoreDetails = async (id) => {
+  try {
+    console.log('Fetching store details for ID:', id);
+    const response = await fetch(`http://localhost:8080/api/stores/owners/${id}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${getAuthToken()}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log('Fetched store details:', data);
+
+    const memberships = data.data.memberships.map(membership => ({
+      name: membership,
+      price: 'N/A'  // 가격을 지정할 수 없기 때문에 N/A로 설정
+    }));
+
+    storeDetails.value = {
+      ...data.data,
+      memberships: memberships
+    };
+
+    console.log('Transformed store details:', storeDetails.value);
+  } catch (error) {
+    console.error('매장 정보를 가져오는 중 오류 발생:', error);
+  }
 };
 
 onMounted(() => {
-  fetchStoreDetails(route.params.id);
+  const id = route.params.id;
+  if (id) {
+    fetchStoreDetails(id);
+  } else {
+    console.error('매장 ID가 존재하지 않습니다.');
+  }
 });
 
 const goToReviewsPage = () => {
@@ -96,33 +104,44 @@ const goToReviewsPage = () => {
 };
 
 const goToMembershipsPage = () => {
-  // 여기에 회원권 페이지로 이동하는 로직을 추가합니다.
+  // 회원권 페이지로 이동하는 코드 작성
 };
 
 const goToPtConsultationsPage = () => {
-  // 여기에 PT 상담 페이지로 이동하는 로직을 추가합니다.
+  // PT 상담 페이지로 이동하는 코드 작성
 };
 
-const editStore = () => {
-  // 매장 수정 API 연결 예시
-  // this.$axios.post('/api/store/edit', storeDetails.value)
-  //   .then(response => {
-  //     console.log('Store updated successfully');
-  //   })
-  //   .catch(error => {
-  //     console.error('Error updating store:', error);
-  //   });
+const goToEditPage = () => {
+  router.push({ name: 'store-update', params: { id: route.params.id } });
 };
 
-const deleteStore = () => {
-  // 매장 삭제 API 연결 예시
-  // this.$axios.post('/api/store/delete', { storeId: storeDetails.value.id })
-  //   .then(response => {
-  //     console.log('Store deleted successfully');
-  //   })
-  //   .catch(error => {
-  //     console.error('Error deleting store:', error);
-  //   });
+const deleteStore = async () => {
+  try {
+    const response = await fetch(`http://localhost:8080/api/stores/owners/${route.params.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${getAuthToken()}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (response.ok) {
+      console.log('매장 삭제 성공');
+      alert('매장이 성공적으로 삭제되었습니다.');
+      router.push({ name: 'store-management' }).then(() => {
+              const storeManagementPage = router.currentRoute.value.matched.find(
+                route => route.name === 'store-management'
+              )?.instances.default;
+              if (storeManagementPage) {
+                storeManagementPage.changeSection('storeList');
+              }
+            });
+    } else {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('매장 삭제 중 오류 발생:', error);
+    alert('매장 삭제 중 오류가 발생했습니다.');
+  }
 };
 </script>
 
@@ -139,13 +158,6 @@ const deleteStore = () => {
 .store-header {
   text-align: center;
   padding: 20px;
-}
-
-.current-location {
-  text-align: center;
-  margin: 20px 0;
-  font-size: 1.2em;
-  color: #666;
 }
 
 .store-image {
@@ -192,19 +204,6 @@ const deleteStore = () => {
   box-sizing: border-box;
 }
 
-.membership-name,
-.pt-trainer {
-  font-size: 1.2em;
-  margin-bottom: 8px;
-}
-
-.membership-price,
-.pt-price {
-  font-size: 1em;
-  color: #666;
-  text-align: right;
-}
-
 .operating-hours {
   font-size: 1em;
   color: #666;
@@ -219,20 +218,6 @@ const deleteStore = () => {
   font-size: 1em;
   color: #666;
   margin-bottom: 8px;
-}
-
-.review-image {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-}
-
-.review-user,
-.review-rating,
-.review-comment {
-  font-size: 1em;
-  color: #666;
-  margin: 8px 0;
 }
 
 .buttons {
@@ -255,6 +240,49 @@ const deleteStore = () => {
 
 .edit-button:hover,
 .delete-button:hover {
+  background-color: #333333;
+}
+
+.edit-form {
+  margin-top: 20px;
+}
+
+.form-field {
+  margin-bottom: 20px;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.save-button,
+.cancel-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.save-button:hover,
+.cancel-button:hover {
   background-color: #333333;
 }
 </style>

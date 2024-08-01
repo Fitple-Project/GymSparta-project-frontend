@@ -18,6 +18,7 @@ import UserProfilePage from '@/views/UserProfilePage.vue';
 import OwnerProfilePage from '@/views/OwnerProfilePage.vue';
 import StoreEditPage from '@/views/StoreEditPage.vue';
 import TrainerEditPage from '@/views/TrainerEditPage.vue';
+import StoreUpdatePage from '@/views/StoreUpdatePage.vue';
 
 const routes = [
   {
@@ -38,7 +39,7 @@ const routes = [
   {
     path: '/store/:id',
     name: 'storeDetail',
-    component: StoreDetailPage,
+    component: StoreDetailPage
   },
   {
     path: '/store/:id/reviews',
@@ -110,6 +111,11 @@ const routes = [
     name: 'storeedit',
     component: StoreEditPage,
   },
+  {
+      path: '/store/owner/:id/edit',
+      name: 'store-update',
+      component: StoreUpdatePage,
+    },
   {
     path: '/trainer/owner/:id',
     name: 'traineredit',

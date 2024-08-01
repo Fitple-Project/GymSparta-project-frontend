@@ -3,12 +3,12 @@
     <div class="background">
       <div class="search-bar">
         <div class="search-input">
-          <input type="text" placeholder="원하시는 운동을 검색해보세요" />
-          <button class="search-button">검색</button> <!--API 연결-->
+          <input type="text" v-model="searchQuery" placeholder="원하시는 운동을 검색해보세요" />
+          <button class="search-button" @click="searchStores">검색</button>
         </div>
       </div>
       <div class="upper-section">
-        <div class="search-info">1248 results • Jul 27 - 24</div>
+        <div class="search-info">{{ filteredCards.length }} results • {{ currentDate }}</div>
         <div class="filters">
           <div class="filter-item">가격</div>
           <div class="filter-item">회원 할인가</div>
@@ -18,12 +18,12 @@
       </div>
       <div class="main-content">
         <div class="cards">
-          <div class="card" v-for="card in cards" :key="card.id" @click="cardClicked(card.id)">
+          <div class="card" v-for="card in filteredCards" :key="card.id" @click="cardClicked(card.id)">
             <img :src="card.image" alt="card image" class="card-image" />
             <div class="card-content">
               <div class="card-title">{{ card.title }}</div>
               <div class="card-location">{{ card.location }}</div>
-              <div class="card-price">{{ card.price }}</div>
+              <div class="card-price">{{ card.price || '가격 정보 없음' }}원~/월</div>
             </div>
           </div>
         </div>
@@ -37,37 +37,51 @@
 export default {
   data() {
     return {
-      cards: [
-        {
-          id: 1,
-          image: "image.png",
-          title: "Fitple 헬스",
-          location: "서울특별시 ㅇㅇ구",
-          price: "40,000원~/월"
-        },
-        {
-          id: 2,
-          image: "image.png",
-          title: "스파르타 짐",
-          location: "서울특별시 ㅇㅇ구",
-          price: "30,000원~/월"
-        },
-        {
-          id: 3,
-          image: "image.png",
-          title: "배캠 헬스",
-          location: "서울특별시 ㅇㅇ구",
-          price: "50,000원~/월"
-        }
-      ]
+      searchQuery: '',
+      currentDate: new Date().toLocaleDateString(),
+      cards: [],
+      filteredCards: [] // 초기 필터링 결과를 저장할 변수 추가
     };
   },
   methods: {
     cardClicked(id) {
-      console.log("Card clicked:", id);
-      // 여기서 id를 이용해 상세 페이지로 이동할 수 있도록 라우팅 로직 추가
-      // this.$router.push({ name: 'store-detail', params: { id } });
+      this.$router.push({ name: 'storeDetail', params: { id } });
+    },
+    fetchStores() {
+      fetch('http://localhost:8080/api/stores')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
+          }
+          return response.json();
+        })
+        .then(responseData => {
+          console.log('Fetched stores data:', responseData); // 전체 데이터 구조 확인
+          console.log('Store data:', responseData.data); // 실제 매장 데이터 확인
+
+          this.cards = responseData.data.map(store => ({
+            id: store.storeId,
+            image: store.image || 'default_image.png', // 기본 이미지 설정
+            title: store.storeName,
+            location: store.storeAddress,
+            price: store.storePrice || '가격 정보 없음'
+          }));
+          this.filteredCards = this.cards; // 초기에는 전체 데이터를 보여줌
+        })
+        .catch(error => {
+          console.error('There has been a problem with your fetch operation:', error);
+        });
+    },
+    searchStores() {
+      this.filteredCards = this.cards.filter(card => {
+        const titleMatch = card.title && card.title.includes(this.searchQuery);
+        const locationMatch = card.location && card.location.includes(this.searchQuery);
+        return titleMatch || locationMatch;
+      });
     }
+  },
+  mounted() {
+    this.fetchStores();
   }
 };
 </script>
@@ -100,13 +114,17 @@ export default {
   margin-top: 20px;
 }
 
-.search-input input {
+.search-input {
   flex: 1;
+}
+
+.search-input input {
+  width: 40%;
   border: none;
   background: none;
   font-family: 'Inter';
   font-size: 15px;
-  color: #c2c2c2;
+  color: #000000;
 }
 
 .search-button {
@@ -119,6 +137,7 @@ export default {
   color: #ffffff;
   border: none;
   cursor: pointer;
+  margin-left: 20px;
 }
 
 .upper-section {

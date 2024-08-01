@@ -1,15 +1,14 @@
-<!-- src/components/MembershipSection.vue -->
 <template>
   <div class="membership-section">
     <div class="heading">
       <div class="heading-text">{{ title }}</div>
-      <div class="more-link">더보기 </div>
+      <div class="more-link" @click="$emit('more-click')">더보기</div>
     </div>
     <div class="membership-list">
       <img v-if="startIndex > 0" src="@/assets/Card_Next_Button.svg" class="card-prev-button" @click="scrollPrev" />
-      <div v-for="membership in memberships" :key="membership.name" class="membership-card">
+      <div v-for="membership in displayedMemberships" :key="membership.name" class="membership-card">
         <p class="membership-name">{{ membership.name }}</p>
-        <p class="membership-price">{{ membership.price }}</p>
+        <p class="membership-price">{{ membership.price ? `${membership.price}원` : 'N/A' }}</p>
       </div>
       <img v-if="startIndex + 5 < memberships.length" src="@/assets/Card_Next_Button.svg" class="card-next-button" @click="scrollNext" />
     </div>
@@ -24,25 +23,38 @@ export default {
       type: String,
       required: true
     },
-    data() {
-      return {
-        startIndex: 0,
-      };
-    },
+    memberships: {
+      type: Array,
+      default: () => []
+    }
+  },
+  data() {
+    return {
+      startIndex: 0
+    };
+  },
+  computed: {
+    displayedMemberships() {
+      if (!Array.isArray(this.memberships)) {
+        return [];
+      }
+      return this.memberships.slice(this.startIndex, this.startIndex + 5);
+    }
+  },
+  methods: {
     scrollPrev() {
       if (this.startIndex > 0) {
         this.startIndex -= 1;
       }
     },
-    computed: {
-      memberships() {
-        return this.gyms.slice(this.startIndex, this.startIndex + 5);
+    scrollNext() {
+      if (this.startIndex + 5 < this.memberships.length) {
+        this.startIndex += 1;
       }
-    },
-    memberships: {
-      type: Array,
-      required: true
     }
+  },
+  mounted() {
+    console.log('memberships:', this.memberships);
   }
 };
 </script>

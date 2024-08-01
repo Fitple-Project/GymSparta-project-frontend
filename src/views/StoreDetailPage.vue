@@ -1,25 +1,25 @@
 <template>
   <div v-if="storeDetails" class="store-detail-page">
     <div class="store-header">
-      <img :src="storeDetails.image" alt="Store Image" class="store-image" />
-      <h1 class="store-name">{{ storeDetails.name }}</h1>
+      <img :src="storeDetails.image || 'default_image.png'" alt="Store Image" class="store-image" />
+      <h1 class="store-name">{{ storeDetails.storeName }}</h1>
       <p class="store-rating">⭐ {{ storeDetails.rating }}</p>
-      <p class="store-location">{{ storeDetails.location }}</p>
-      <p class="store-phone">전화번호: {{ storeDetails.phone }}</p>
+      <p class="store-location">{{ storeDetails.address }}</p>
+      <p class="store-phone">전화번호: {{ storeDetails.storeTel }}</p>
     </div>
     <div class="store-info">
       <h2>회원권</h2>
-      <MembershipSection :memberships="storeDetails.memberships" @more-click="goToMembershipsPage"/>
+      <MembershipSection :memberships="storeDetails.memberships || []" @more-click="goToMembershipsPage"/>
       <h2>1:1 P.T 상담</h2>
-      <TrainerSection :trainers="storeDetails.ptConsultations" title="PT 상담" @more-click="goToPtConsultationsPage"/>
+      <TrainerSection :trainers="storeDetails.ptConsultations || []" title="PT 상담" @more-click="goToPtConsultationsPage"/>
       <h2>운영 시간</h2>
-      <p class="operating-hours">{{ storeDetails.operatingHours }}</p>
+      <p class="operating-hours">{{ storeDetails.storeHour }}</p>
       <h2>부가 서비스</h2>
       <ul class="additional-services">
-        <li v-for="service in storeDetails.additionalServices" :key="service">{{ service }}</li>
+        <li v-for="service in storeDetails.services" :key="service">{{ service }}</li>
       </ul>
       <h2>리뷰</h2>
-      <ReviewSection :reviews="storeDetails.reviewscontents.slice(0, 3)" @more-click="goToReviewsPage" />
+      <ReviewSection :reviews="(storeDetails.reviews || []).slice(0, 3)" @more-click="goToReviewsPage" />
     </div>
   </div>
   <div v-else>
@@ -28,55 +28,38 @@
 </template>
 
 <script setup>
-import dy1 from '@/assets/Gym_image/dy1.svg';
-import hm1 from '@/assets/Gym_image/hm1.svg';
-import trainer1 from '@/assets/Trainer_image/kim.svg';
-import trainer2 from '@/assets/Trainer_image/hcs.svg';
-import trainer3 from '@/assets/Trainer_image/Ronnie.svg';
 import TrainerSection from '@/components/TrainerSection.vue';
 import MembershipSection from '@/components/MembershipSection.vue';
 import ReviewSection from '@/components/ReviewSection.vue';
-import {ref, onMounted} from 'vue';
-import {useRoute, useRouter} from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
 const storeDetails = ref(null);
 
 const fetchStoreDetails = async (id) => {
-  const stores = [
-    {
-      id: 1,
-      name: '휴메이크휘트니스 논현점',
-      location: '서울 강남구 강남대로 546 지하2층',
-      phone: '02-123-4567',
-      info: '헬스 이용권',
-      price: '29,000~100,000원',
-      originalPrice: '',
-      rating: '4.6',
-      reviews: '2,952명 평가',
-      image: hm1,
-      memberships: [
-        {name: '1개월 이용권', price: '29,000원'},
-        {name: '3개월 이용권', price: '80,000원'},
-        {name: '6개월 이용권', price: '150,000원'},
-      ],
-      ptConsultations: [
-        {id: 1, image: trainer1, name: '김트레이너', price: '100,000원'},
-        {id: 2, image: trainer2, name: '이트레이너', price: '120,000원'},
-        {id: 3, image: trainer3, name: '박트레이너', price: '150,000원'},
-      ],
-      operatingHours: '월-금: 06:00 - 22:00, 토-일: 08:00 - 20:00',
-      additionalServices: ['라커', '수건', 'WiFi'],
-      reviewscontents: [
-        {user: '홍길동', rating: '5', comment: '매우 만족합니다!', image: dy1},
-        {user: '김철수', rating: '4', comment: '좋아요!', image: dy1},
-        {user: '이영희', rating: '3', comment: '괜찮아요.', image: dy1},
-      ],
-    },
-  ];
-
-  storeDetails.value = stores.find(store => store.id === parseInt(id));
+  try {
+    const response = await fetch(`http://localhost:8080/api/stores/${id}`, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch store details');
+    }
+    const data = await response.json();
+    storeDetails.value = {
+      ...data.data,
+      memberships: data.data.memberships.map(membership => ({
+        name: membership,
+        price: 'N/A'  // 가격을 지정할 수 없기 때문에 N/A로 설정
+      })),
+      reviews: data.data.reviews || []
+    };
+  } catch (error) {
+    console.error('Error fetching store details:', error);
+  }
 };
 
 onMounted(() => {
@@ -84,7 +67,7 @@ onMounted(() => {
 });
 
 const goToReviewsPage = () => {
-  router.push({name: 'storeReviews', params: {id: route.params.id}});
+  router.push({ name: 'storeReviews', params: { id: route.params.id } });
 };
 
 const goToMembershipsPage = () => {
@@ -109,13 +92,6 @@ const goToPtConsultationsPage = () => {
 .store-header {
   text-align: center;
   padding: 20px;
-}
-
-.current-location {
-  text-align: center;
-  margin: 20px 0;
-  font-size: 1.2em;
-  color: #666;
 }
 
 .store-image {
@@ -162,19 +138,6 @@ const goToPtConsultationsPage = () => {
   box-sizing: border-box;
 }
 
-.membership-name,
-.pt-trainer {
-  font-size: 1.2em;
-  margin-bottom: 8px;
-}
-
-.membership-price,
-.pt-price {
-  font-size: 1em;
-  color: #666;
-  text-align: right;
-}
-
 .operating-hours {
   font-size: 1em;
   color: #666;
@@ -189,26 +152,5 @@ const goToPtConsultationsPage = () => {
   font-size: 1em;
   color: #666;
   margin-bottom: 8px;
-}
-
-.review-image {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-}
-
-.review-user,
-.review-rating,
-.review-comment {
-  font-size: 1em;
-  color: #666;
-  margin: 8px 0;
-}
-
-.more-link {
-  color: blue;
-  cursor: pointer;
-  font-size: 16px;
-  margin-top: 10px;
 }
 </style>
