@@ -101,7 +101,7 @@ const routes = [
     component: UserProfilePage,
   },
   {
-    path: '/profile/:ownerId',
+    path: '/profile/owner',
     name: 'ownerProfile',
     component: OwnerProfilePage,
   },

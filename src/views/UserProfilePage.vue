@@ -21,57 +21,57 @@
         <div class="profile">
           <div class="avatar"></div>
           <div class="frame">
-            <div class="nickname">{{ user.nickname }}</div>
+            <div class="nickname">{{profileData.nickname}}}</div>
             <div class="batch">Java_5기</div>
           </div>
         </div>
         <div class="input-group">
           <div class="username">Username</div>
           <div class="field">
-            <input type="text" class="label" v-model="user.username" />
+            <input v-model="profileData.username" class="label" placeholder="Enter Username" />
           </div>
         </div>
         <div class="input-group">
           <div class="nickname">Nickname</div>
           <div class="field">
-            <input type="text" class="label" v-model="user.nickname" />
+            <input v-model="profileData.nickname" class="label" placeholder="Enter Nickname" />
           </div>
         </div>
         <div class="input-group">
-          <div class="input-title">Input title</div>
+          <div class="input-title">Email</div>
           <div class="field">
-            <input type="text" class="label" v-model="user.zipcode" />
+            <input v-model="profileData.email" class="label" placeholder="Enter Email" />
           </div>
         </div>
         <div class="input-group">
           <div class="phone-number">Phone Number</div>
           <div class="field">
-            <input type="text" class="label" v-model="user.phoneNumber" />
+            <input v-model="profileData.phoneNumber" class="label" placeholder="Enter Phone Number" />
           </div>
         </div>
         <div class="input-list">
           <div class="address">Address</div>
           <div class="field">
-            <input type="text" class="label" v-model="user.mainAddress" />
+            <input v-model="profileData.zipcode" class="label" placeholder="Enter zipcode" />
           </div>
           <div class="field">
-            <input type="text" class="label" v-model="user.detailedAddress" />
+            <input v-model="profileData.mainAddress" class="label" placeholder="Enter Address" />
+          </div>
+          <div class="field">
+            <input v-model="profileData.detailedAddress" class="label" placeholder="Enter Detail Address" />
           </div>
         </div>
         <div class="input-group">
           <div class="confirm-password">Confirm Password</div>
-          <div class="field confirm-password-field">
-            <div class="label">Label</div>
+          <div class="confirm-password-field">
+<!--            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />-->
+            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />
             <button @click="showPasswordModal = true" class="change-button">변경</button>
           </div>
         </div>
         <div class="buttons">
           <button @click="editProfile" class="edit-button">수정</button>
-          <!-- 프로필 수정 API 연결 예시 -->
-          <!-- this.$axios.post('/api/profile/edit', this.profileData) -->
           <button @click="showDeleteModal = true" class="delete-button">회원탈퇴</button>
-          <!-- 회원탈퇴 API 연결 예시 -->
-          <!-- this.$axios.post('/api/profile/delete', { userId: this.userId }) -->
         </div>
       </div>
       <div v-if="currentView === 'payments'" class="payments-view">
@@ -147,8 +147,6 @@
         <div class="modal-footer">
           <button @click="showPasswordModal = false" class="cancel-button">취소</button>
           <button @click="confirmPasswordChange" class="confirm-button">확인</button>
-          <!-- 비밀번호 변경 API 연결 예시 -->
-          <!-- this.$axios.post('/api/password/change', { oldPassword: this.oldPassword, newPassword: this.newPassword }) -->
         </div>
       </div>
     </div>
@@ -164,12 +162,9 @@
         <div class="modal-footer">
           <button @click="showDeleteModal = false" class="cancel-button">취소</button>
           <button @click="confirmDeleteAccount" class="confirm-button">확인</button>
-          <!-- 회원탈퇴 API 연결 예시 -->
-          <!-- this.$axios.post('/api/profile/delete', { userId: this.userId }) -->
         </div>
       </div>
     </div>
-    <!-- 수정 모달 -->
     <div id="editModal" class="modal" v-if="showEditModal">
       <div class="modal-content">
         <span class="close" @click="showEditModal = false">&times;</span>
@@ -189,18 +184,20 @@ export default {
       showPasswordModal: false,
       showDeleteModal: false,
       showEditModal: false,
-      profileData: {},
-      user: {
-        nickname: '',
+      profileData: {
         username: '',
+        nickname: '',
+        email: '',
         zipcode: '',
         phoneNumber: '',
         mainAddress: '',
-        detailedAddress: ''
+        detailedAddress: '',
       },
+      confirmPassword: '',
+      userId: '',
+      currentView: 'profile',
       oldPassword: '',
       newPassword: '',
-      currentView: 'profile', // 초기 뷰 설정
       searchTerm: '',
       currentEditId: null,
       currentEditContent: '',
@@ -228,6 +225,25 @@ export default {
     },
   },
   methods: {
+    async fetchUserProfile() {
+      try {
+        const token = localStorage.getItem('Authorization');
+        const response = await fetch('http://localhost:8080/api/profile/user', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        this.profileData = await response.json();
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    },
     changeView(view) {
       this.currentView = view;
       if (view === 'payments') {
@@ -250,40 +266,25 @@ export default {
     searchPayments() {
       // 필터링은 computed를 통해 이미 수행되고 있으므로 추가 로직 불필요
     },
-    async fetchUserProfile() {
-      try {
-        const response = await fetch('http://localhost:8080/api/profile/user', {
-          // TODO: 헤더에서 토큰 값 가져오기 구현
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZWwxMjEiLCJpYXQiOjE3MjI0ODk4NDEsImV4cCI6MTcyMjQ5MTY0MX0.V7sq4F0F6DTXSvERKQ1iUsRrxcUWQajaW5CizGQsYEq'
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        this.user = await response.json();
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
-    },
     async editProfile() {
       try {
+        const token = localStorage.getItem('Authorization');
         const response = await fetch('http://localhost:8080/api/profile/user', {
-          // TODO: 헤더에서 토큰 값 가져오기 구현
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZWwxMjEiLCJpYXQiOjE3MjI0NjE0ODEsImV4cCI6MTcyMjQ2MzI4MX0.O8CeQ1ev4O6oHAgI1uWedY1njopRxNopSNQgJ38dChg'
+            'Authorization': token
           },
+          // TODO 사진 변경 추가
           body: JSON.stringify({
-            nickname: this.user.nickname,
-            zipcode: this.user.zipcode,
-            mainAddress: this.user.mainAddress,
-            detailedAddress: this.user.detailedAddress,
-            password: 'ael121667'
+            username: this.profileData.username,
+            nickname: this.profileData.nickname,
+            zipcode: this.profileData.zipcode,
+            email: this.profileData.email,
+            mainAddress: this.profileData.mainAddress,
+            detailedAddress: this.profileData.detailedAddress,
+            phoneNumber: this.profileData.phoneNumber,
+            password:this.profileData.confirmPassword
           }),
         });
 
@@ -293,45 +294,54 @@ export default {
       } catch (error) {
         this.showModalMessage('프로필 수정 중 오류가 발생했습니다.');
       }
-      // 프로필 수정 로직
-      // this.$axios.post('/api/profile/edit', this.profileData)
-      //   .then(response => {
-      //     console.log('Profile updated successfully');
-      //   })
-      //   .catch(error => {
-      //     console.error('Error updating profile:', error);
-      //   });
     },
     deleteAccount() {
-      // 회원탈퇴 로직
-      // this.$axios.post('/api/profile/delete', { userId: this.userId })
-      //   .then(response => {
-      //     console.log('Account deleted successfully');
-      //   })
-      //   .catch(error => {
-      //     console.error('Error deleting account:', error);
-      //   });
+      fetch('http://localhost:8080/api/profile/users/signout', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${this.$store.getters.accessToken}`,
+        },
+      })
+      .then(response => {
+        if (response.ok) {
+          alert('회원탈퇴가 완료되었습니다.');
+          this.$store.dispatch('logout');
+          this.$router.push({ name: 'main' });
+        } else {
+          response.json().then(data => {
+            alert(`회원탈퇴 실패: ${data.message}`);
+          });
+        }
+      })
+      .catch(error => {
+        alert(`회원탈퇴 실패: ${error.message}`);
+      });
     },
-    confirmPasswordChange() {
-      // 비밀번호 변경 로직
-      // this.$axios.post('/api/password/change', { oldPassword: this.oldPassword, newPassword: this.newPassword })
-      //   .then(response => {
-      //     console.log('Password changed successfully');
-      //   })
-      //   .catch(error => {
-      //     console.error('Error changing password:', error);
-      //   });
+    async confirmPasswordChange() {
+      try {
+        const token = localStorage.getItem('Authorization');
+        const response = await fetch('http://localhost:8080/api/profile/users/password', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token,
+          },
+          body: JSON.stringify({
+            oldPassword: this.oldPassword,
+            newPassword: this.newPassword
+          }),
+        });
+
+        if (response.ok) {
+          this.currentSection = 'complete';
+        }
+      } catch (error) {
+        this.showModalMessage('비밀번호 변경 중 오류가 발생했습니다.');
+      }
       this.showPasswordModal = false;
     },
     confirmDeleteAccount() {
-      // 회원탈퇴 로직
-      // this.$axios.post('/api/profile/delete', { userId: this.userId })
-      //   .then(response => {
-      //     console.log('Account deleted successfully');
-      //   })
-      //   .catch(error => {
-      //     console.error('Error deleting account:', error);
-      //   });
+      this.deleteAccount();
       this.showDeleteModal = false;
     },
     filterReviews(type) {
@@ -524,10 +534,14 @@ export default {
   font-size: 16px;
   line-height: 24px;
   color: #000000;
+  border: none;
+  outline: none;
 }
 
 .confirm-password-field {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
   justify-content: space-between;
 }
 
