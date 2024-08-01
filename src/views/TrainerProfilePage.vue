@@ -1,5 +1,5 @@
 <template>
-  <div class="user-profile-page">
+  <div class="trainer-profile-page">
     <aside class="sidebar">
       <nav class="list">
         <div class="menu-item" @click="changeView('profile')">
@@ -21,14 +21,14 @@
         <div class="profile">
           <div class="avatar"></div>
           <div class="frame">
-            <div class="nickname">{{profileData.nickname}}}</div>
+            <div class="nickname">{{profileData.nickname}}</div>
             <div class="batch">Java_5기</div>
           </div>
         </div>
         <div class="input-group">
           <div class="username">Username</div>
           <div class="field">
-            <input v-model="profileData.username" class="label" placeholder="Enter Username" />
+            <input v-model="profileData.trainerName" class="label" placeholder="Enter trainerName" />
           </div>
         </div>
         <div class="input-group">
@@ -46,19 +46,22 @@
         <div class="input-group">
           <div class="phone-number">Phone Number</div>
           <div class="field">
-            <input v-model="profileData.phoneNumber" class="label" placeholder="Enter Phone Number" />
+            <input v-model="profileData.trainerPhoneNumber" class="label" placeholder="Enter Phone Number" />
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="phone-number">info</div>
+          <div class="field">
+            <input v-model="profileData.trainerInfo" class="label" placeholder="Enter info" />
           </div>
         </div>
         <div class="input-list">
           <div class="address">Address</div>
           <div class="field">
-            <input v-model="profileData.zipcode" class="label" placeholder="Enter zipcode" />
+            <input v-model="profileData.address" class="label" placeholder="Enter Address" />
           </div>
           <div class="field">
-            <input v-model="profileData.mainAddress" class="label" placeholder="Enter Address" />
-          </div>
-          <div class="field">
-            <input v-model="profileData.detailedAddress" class="label" placeholder="Enter Detail Address" />
+            <input v-model="profileData.detailAddress" class="label" placeholder="Enter Detail Address" />
           </div>
         </div>
         <div class="input-group">
@@ -72,10 +75,6 @@
         <div class="buttons">
           <button @click="editProfile" class="edit-button">수정</button>
           <button @click="showDeleteModal = true" class="delete-button">회원탈퇴</button>
-        </div>
-        <div class="input-group">
-          <input type="checkbox" id="customCheckbox" v-model="isChecked">
-          <label for="customCheckbox">체크박스</label>
         </div>
       </div>
       <div v-if="currentView === 'payments'" class="payments-view">
@@ -189,16 +188,16 @@ export default {
       showDeleteModal: false,
       showEditModal: false,
       profileData: {
-        username: '',
+        trainerName: '',
         nickname: '',
         email: '',
-        zipcode: '',
-        phoneNumber: '',
-        mainAddress: '',
-        detailedAddress: '',
+        trainerInfo: '',
+        trainerPhoneNumber: '',
+        address: '',
+        detailAddress: '',
+        confirmPassword: '',
       },
-      confirmPassword: '',
-      userId: '',
+      userId: 1,
       currentView: 'profile',
       oldPassword: '',
       newPassword: '',
@@ -216,9 +215,6 @@ export default {
       filteredReviews: [],
     };
   },
-  created() {
-    this.fetchUserProfile();
-  },
   computed: {
     filteredPayments() {
       return this.payments.filter((payment) => {
@@ -228,23 +224,26 @@ export default {
       });
     },
   },
+  created() {
+    this.fetchTrainerProfile();
+  },
   methods: {
-    async fetchUserProfile() {
+    async fetchTrainerProfile() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('http://localhost:8080/api/profile/user', {
+        const response = await fetch('http://localhost:8080/api/profile/trainer', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': token
           }
         });
-
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         this.profileData = await response.json();
-      } catch (error) {
+
+      }catch (error) {
         console.error('Error fetching user:', error);
       }
     },
@@ -273,7 +272,7 @@ export default {
     async editProfile() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('http://localhost:8080/api/profile/user', {
+        const response = await fetch('http://localhost:8080/api/profile/trainer', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -281,13 +280,11 @@ export default {
           },
           // TODO 사진 변경 추가
           body: JSON.stringify({
-            username: this.profileData.username,
+            trainerName: this.profileData.trainerName,
             nickname: this.profileData.nickname,
-            zipcode: this.profileData.zipcode,
+            trainerInfo: this.profileData.trainerInfo,
             email: this.profileData.email,
-            mainAddress: this.profileData.mainAddress,
-            detailedAddress: this.profileData.detailedAddress,
-            phoneNumber: this.profileData.phoneNumber,
+            trainerPhoneNumber: this.profileData.trainerPhoneNumber,
             password:this.profileData.confirmPassword
           }),
         });
@@ -377,7 +374,7 @@ export default {
 </script>
 
 <style scoped>
-.user-profile-page {
+.trainer-profile-page {
   display: flex;
   position: relative;
   width: 100%;
