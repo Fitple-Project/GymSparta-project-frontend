@@ -174,6 +174,8 @@
 </template>
 
 <script>
+import eventBus from '@/eventBus';
+
 export default {
   name: 'UserProfilePage',
   data() {
@@ -189,7 +191,7 @@ export default {
         address: '',
         detailAddress: '',
         password: '',
-        confirmPassword: '',
+        confirmPassword: ''
       },
       userId: 1,
       currentView: 'profile',
@@ -199,24 +201,46 @@ export default {
       currentEditId: null,
       currentEditContent: '',
       payments: [],
-      reviews: [
-        { id: 1, type: 'gym', target: '파워짐', content: '시설이 깨끗하고 넓어서 좋아요.', date: '2023-05-01' },
-        { id: 2, type: 'trainer', target: '김철수 트레이너', content: '친절하고 전문적인 지도를 해주십니다.', date: '2023-05-02' },
-        { id: 3, type: 'gym', target: '헬스월드', content: '24시간 운영이라 편리해요.', date: '2023-05-03' },
-        { id: 4, type: 'trainer', target: '박영희 트레이너', content: '맞춤형 운동 프로그램을 짜주셔서 효과적이에요.', date: '2023-05-04' },
-        { id: 5, type: 'gym', target: '피트니스팩토리', content: '다양한 운동기구가 있어서 좋아요.', date: '2023-05-05' }
-      ],
-      filteredReviews: [],
+      reviews: [{
+        id: 1,
+        type: 'gym',
+        target: '파워짐',
+        content: '시설이 깨끗하고 넓어서 좋아요.',
+        date: '2023-05-01'
+      }, {
+        id: 2,
+        type: 'trainer',
+        target: '김철수 트레이너',
+        content: '친절하고 전문적인 지도를 해주십니다.',
+        date: '2023-05-02'
+      }, {
+        id: 3,
+        type: 'gym',
+        target: '헬스월드',
+        content: '24시간 운영이라 편리해요.',
+        date: '2023-05-03'
+      }, {
+        id: 4,
+        type: 'trainer',
+        target: '박영희 트레이너',
+        content: '맞춤형 운동 프로그램을 짜주셔서 효과적이에요.',
+        date: '2023-05-04'
+      }, {
+        id: 5,
+        type: 'gym',
+        target: '피트니스팩토리',
+        content: '다양한 운동기구가 있어서 좋아요.',
+        date: '2023-05-05'
+      }],
+      filteredReviews: []
     };
   },
   computed: {
     filteredPayments() {
-      return this.payments.filter((payment) => {
-        return Object.values(payment).some((value) =>
-            typeof value === 'string' && value.toLowerCase().includes(this.searchTerm.toLowerCase())
-        );
+      return this.payments.filter(payment => {
+        return Object.values(payment).some(value => typeof value === 'string' && value.toLowerCase().includes(this.searchTerm.toLowerCase()));
       });
-    },
+    }
   },
   methods: {
     changeView(view) {
@@ -252,24 +276,31 @@ export default {
       //   });
     },
     deleteAccount() {
+      const token = localStorage.getItem('accessToken'); // localStorage에서 토큰을 가져옵니다.
+      if (!token) {
+        alert("로그인 먼저 해주세요.");
+        return;
+      }
+
       fetch('http://localhost:8080/api/profile/users/signout', {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${this.$store.getters.accessToken}`,
-        },
-      })
-      .then(response => {
+          'Authorization': `Bearer ${token}`
+        }
+      }).then(response => {
         if (response.ok) {
           alert('회원탈퇴가 완료되었습니다.');
-          this.$store.dispatch('logout');
-          this.$router.push({ name: 'main' });
+          localStorage.removeItem('accessToken');
+          eventBus.emit('logout');
+          this.$router.push({
+            name: 'main'
+          });
         } else {
           response.json().then(data => {
             alert(`회원탈퇴 실패: ${data.message}`);
           });
         }
-      })
-      .catch(error => {
+      }).catch(error => {
         alert(`회원탈퇴 실패: ${error.message}`);
       });
     },
@@ -308,7 +339,7 @@ export default {
         this.reviews.splice(index, 1);
         this.filterReviews('all');
       }
-    },
+    }
   },
   mounted() {
     this.filteredReviews = this.reviews;
