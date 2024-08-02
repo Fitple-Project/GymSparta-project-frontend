@@ -88,7 +88,7 @@
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="phone">전화번호</label>
+          <label for="phone">전화번호 <span class="required">*</span></label>
           <div class="phone-input-wrapper">
             <input type="tel" id="phone" v-model="phone" placeholder="‘-’ 제외 11자리 입력" maxlength="13" />
             <button class="black-button">인증번호 발송</button>
@@ -169,7 +169,7 @@ export default {
   methods: {
     async registerUser() {
       try {
-        const response = await fetch('http://localhost:8080/api/user/signup', { // 백엔드 포트 확인
+        const response = await fetch('http://localhost:8080/api/user/signup', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -177,6 +177,7 @@ export default {
           body: JSON.stringify({
             accountId: this.userId,
             password: this.password,
+            confirmPassword: this.passwordConfirm,
             email: this.email,
             phoneNumber: this.phone,
             userName: this.name,

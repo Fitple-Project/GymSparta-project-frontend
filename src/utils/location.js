@@ -25,10 +25,9 @@ export async function getAddressFromCoordinates(latitude, longitude) {
     const data = await response.json();
     if (data.status === 'OK' && data.results.length > 0) {
       const addressComponents = data.results[0].address_components;
-      const si = addressComponents.find(component => component.types.includes('administrative_area_level_1'));
-      const gu = addressComponents.find(component => component.types.includes('administrative_area_level_2'));
-      const dong = addressComponents.find(component => component.types.includes('sublocality_level_1') || component.types.includes('locality'));
-      const detailedAddress = `${si ? si.long_name : ''} ${gu ? gu.long_name : ''} ${dong ? dong.long_name : ''}`;
+      const gu = addressComponents.find(component => component.types.includes('sublocality_level_1') || component.types.includes('locality'));
+      const dong = addressComponents.find(component => component.types.includes('sublocality_level_2') || component.types.includes('political'));
+      const detailedAddress = `${gu ? gu.long_name : ''} ${dong ? dong.long_name : ''}`;
       return detailedAddress;
     } else {
       console.error('Geocoding API response:', data);

@@ -120,6 +120,8 @@
 </template>
 
 <script>
+import eventBus from '@/eventBus';
+
 export default {
   name: 'OwnerProfilePage',
   data() {
@@ -210,14 +212,33 @@ export default {
       }
     },
     deleteAccount() {
-      // 회원탈퇴 로직
-      // this.$axios.post('/api/profile/delete', { userId: this.userId })
-      //   .then(response => {
-      //     console.log('Account deleted successfully');
-      //   })
-      //   .catch(error => {
-      //     console.error('Error deleting account:', error);
-      //   });
+      const token = localStorage.getItem('accessToken'); // localStorage에서 토큰을 가져옵니다.
+      if (!token) {
+        alert("로그인 먼저 해주세요.");
+        return;
+      }
+
+      fetch('http://localhost:8080/api/profile/owners/signout', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }).then(response => {
+        if (response.ok) {
+          alert('회원탈퇴가 완료되었습니다.');
+          localStorage.removeItem('accessToken');
+          eventBus.emit('logout');
+          this.$router.push({
+            name: 'main'
+          });
+        } else {
+          response.json().then(data => {
+            alert(`회원탈퇴 실패: ${data.message}`);
+          });
+        }
+      }).catch(error => {
+        alert(`회원탈퇴 실패: ${error.message}`);
+      });
     },
     async confirmPasswordChange() {
       try {
@@ -243,14 +264,7 @@ export default {
       this.showPasswordModal = false;
     },
     confirmDeleteAccount() {
-      // 회원탈퇴 로직
-      // this.$axios.post('/api/profile/delete', { userId: this.userId })
-      //   .then(response => {
-      //     console.log('Account deleted successfully');
-      //   })
-      //   .catch(error => {
-      //     console.error('Error deleting account:', error);
-      //   });
+      this.deleteAccount();
       this.showDeleteModal = false;
     }
   }

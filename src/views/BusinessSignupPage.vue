@@ -55,19 +55,19 @@
     <div v-if="currentSection === 'signup'" class="form signup-form">
       <div class="fieldset">
         <div class="input-group">
-          <label for="business-name">상호명(법인명)</label>
+          <label for="business-name">상호명(법인명) <span class="required">*</span></label>
           <input type="text" id="business-name" v-model="businessName" placeholder="상호명(법인명)" required />
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="business-number">사업자등록번호</label>
-          <input type="text" id="business-number" v-model="businessNumber" placeholder="사업자등록번호" required />
+          <label for="business-number">사업자등록번호 <span class="required">*</span></label>
+          <input type="text" id="business-number" v-model="businessNumber" placeholder="사업자등록번호" maxlength="10" required />
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="postal-code">사업체 주소</label>
+          <label for="postal-code">사업체 주소 <span class="required">*</span></label>
           <div class="postal-code-wrapper">
             <input type="text" id="postal-code" v-model="postalCode" placeholder="우편번호" required />
             <button class="black-button" @click="searchAddress">주소 검색</button>
@@ -82,7 +82,7 @@
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="user-id">아이디</label>
+          <label for="user-id">아이디 <span class="required">*</span></label>
           <div class="id-input-wrapper">
             <input type="text" id="user-id" v-model="userId" placeholder="아이디 입력 (6~20자)" maxlength="20" />
             <button class="black-button">아이디 확인</button>
@@ -91,43 +91,49 @@
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="password">비밀번호</label>
+          <label for="password">비밀번호 <span class="required">*</span></label>
           <input type="password" id="password" v-model="password" placeholder="비밀번호 입력 (문자, 숫자, 특수문자 포함 8~20자)" @input="checkPasswords" />
         </div>
         <div class="input-group">
-          <label for="password-confirm">비밀번호 확인</label>
+          <label for="password-confirm">비밀번호 확인 <span class="required">*</span></label>
           <input type="password" id="password-confirm" v-model="passwordConfirm" placeholder="비밀번호 재입력" @input="checkPasswords" />
         </div>
         <div v-if="passwordError" class="error-message">{{ passwordError }}</div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="name">이름</label>
-          <input type="text" id="name" v-model="name" placeholder="이름을 입력해주세요." />
+          <label for="name">이름 <span class="required">*</span></label>
+          <input type="text" id="name" v-model="name" placeholder="이름을 입력해주세요." maxlength="50" required />
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="email">이메일</label>
-          <input type="email" id="email" v-model="email" placeholder="이메일을 입력해주세요." />
+          <label for="email">이메일 <span class="required">*</span></label>
+          <input type="email" id="email" v-model="email" placeholder="이메일을 입력해주세요." required />
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="phone">전화번호</label>
+          <label for="phone">전화번호 <span class="required">*</span></label>
           <div class="phone-input-wrapper">
-            <input type="tel" id="phone" v-model="phone" placeholder="‘-’ 제외 11자리 입력" maxlength="13" />
+            <input type="tel" id="phone" v-model="phone" placeholder="‘-’ 제외 11자리 입력" maxlength="13" required />
             <button class="black-button">인증번호 발송</button>
           </div>
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
-          <label for="phone-verification">인증번호 확인</label>
+          <label for="phone-verification">인증번호 확인 <span class="required">*</span></label>
           <div class="phone-input-wrapper">
-            <input type="text" id="phone-verification" v-model="phoneVerification" placeholder="인증번호 입력" />
+            <input type="text" id="phone-verification" v-model="phoneVerification" placeholder="인증번호 입력" required />
             <button class="black-button">인증번호 확인</button>
           </div>
+        </div>
+      </div>
+      <div class="section signup-section">
+        <div class="input-group">
+          <label for="resident-registration-number">주민등록번호(외국인등록번호) <span class="required">*</span></label>
+          <input type="text" id="resident-registration-number" v-model="residentRegistrationNumber" placeholder="주민등록번호(외국인등록번호)" required />
         </div>
       </div>
       <div class="buttons">
@@ -136,7 +142,7 @@
             <div class="label-text">뒤로</div>
           </div>
         </div>
-        <div class="extended-fab orange" @click="goToComplete" :disabled="passwordError">
+        <div class="extended-fab orange" @click="handleSignup" :disabled="passwordError">
           <div class="state-layer">
             <div class="label-text">가입 완료</div>
           </div>
@@ -194,6 +200,9 @@ export default {
       email: '',
       phone: '',
       phoneVerification: '',
+      residentRegistrationNumber: '',
+      nickname: '',
+      isForeigner: false,
     };
   },
   methods: {
@@ -216,44 +225,62 @@ export default {
     goToTerms() {
       this.currentSection = 'terms';
     },
-    goToComplete() {
+    handleSignup() {
       if (this.password !== this.passwordConfirm) {
         this.passwordError = '비밀번호가 일치하지 않습니다.';
         return;
       }
-      this.name = document.getElementById('name').value; // 이름을 저장
-      this.currentSection = 'complete';
 
       const signupData = {
-        businessName: this.businessName,
-        businessNumber: this.businessNumber,
-        postalCode: this.postalCode,
-        mainAddress: this.mainAddress,
-        detailAddress: this.detailAddress,
-        userId: this.userId,
+        ownerName: this.name,
+        residentRegistrationNumber: this.residentRegistrationNumber,
+        isForeigner: this.isForeigner,
+        accountId: this.userId,
         password: this.password,
-        name: this.name,
+        confirmPassword: this.passwordConfirm,
         email: this.email,
-        phone: this.phone,
+        ownerPhoneNumber: this.phone,
+        businessRegistrationNumber: this.businessNumber,
+        businessName: this.businessName,
+        zipcode: this.postalCode,
+        mainAddress: this.mainAddress,
+        detailedAddress: this.detailAddress,
+        nickname: this.nickname,
       };
 
       console.log('회원가입 데이터:', signupData);
 
-      // 예시: 실제 API 호출
-      // axios.post('/api/signup', signupData)
-      //   .then(response => {
-      //     console.log('회원가입 성공:', response.data);
-      //   })
-      //   .catch(error => {
-      //     console.error('회원가입 실패:', error);
-      //   });
+      fetch('http://localhost:8080/api/owners/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(signupData),
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(err => {
+            throw new Error(err.message);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('회원가입 성공:', data);
+        // 회원가입 성공 시, 완료 페이지로 이동
+        this.currentSection = 'complete';
+      })
+      .catch(error => {
+        console.error('회원가입 실패:', error);
+        this.showModalMessage('회원가입 실패: ' + error.message);
+      });
     },
     searchAddress() {
       // 주소 검색 로직을 여기에 추가하세요.
       alert('주소 검색 기능이 구현되어야 합니다.');
     },
     goToHomePage() {
-      this.$router.push({ name: 'home' }); // 홈으로 이동하는 메소드
+      this.$router.push({name: 'home'}); // 홈으로 이동하는 메소드
     },
     showModalMessage(message) {
       this.modalMessage = message;
@@ -263,7 +290,7 @@ export default {
       this.showModal = false;
     },
     goToLoginPage() {
-      this.$router.push({ name: 'login' });
+      this.$router.push({name: 'login'});
     },
     checkPasswords() {
       if (this.password !== this.passwordConfirm) {
