@@ -10,6 +10,12 @@
       </div>
     </div>
     <div class="store-info">
+      <!-- 매장 소개 섹션 추가 -->
+      <div class="section">
+        <h2>매장 소개</h2>
+        <p>{{ storeDetails.storeInfo }}</p>
+      </div>
+      <!-- 기존 섹션 -->
       <div class="section">
         <h2>회원권</h2>
         <MembershipSection :title="'회원권'" :memberships="storeDetails.memberships" @more-click="goToMembershipsPage" />
@@ -55,7 +61,7 @@ const router = useRouter();
 const storeDetails = ref(null);
 
 const getAuthToken = () => {
-  return localStorage.getItem('Authorization');
+  return localStorage.getItem('accessToken');
 };
 
 const fetchStoreDetails = async (id) => {
@@ -128,13 +134,13 @@ const deleteStore = async () => {
       console.log('매장 삭제 성공');
       alert('매장이 성공적으로 삭제되었습니다.');
       router.push({ name: 'store-management' }).then(() => {
-              const storeManagementPage = router.currentRoute.value.matched.find(
-                route => route.name === 'store-management'
-              )?.instances.default;
-              if (storeManagementPage) {
-                storeManagementPage.changeSection('storeList');
-              }
-            });
+        const storeManagementPage = router.currentRoute.value.matched.find(
+          route => route.name === 'store-management'
+        )?.instances.default;
+        if (storeManagementPage) {
+          storeManagementPage.changeSection('storeList');
+        }
+      });
     } else {
       throw new Error(`HTTP error! status: ${response.status}`);
     }

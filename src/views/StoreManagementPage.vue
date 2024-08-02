@@ -129,7 +129,7 @@ export default {
   },
   methods: {
     getAuthToken() {
-      return localStorage.getItem('Authorization');
+      return localStorage.getItem('accessToken');
     },
     changeSection(section) {
       this.activeSection = section;
@@ -191,7 +191,18 @@ export default {
           alert('매장 등록 중 오류가 발생했습니다.');
         });
     },
-
+    clearStoreForm() {
+        this.storeName = '';
+        this.storeAddress = '';
+        this.storeIntro = '';
+        this.services = '';
+        this.operatingHours = '';
+        this.phoneNumber = '';
+        this.membership = '';
+        this.ptSession = '';
+        this.trainerList = '';
+        this.price = '';
+      },
     fetchStores() {
       console.log('Fetching stores...');
 

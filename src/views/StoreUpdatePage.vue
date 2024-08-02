@@ -30,11 +30,11 @@
           <input type="text" id="price" v-model="storeDetails.price" />
         </div>
         <div class="form-field">
-          <label for="memberships">회원권</label>
+          <label for="memberships">회원권 (세미콜론으로 구분)</label>
           <input type="text" id="memberships" v-model="storeDetails.memberships" />
         </div>
         <div class="form-field">
-          <label for="services">부가 서비스</label>
+          <label for="services">부가 서비스 (세미콜론으로 구분)</label>
           <input type="text" id="services" v-model="storeDetails.services" />
         </div>
         <div class="form-field">
@@ -66,13 +66,13 @@ const storeDetails = ref({
   storeHour: '',
   storeTel: '',
   price: '',
-  memberships: [],
-  services: [],
+  memberships: '',
+  services: '',
   image: ''
 });
 
 const getAuthToken = () => {
-  return localStorage.getItem('Authorization');
+  return localStorage.getItem('accessToken');
 };
 
 const fetchStoreDetails = async (id) => {
@@ -91,7 +91,12 @@ const fetchStoreDetails = async (id) => {
     const data = await response.json();
     console.log('Fetched store details:', data);
 
-    storeDetails.value = data.data;
+    // Convert arrays to semicolon-separated strings
+    storeDetails.value = {
+      ...data.data,
+      memberships: data.data.memberships.join('; '),
+      services: data.data.services.join('; ')
+    };
 
     console.log('Transformed store details:', storeDetails.value);
   } catch (error) {
@@ -101,7 +106,15 @@ const fetchStoreDetails = async (id) => {
 
 const updateStore = async () => {
   try {
-    const payload = { ...storeDetails.value };
+    // Split semicolon-separated strings into arrays
+    const memberships = storeDetails.value.memberships.split(';').map(item => item.trim());
+    const services = storeDetails.value.services.split(';').map(item => item.trim());
+
+    const payload = {
+      ...storeDetails.value,
+      memberships,
+      services
+    };
 
     const response = await fetch(`http://localhost:8080/api/stores/owners/${route.params.id}`, {
       method: 'PUT',
