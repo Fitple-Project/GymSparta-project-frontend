@@ -73,36 +73,27 @@ export default {
   },
   created() {
     const trainerId = this.$route.params.id;
-    // 여기서 id를 이용해 백엔드 API 호출을 추가할 수 있습니다.
-    // axios.get(`/api/trainer/${trainerId}`).then(response => {
-    //   this.trainer = response.data;
-    // });
-    // 예시 데이터를 사용합니다.
-    this.trainer = {
-      id: trainerId,
-      image: "example-image.png",
-      name: "이민수 선생님",
-      location: "서울특별시 ㅇㅇ구",
-      price: "40,000원~/회당",
-      description: "트레이너 설명 예시입니다.",
-      introduction: "트레이너 소개 예시입니다.",
-      careers: [
-        "경력 사항 1",
-        "경력 사항 2",
-        "경력 사항 3"
-      ],
-      ptPrograms: [
-        { id: 1, name: "PT 10회", price: "600,000원", sessionPrice: "회당 60,000원" },
-        { id: 2, name: "PT 20회", price: "1,200,000원", sessionPrice: "회당 60,000원" },
-        { id: 3, name: "PT 30회", price: "1,800,000원", sessionPrice: "회당 60,000원" }
-      ],
-      reviews: [
-        { id: 1, userProfile: "user1.png", username: "User1", score: 5, content: "리뷰 내용 예시 1", image: "review1.png" },
-        { id: 2, userProfile: "user2.png", username: "User2", score: 4, content: "리뷰 내용 예시 2" }
-      ]
-    };
+    this.fetchTrainerDetails(trainerId);
   },
   methods: {
+    async fetchTrainerDetails(trainerId) {
+      try {
+        const url = 'http://localhost:8080/api/trainers/' + trainerId;
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        this.trainer = await response.json();
+      } catch (error) {
+        console.error('Error fetching trainers:', error);
+      }
+    },
     navigateToPayment(ptId) {
       console.log("Navigate to payment for PT Program ID:", ptId);
       // 여기서 결제 페이지로 이동하는 로직을 추가할 수 있습니다.
@@ -313,3 +304,32 @@ export default {
   margin-top: 10px;
 }
 </style>
+
+<!--// 여기서 id를 이용해 백엔드 API 호출을 추가할 수 있습니다.-->
+<!--// axios.get(`/api/trainer/${trainerId}`).then(response => {-->
+<!--//   this.trainer = response.data;-->
+<!--// });-->
+<!--// 예시 데이터를 사용합니다.-->
+<!--this.trainer = {-->
+<!--id: trainerId,-->
+<!--image: "example-image.png",-->
+<!--name: "이민수 선생님",-->
+<!--location: "서울특별시 ㅇㅇ구",-->
+<!--price: "40,000원~/회당",-->
+<!--description: "트레이너 설명 예시입니다.",-->
+<!--introduction: "트레이너 소개 예시입니다.",-->
+<!--careers: [-->
+<!--"경력 사항 1",-->
+<!--"경력 사항 2",-->
+<!--"경력 사항 3"-->
+<!--],-->
+<!--ptPrograms: [-->
+<!--{ id: 1, name: "PT 10회", price: "600,000원", sessionPrice: "회당 60,000원" },-->
+<!--{ id: 2, name: "PT 20회", price: "1,200,000원", sessionPrice: "회당 60,000원" },-->
+<!--{ id: 3, name: "PT 30회", price: "1,800,000원", sessionPrice: "회당 60,000원" }-->
+<!--],-->
+<!--reviews: [-->
+<!--{ id: 1, userProfile: "user1.png", username: "User1", score: 5, content: "리뷰 내용 예시 1", image: "review1.png" },-->
+<!--{ id: 2, userProfile: "user2.png", username: "User2", score: 4, content: "리뷰 내용 예시 2" }-->
+<!--]-->
+<!--};-->

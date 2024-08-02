@@ -13,47 +13,51 @@
         <div class="profile">
           <div class="avatar"></div>
           <div class="frame">
-            <div class="nickname">닉네임</div>
+            <div class="nickname">{{profileData.nickname}}}</div>
             <div class="batch">Java_5기</div>
           </div>
         </div>
         <div class="input-group">
           <div class="username">Username</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.ownerName" class="label" placeholder="Enter Username" />
           </div>
         </div>
         <div class="input-group">
           <div class="nickname">Nickname</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.nickname" class="label" placeholder="Enter Nickname" />
           </div>
         </div>
         <div class="input-group">
-          <div class="input-title">Input title</div>
+          <div class="input-title">Email</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.email" class="label" placeholder="Enter Email" />
           </div>
         </div>
         <div class="input-group">
           <div class="phone-number">Phone Number</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.ownerPhoneNumber" class="label" placeholder="Enter Phone Number" />
           </div>
         </div>
         <div class="input-list">
           <div class="address">Address</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.zipcode" class="label" placeholder="Enter zipcode" />
           </div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.mainAddress" class="label" placeholder="Enter Address" />
+          </div>
+          <div class="field">
+            <input v-model="profileData.detailedAddress" class="label" placeholder="Enter Detail Address" />
           </div>
         </div>
         <div class="input-group">
           <div class="confirm-password">Confirm Password</div>
-          <div class="field confirm-password-field">
-            <div class="label">Label</div>
+          <div class="confirm-password-field">
+            <!--            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />-->
+            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />
             <button @click="showPasswordModal = true" class="change-button">변경</button>
           </div>
         </div>
@@ -104,6 +108,14 @@
         </div>
       </div>
     </div>
+    <div id="editModal" class="modal" v-if="showEditModal">
+      <div class="modal-content">
+        <span class="close" @click="showEditModal = false">&times;</span>
+        <h2>리뷰 수정</h2>
+        <textarea v-model="currentEditContent"></textarea>
+        <button @click="saveEdit" class="btn btn-edit">저장</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -116,26 +128,88 @@ export default {
     return {
       showPasswordModal: false,
       showDeleteModal: false,
-      profileData: {},
-      userId: 1, // 예시로 사용자 ID를 설정
-      currentView: 'profile', // 초기 뷰 설정
+      showEditModal: false,
+      profileData: {
+        ownerName: '',
+        nickname: '',
+        email: '',
+        zipcode: '',
+        ownerPhoneNumber: '',
+        mainAddress: '',
+        detailedAddress: '',
+        confirmPassword: '',
+      },
+      ownerId: '',
+      currentView: 'profile',
       oldPassword: '',
-      newPassword: ''
+      newPassword: '',
+      searchTerm: '',
+      currentEditId: null,
+      currentEditContent: '',
+      payments: [],
+      reviews: [
+        { id: 1, type: 'gym', target: '파워짐', content: '시설이 깨끗하고 넓어서 좋아요.', date: '2023-05-01' },
+        { id: 2, type: 'trainer', target: '김철수 트레이너', content: '친절하고 전문적인 지도를 해주십니다.', date: '2023-05-02' },
+        { id: 3, type: 'gym', target: '헬스월드', content: '24시간 운영이라 편리해요.', date: '2023-05-03' },
+        { id: 4, type: 'trainer', target: '박영희 트레이너', content: '맞춤형 운동 프로그램을 짜주셔서 효과적이에요.', date: '2023-05-04' },
+        { id: 5, type: 'gym', target: '피트니스팩토리', content: '다양한 운동기구가 있어서 좋아요.', date: '2023-05-05' }
+      ],
+      filteredReviews: [],
     };
+  },
+  created() {
+    this.fetchOwnerProfile();
   },
   methods: {
     changeView(view) {
       this.currentView = view;
     },
-    editProfile() {
-      // 프로필 수정 로직
-      // this.$axios.post('/api/profile/edit', this.profileData)
-      //   .then(response => {
-      //     console.log('Profile updated successfully');
-      //   })
-      //   .catch(error => {
-      //     console.error('Error updating profile:', error);
-      //   });
+    async fetchOwnerProfile() {
+      try {
+        const token = localStorage.getItem('Authorization');
+        const response = await fetch('http://localhost:8080/api/profile/owner', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        this.profileData = await response.json();
+      } catch (error) {
+        console.error('Error fetching owner:', error);
+      }
+    },
+    async editProfile() {
+      try {
+        const token = localStorage.getItem('Authorization');
+        const response = await fetch('http://localhost:8080/api/profile/owner', {
+          // TODO: 헤더에서 토큰 값 가져오기 구현
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+          },
+          body: JSON.stringify({
+            nickname: this.profileData.nickname,
+            email: this.profileData.email,
+            zipcode: this.profileData.zipcode,
+            mainAddress: this.profileData.mainAddress,
+            detailedAddress: this.profileData.detailedAddress,
+            ownerPhoneNumber: this.profileData.ownerPhoneNumber,
+            password: this.profileData.confirmPassword
+          }),
+        });
+
+        if (response.ok) {
+          this.currentSection = 'complete';
+        }
+      } catch (error) {
+        this.showModalMessage('프로필 수정 중 오류가 발생했습니다.');
+      }
     },
     deleteAccount() {
       const token = localStorage.getItem('accessToken'); // localStorage에서 토큰을 가져옵니다.
@@ -166,15 +240,27 @@ export default {
         alert(`회원탈퇴 실패: ${error.message}`);
       });
     },
-    confirmPasswordChange() {
-      // 비밀번호 변경 로직
-      // this.$axios.post('/api/password/change', { oldPassword: this.oldPassword, newPassword: this.newPassword })
-      //   .then(response => {
-      //     console.log('Password changed successfully');
-      //   })
-      //   .catch(error => {
-      //     console.error('Error changing password:', error);
-      //   });
+    async confirmPasswordChange() {
+      try {
+        const token = localStorage.getItem('Authorization');
+        const response = await fetch('http://localhost:8080/api/profile/owner/password', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token,
+          },
+          body: JSON.stringify({
+            oldPassword: this.oldPassword,
+            newPassword: this.newPassword
+          }),
+        });
+
+        if (response.ok) {
+          this.currentSection = 'complete';
+        }
+      } catch (error) {
+        this.showModalMessage('비밀번호 변경 중 오류가 발생했습니다.');
+      }
       this.showPasswordModal = false;
     },
     confirmDeleteAccount() {
@@ -228,7 +314,9 @@ export default {
   background: #F7F7F7;
 }
 
-.menu-item .home-icon {
+.menu-item .home-icon,
+.menu-item .search-icon,
+.menu-item .bell-icon {
   width: 24px;
   height: 24px;
   background: #000;
@@ -345,10 +433,14 @@ export default {
   font-size: 16px;
   line-height: 24px;
   color: #000000;
+  border: none;
+  outline: none;
 }
 
 .confirm-password-field {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
   justify-content: space-between;
 }
 
@@ -519,5 +611,165 @@ export default {
 .delete-modal-content .confirm-button {
   background: #FF6363;
   color: #FFFFFF;
+}
+
+.payments-view {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+
+.payment-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  width: 100%;
+}
+
+.payment-detail {
+  display: flex;
+  justify-content: space-between;
+}
+
+.payment-detail .label {
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  color: #828282;
+}
+
+.payment-detail .value {
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  color: #000000;
+}
+
+.search-container {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.search-container input {
+  width: 70%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.search-container button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.search-container button:hover {
+  background-color: #333333;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th,
+td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #F26921;
+  color: white;
+}
+
+tr:hover {
+  background-color: #f5f5f5;
+}
+
+.reviews-view {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+}
+
+.review-list {
+  list-style-type: none;
+  padding: 0;
+  width: 100%;
+}
+
+.review-item {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.review-actions {
+  margin-top: 10px;
+}
+
+.btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.btn-edit {
+  background-color: #f39c12;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.tab-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: #ecf0f1;
+  border: none;
+  border-radius: 5px 5px 0 0;
+  margin: 0 5px;
+}
+
+.tab.active {
+  background-color: #3498db;
+  color: white;
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
 }
 </style>
