@@ -1,5 +1,5 @@
 <template>
-  <div class="user-profile-page">
+  <div class="trainer-profile-page">
     <aside class="sidebar">
       <nav class="list">
         <div class="menu-item" @click="changeView('profile')">
@@ -21,20 +21,20 @@
         <div class="profile">
           <div class="avatar"></div>
           <div class="frame">
-            <div class="nickname">{{profileData.nickname}}}</div>
+            <div class="nickname">{{profileData.nickname}}</div>
             <div class="batch">Java_5기</div>
           </div>
         </div>
         <div class="input-group">
           <div class="username">Username</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.trainerName" class="label" placeholder="Enter trainerName" />
           </div>
         </div>
         <div class="input-group">
           <div class="nickname">Nickname</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.nickname" class="label" placeholder="Enter Nickname" />
           </div>
         </div>
         <div class="input-group">
@@ -46,25 +46,28 @@
         <div class="input-group">
           <div class="phone-number">Phone Number</div>
           <div class="field">
-            <input v-model="profileData.phoneNumber" class="label" placeholder="Enter Phone Number" />
+            <input v-model="profileData.trainerPhoneNumber" class="label" placeholder="Enter Phone Number" />
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="phone-number">info</div>
+          <div class="field">
+            <input v-model="profileData.trainerInfo" class="label" placeholder="Enter info" />
           </div>
         </div>
         <div class="input-list">
           <div class="address">Address</div>
           <div class="field">
-            <input v-model="profileData.zipcode" class="label" placeholder="Enter zipcode" />
+            <input v-model="profileData.address" class="label" placeholder="Enter Address" />
           </div>
           <div class="field">
-            <input v-model="profileData.mainAddress" class="label" placeholder="Enter Address" />
-          </div>
-          <div class="field">
-            <input v-model="profileData.detailedAddress" class="label" placeholder="Enter Detail Address" />
+            <input v-model="profileData.detailAddress" class="label" placeholder="Enter Detail Address" />
           </div>
         </div>
         <div class="input-group">
           <div class="confirm-password">Confirm Password</div>
           <div class="confirm-password-field">
-            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />
+<!--            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />-->
             <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />
             <button @click="showPasswordModal = true" class="change-button">변경</button>
           </div>
@@ -177,8 +180,6 @@
 </template>
 
 <script>
-import eventBus from '@/eventBus';
-
 export default {
   name: 'UserProfilePage',
   data() {
@@ -187,16 +188,16 @@ export default {
       showDeleteModal: false,
       showEditModal: false,
       profileData: {
-        username: '',
+        trainerName: '',
         nickname: '',
         email: '',
-        zipcode: '',
-        phoneNumber: '',
-        mainAddress: '',
-        detailedAddress: '',
+        trainerInfo: '',
+        trainerPhoneNumber: '',
+        address: '',
+        detailAddress: '',
+        confirmPassword: '',
       },
-      confirmPassword: '',
-      userId: '',
+      userId: 1,
       currentView: 'profile',
       oldPassword: '',
       newPassword: '',
@@ -204,67 +205,45 @@ export default {
       currentEditId: null,
       currentEditContent: '',
       payments: [],
-      reviews: [{
-        id: 1,
-        type: 'gym',
-        target: '파워짐',
-        content: '시설이 깨끗하고 넓어서 좋아요.',
-        date: '2023-05-01'
-      }, {
-        id: 2,
-        type: 'trainer',
-        target: '김철수 트레이너',
-        content: '친절하고 전문적인 지도를 해주십니다.',
-        date: '2023-05-02'
-      }, {
-        id: 3,
-        type: 'gym',
-        target: '헬스월드',
-        content: '24시간 운영이라 편리해요.',
-        date: '2023-05-03'
-      }, {
-        id: 4,
-        type: 'trainer',
-        target: '박영희 트레이너',
-        content: '맞춤형 운동 프로그램을 짜주셔서 효과적이에요.',
-        date: '2023-05-04'
-      }, {
-        id: 5,
-        type: 'gym',
-        target: '피트니스팩토리',
-        content: '다양한 운동기구가 있어서 좋아요.',
-        date: '2023-05-05'
-      }],
-      filteredReviews: []
+      reviews: [
+        { id: 1, type: 'gym', target: '파워짐', content: '시설이 깨끗하고 넓어서 좋아요.', date: '2023-05-01' },
+        { id: 2, type: 'trainer', target: '김철수 트레이너', content: '친절하고 전문적인 지도를 해주십니다.', date: '2023-05-02' },
+        { id: 3, type: 'gym', target: '헬스월드', content: '24시간 운영이라 편리해요.', date: '2023-05-03' },
+        { id: 4, type: 'trainer', target: '박영희 트레이너', content: '맞춤형 운동 프로그램을 짜주셔서 효과적이에요.', date: '2023-05-04' },
+        { id: 5, type: 'gym', target: '피트니스팩토리', content: '다양한 운동기구가 있어서 좋아요.', date: '2023-05-05' }
+      ],
+      filteredReviews: [],
     };
-  },
-  created() {
-    this.fetchUserProfile();
   },
   computed: {
     filteredPayments() {
-      return this.payments.filter(payment => {
-        return Object.values(payment).some(value => typeof value === 'string' && value.toLowerCase().includes(this.searchTerm.toLowerCase()));
+      return this.payments.filter((payment) => {
+        return Object.values(payment).some((value) =>
+            typeof value === 'string' && value.toLowerCase().includes(this.searchTerm.toLowerCase())
+        );
       });
-    }
+    },
+  },
+  created() {
+    this.fetchTrainerProfile();
   },
   methods: {
-    async fetchUserProfile() {
+    async fetchTrainerProfile() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('http://localhost:8080/api/profile/user', {
+        const response = await fetch('http://localhost:8080/api/profile/trainer', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': token
           }
         });
-
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         this.profileData = await response.json();
-      } catch (error) {
+
+      }catch (error) {
         console.error('Error fetching user:', error);
       }
     },
@@ -293,7 +272,7 @@ export default {
     async editProfile() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('http://localhost:8080/api/profile/user', {
+        const response = await fetch('http://localhost:8080/api/profile/trainer', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -301,13 +280,11 @@ export default {
           },
           // TODO 사진 변경 추가
           body: JSON.stringify({
-            username: this.profileData.username,
+            trainerName: this.profileData.trainerName,
             nickname: this.profileData.nickname,
-            zipcode: this.profileData.zipcode,
+            trainerInfo: this.profileData.trainerInfo,
             email: this.profileData.email,
-            mainAddress: this.profileData.mainAddress,
-            detailedAddress: this.profileData.detailedAddress,
-            phoneNumber: this.profileData.phoneNumber,
+            trainerPhoneNumber: this.profileData.trainerPhoneNumber,
             password:this.profileData.confirmPassword
           }),
         });
@@ -320,31 +297,24 @@ export default {
       }
     },
     deleteAccount() {
-      const token = localStorage.getItem('accessToken'); // localStorage에서 토큰을 가져옵니다.
-      if (!token) {
-        alert("로그인 먼저 해주세요.");
-        return;
-      }
-
       fetch('http://localhost:8080/api/profile/users/signout', {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      }).then(response => {
+          'Authorization': `Bearer ${this.$store.getters.accessToken}`,
+        },
+      })
+      .then(response => {
         if (response.ok) {
           alert('회원탈퇴가 완료되었습니다.');
-          localStorage.removeItem('accessToken');
-          eventBus.emit('logout');
-          this.$router.push({
-            name: 'main'
-          });
+          this.$store.dispatch('logout');
+          this.$router.push({ name: 'main' });
         } else {
           response.json().then(data => {
             alert(`회원탈퇴 실패: ${data.message}`);
           });
         }
-      }).catch(error => {
+      })
+      .catch(error => {
         alert(`회원탈퇴 실패: ${error.message}`);
       });
     },
@@ -395,7 +365,7 @@ export default {
         this.reviews.splice(index, 1);
         this.filterReviews('all');
       }
-    }
+    },
   },
   mounted() {
     this.filteredReviews = this.reviews;
@@ -404,7 +374,7 @@ export default {
 </script>
 
 <style scoped>
-.user-profile-page {
+.trainer-profile-page {
   display: flex;
   position: relative;
   width: 100%;
