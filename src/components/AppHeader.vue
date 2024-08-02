@@ -5,7 +5,7 @@
         <div class="div">Fitple</div>
       </div>
       <div v-if="showLocation" class="location-wrapper">
-        <LocationOn class="location-on" @click="confirmLocationUpdate"/>
+        <LocationOn class="location-on" @click="confirmLocationUpdate" />
         <div class="text-wrapper-2">{{ locationText }}</div>
       </div>
       <div class="auth-menu">
@@ -54,7 +54,8 @@ export default {
   },
   computed: {
     showLocation() {
-      return this.$route.name === 'main';
+      const excludedPages = ['login', 'signup', 'business-signup', 'store-management'];
+      return !excludedPages.includes(this.$route.name);
     }
   },
   methods: {
@@ -157,8 +158,8 @@ export default {
           localStorage.removeItem('accessToken');
           this.isLoggedIn = false;
           eventBus.emit('logout');
-          alert("회원탈퇴 성공");
           router.push({ name: 'main' });
+          alert("회원탈퇴 성공");
         } else {
           const errorData = await response.json();
           alert(`회원탈퇴 실패: ${errorData.message || '알 수 없는 오류'}`);
