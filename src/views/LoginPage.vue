@@ -28,7 +28,7 @@
     <div class="social-login-buttons">
       <img src="@/assets/Login_Button/Kakao_Button.svg" alt="카카오 로그인" class="social-button" />
       <img src="@/assets/Login_Button/Naver_Button.svg" alt="네이버 로그인" class="social-button" />
-      <img src="@/assets/Login_Button/Google_Button.svg" alt="구글 로그인" class="social-button" />
+      <img src="@/assets/Login_Button/Google_Button.svg" alt="구글 로그인" class="social-button" @click="handleGoogleLogin" />
     </div>
     <div class="business-login">
       <button @click="goToBusinessSignupPage" class="business-login-link">비즈니스 회원가입</button>
@@ -79,6 +79,9 @@ export default {
       } else {
         alert("아이디와 비밀번호를 입력해주세요.");
       }
+    },
+    handleGoogleLogin() {
+      window.location.href = 'http://localhost:8080/oauth2/authorization/google';
     },
     goToBusinessSignupPage() {
       this.$router.push({ name: 'business-signup' });
