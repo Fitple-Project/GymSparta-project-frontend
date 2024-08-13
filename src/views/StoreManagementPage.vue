@@ -79,9 +79,9 @@
           <textarea id="membership" v-model="membership" placeholder="등록할 회원권의 기간과 가격을 입력하세요"></textarea>
         </div>
         <div class="form-field">
-            <label for="price">가격</label>
-            <input type="text" id="price" v-model="price" placeholder="가격을 입력하세요" />
-          </div>
+          <label for="price">가격</label>
+          <input type="text" id="price" v-model="price" placeholder="가격을 입력하세요" />
+        </div>
         <div class="form-field">
           <label for="ptSession">PT 세션</label>
           <textarea id="ptSession" v-model="ptSession" placeholder="등록할 PT 세션의 내용을 입력하세요"></textarea>
@@ -98,6 +98,22 @@
       </section>
     </main>
     <TrainerModal v-if="isTrainerModalVisible" :visible="isTrainerModalVisible" :type="trainerModalType" @close="closeTrainerModal" />
+
+    <!-- 오류 메시지 모달 -->
+    <div v-if="errorDialog" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">오류 발생</h5>
+          <button type="button" class="close" @click="errorDialog = false">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>{{ errorMessage }}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" @click="errorDialog = false">확인</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -125,6 +141,8 @@ export default {
       ptSession: '',
       trainerList: '',
       price: '',
+      errorMessage: '', // 오류 메시지 저장
+      errorDialog: false // 모달 상태 저장
     };
   },
   methods: {
@@ -176,7 +194,9 @@ export default {
       })
         .then(response => {
           if (!response.ok) {
-            throw new Error('매장 등록 중 오류가 발생했습니다.');
+            return response.json().then(errorData => {
+              throw new Error(errorData.message || '알 수 없는 오류가 발생했습니다.');
+            });
           }
           return response.json();
         })
@@ -187,22 +207,23 @@ export default {
           this.fetchStores();
         })
         .catch((error) => {
+          this.errorMessage = error.message;
+          this.errorDialog = true;
           console.error(error);
-          alert('매장 등록 중 오류가 발생했습니다.');
         });
     },
     clearStoreForm() {
-        this.storeName = '';
-        this.storeAddress = '';
-        this.storeIntro = '';
-        this.services = '';
-        this.operatingHours = '';
-        this.phoneNumber = '';
-        this.membership = '';
-        this.ptSession = '';
-        this.trainerList = '';
-        this.price = '';
-      },
+      this.storeName = '';
+      this.storeAddress = '';
+      this.storeIntro = '';
+      this.services = '';
+      this.operatingHours = '';
+      this.phoneNumber = '';
+      this.membership = '';
+      this.ptSession = '';
+      this.trainerList = '';
+      this.price = '';
+    },
     fetchStores() {
       console.log('Fetching stores...');
 
@@ -215,7 +236,9 @@ export default {
       })
         .then(response => {
           if (!response.ok) {
-            throw new Error('Network response was not ok: ' + response.statusText);
+            return response.json().then(errorData => {
+              throw new Error(errorData.message || 'HTTP error! status: ' + response.status);
+            });
           }
           return response.json();
         })
@@ -241,6 +264,8 @@ export default {
           }
         })
         .catch(error => {
+          this.errorMessage = error.message;
+          this.errorDialog = true;
           console.error('There has been a problem with your fetch operation:', error);
         });
     }
@@ -248,7 +273,6 @@ export default {
   mounted() {
     this.fetchStores();
   }
-
 }
 </script>
 
@@ -459,5 +483,76 @@ export default {
 
 .unregister-button {
   background: #ff6b6b;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #F26921;
+}
+
+.modal-body {
+  margin-top: 10px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.close {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 24px;
+}
+
+.close:hover {
+  color: red;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
 }
 </style>

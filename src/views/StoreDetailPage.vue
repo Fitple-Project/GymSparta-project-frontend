@@ -8,6 +8,10 @@
       <p class="store-phone">전화번호: {{ storeDetails.storeTel }}</p>
     </div>
     <div class="store-info">
+    <div class="section">
+            <h2>매장 소개</h2>
+            <p>{{ storeDetails.storeInfo }}</p>
+          </div>
       <h2>회원권</h2>
       <MembershipSection :memberships="storeDetails.memberships || []" @more-click="goToMembershipsPage"/>
       <h2>1:1 P.T 상담</h2>

@@ -5,18 +5,35 @@
 <script>
 /* global google */
 
-import {Loader} from "@googlemaps/js-api-loader";
+import { Loader } from "@googlemaps/js-api-loader";
+import { getCurrentLocation } from "@/utils/location";
 
 export default {
   name: 'MapComponent',
   props: {
-    center: {
-      type: Object,
-      default: () => ({lat: 37.5665, lng: 126.9780}) // 서울의 기본 좌표
-    },
     zoom: {
       type: Number,
-      default: 10
+      default: 15
+    },
+    markers: {
+      type: Array,
+      default: () => []
+    }
+  },
+  data() {
+    return {
+      map: null,
+      googleMarkers: [],
+      infoWindow: null
+    };
+  },
+  watch: {
+    markers: {
+      handler(newMarkers) {
+        this.clearMarkers();
+        this.addMarkers(newMarkers);
+      },
+      deep: true
     }
   },
   mounted() {
@@ -25,7 +42,7 @@ export default {
   methods: {
     async loadGoogleMapsApi() {
       const loader = new Loader({
-        apiKey: 'AIzaSyAWbTMbQni2k1rhRNxtJX7iUsRFl5fR3ss',
+        apiKey: 'AIzaSyAWbTMbQni2k1rhRNxtJX7iUsRFl5fR3ss',  // 여기에 실제 API 키를 입력하세요.
         version: 'weekly',
         libraries: ['places']
       });
@@ -37,12 +54,72 @@ export default {
         console.error('Google Maps API load error:', error);
       }
     },
-    initMap() {
-      const mapOptions = {
-        center: this.center,
-        zoom: this.zoom
-      };
-      this.map = new google.maps.Map(this.$refs.map, mapOptions);
+
+    async initMap() {
+      try {
+        const location = await getCurrentLocation();
+        const mapOptions = {
+          center: { lat: location.latitude, lng: location.longitude },
+          zoom: 16 // 현재 위치를 중심으로 줌인
+        };
+
+        this.map = new google.maps.Map(this.$refs.map, mapOptions);
+
+        const blueMarkerIcon = {
+          url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+        };
+
+        new google.maps.Marker({
+          position: { lat: location.latitude, lng: location.longitude },
+          map: this.map,
+          icon: blueMarkerIcon,
+          title: 'You are here'
+        });
+
+        this.infoWindow = new google.maps.InfoWindow();
+        this.addMarkers(this.markers);
+      } catch (error) {
+        console.error('Error getting current location:', error);
+      }
+    },
+
+    addMarkers(markers) {
+      this.clearMarkers();
+
+      const bounds = new google.maps.LatLngBounds();
+      markers.forEach(markerData => {
+        const marker = new google.maps.Marker({
+          position: { lat: markerData.lat, lng: markerData.lng },
+          map: this.map,
+          title: markerData.title
+        });
+
+        marker.addListener('click', () => {
+          const content = `
+            <div>
+              <h3>${markerData.title}</h3>
+              <p>${markerData.address}</p>
+            </div>
+          `;
+          this.infoWindow.setContent(content);
+          this.infoWindow.open(this.map, marker);
+        });
+
+        this.googleMarkers.push(marker);
+        bounds.extend(marker.position);
+      });
+    },
+
+    clearMarkers() {
+      this.googleMarkers.forEach(marker => marker.setMap(null));
+      this.googleMarkers = [];
+    },
+
+    zoomToLocation(lat, lng, zoomLevel = 21) {
+      if (this.map) {
+        this.map.setCenter({ lat, lng });
+        this.map.setZoom(zoomLevel);
+      }
     }
   }
 };

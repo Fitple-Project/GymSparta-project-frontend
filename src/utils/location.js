@@ -38,3 +38,24 @@ export async function getAddressFromCoordinates(latitude, longitude) {
     throw new Error('Geocoding API request failed');
   }
 }
+
+export async function getCoordinatesFromAddress(address) {
+  const apiKey = 'AIzaSyAWbTMbQni2k1rhRNxtJX7iUsRFl5fR3ss';  // 여기에 유효한 Google Maps API 키를 입력하세요.
+  try {
+    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`);
+    const data = await response.json();
+    if (data.status === 'OK' && data.results.length > 0) {
+      const location = data.results[0].geometry.location;
+      return {
+        latitude: location.lat,
+        longitude: location.lng
+      };
+    } else {
+      console.error('Geocoding API response:', data);
+      throw new Error('Failed to get coordinates from address');
+    }
+  } catch (error) {
+    console.error('Geocoding API request failed:', error);
+    throw new Error('Geocoding API request failed');
+  }
+}
