@@ -2,8 +2,8 @@
   <div>
     <SearchContainer />
     <TrainerSection title="트레이너" :trainers="trainers" />
-    <GymSection title="주변 운동시설" :gyms="gyms" />
-    <GymSection title="최근 둘러본 운동시설" :gyms="recentGyms" />
+    <GymSection title="주변 운동시설" :gyms="gyms" @cardClicked="navigateToGymDetail" />
+    <GymSection title="최근 둘러본 운동시설" :gyms="recentGyms" @cardClicked="navigateToGymDetail" />
     <AppFooter />
   </div>
 </template>
@@ -13,10 +13,8 @@ import SearchContainer from "@/components/SearchContainer.vue";
 import TrainerSection from "@/components/TrainerSection.vue";
 import GymSection from "@/components/GymSection.vue";
 import AppFooter from "@/components/AppFooter.vue";
+import { getCurrentLocation, getCoordinatesFromAddress } from '@/utils/location';
 import mk1 from '@/assets/Gym_image/mk1.svg';
-import dy1 from '@/assets/Gym_image/dy1.svg';
-import h1 from '@/assets/Gym_image/h1.svg';
-import hm1 from '@/assets/Gym_image/hm1.svg';
 import trainer1 from '@/assets/Trainer_image/kim.svg';
 import trainer2 from '@/assets/Trainer_image/hcs.svg';
 import trainer3 from '@/assets/Trainer_image/Ronnie.svg';
@@ -32,202 +30,8 @@ export default {
   },
   data() {
     return {
-      gyms: [
-        {
-          id: 1,
-          image: mk1,
-          category: '헬스장 · 필라테스',
-          name: 'MK휘트니스',
-          location: '서울 강남구 봉은사로 129-1 751빌딩 지하2층',
-          info: '헬스 (1개월)',
-          price: '150,000원',
-          originalPrice: '200,000원',
-          rating: '4.9',
-          reviews: '7,185명 평가'
-        },
-        {
-          id: 2,
-          image: dy1,
-          category: '헬스장 · 재활',
-          name: '데일리앤핏 24시',
-          location: '서울 강남구 도곡로 323 지하1층',
-          info: '헬스 (1개월)',
-          price: '158,500원',
-          originalPrice: '200,000원',
-          rating: '4.1',
-          reviews: '5,263명 평가'
-        },
-        {
-          id: 3,
-          image: h1,
-          category: '헬스장 · PT',
-          name: '하와이짐 논현프라이빗점',
-          location: '서울 강남구 언주로122길 35',
-          info: 'PT 10 Session(L1~L3)',
-          price: '700,000~900,000원',
-          originalPrice: '',
-          rating: '5',
-          reviews: '731명 평가'
-        },
-        {
-          id: 4,
-          image: hm1,
-          category: '헬스장 · PT',
-          name: '휴메이크휘트니스 논현점',
-          location: '서울 강남구 강남대로 546 지하2층',
-          info: '헬스 이용권',
-          price: '29,000~100,000원',
-          originalPrice: '',
-          rating: '4.6',
-          reviews: '2,952명 평가'
-        },
-        {
-          id: 5,
-          image: hm1,
-          category: '헬스장 · PT',
-          name: '휴메이크휘트니스 논현점',
-          location: '서울 강남구 강남대로 546 지하2층',
-          info: '헬스 이용권',
-          price: '29,000~100,000원',
-          originalPrice: '',
-          rating: '4.6',
-          reviews: '2,952명 평가'
-        },
-        {
-          id: 6,
-          image: hm1,
-          category: '헬스장 · PT',
-          name: '휴메이크휘트니스 논현점',
-          location: '서울 강남구 강남대로 546 지하2층',
-          info: '헬스 이용권',
-          price: '29,000~100,000원',
-          originalPrice: '',
-          rating: '4.6',
-          reviews: '2,952명 평가'
-        },
-        {
-          id: 7,
-          image: hm1,
-          category: '헬스장 · PT',
-          name: '휴메이크휘트니스 논현점',
-          location: '서울 강남구 강남대로 546 지하2층',
-          info: '헬스 이용권',
-          price: '29,000~100,000원',
-          originalPrice: '',
-          rating: '4.6',
-          reviews: '2,952명 평가'
-        },
-        {
-          id: 8,
-          image: hm1,
-          category: '헬스장 · PT',
-          name: '휴메이크휘트니스 논현점',
-          location: '서울 강남구 강남대로 546 지하2층',
-          info: '헬스 이용권',
-          price: '29,000~100,000원',
-          originalPrice: '',
-          rating: '4.6',
-          reviews: '2,952명 평가'
-        },
-      ],
-      recentGyms: [
-        {
-          id: 9,
-          image: mk1,
-          category: '헬스장 · 필라테스',
-          name: 'MK휘트니스',
-          location: '서울 강남구 봉은사로 129-1 751빌딩 지하2층',
-          info: '헬스 (1개월)',
-          price: '150,000원',
-          originalPrice: '200,000원',
-          rating: '4.9',
-          reviews: '7,185명 평가'
-        },
-        {
-          id: 10,
-          image: dy1,
-          category: '헬스장 · 재활',
-          name: '데일리앤핏 24시',
-          location: '서울 강남구 도곡로 323 지하1층',
-          info: '헬스 (1개월)',
-          price: '158,500원',
-          originalPrice: '200,000원',
-          rating: '4.1',
-          reviews: '5,263명 평가'
-        },
-        {
-          id: 11,
-          image: h1,
-          category: '헬스장 · PT',
-          name: '하와이짐 논현프라이빗점',
-          location: '서울 강남구 언주로122길 35',
-          info: 'PT 10 Session(L1~L3)',
-          price: '700,000~900,000원',
-          originalPrice: '',
-          rating: '5',
-          reviews: '731명 평가'
-        },
-        {
-          id: 12,
-          image: hm1,
-          category: '헬스장 · PT',
-          name: '휴메이크휘트니스 논현점',
-          location: '서울 강남구 강남대로 546 지하2층',
-          info: '헬스 이용권',
-          price: '29,000~100,000원',
-          originalPrice: '',
-          rating: '4.6',
-          reviews: '2,952명 평가'
-        },
-        {
-          id: 13,
-          image: hm1,
-          category: '헬스장 · PT',
-          name: '휴메이크휘트니스 논현점',
-          location: '서울 강남구 강남대로 546 지하2층',
-          info: '헬스 이용권',
-          price: '29,000~100,000원',
-          originalPrice: '',
-          rating: '4.6',
-          reviews: '2,952명 평가'
-        },
-        {
-          id: 14,
-          image: hm1,
-          category: '헬스장 · PT',
-          name: '휴메이크휘트니스 논현점',
-          location: '서울 강남구 강남대로 546 지하2층',
-          info: '헬스 이용권',
-          price: '29,000~100,000원',
-          originalPrice: '',
-          rating: '4.6',
-          reviews: '2,952명 평가'
-        },
-        {
-          id: 15,
-          image: hm1,
-          category: '헬스장 · PT',
-          name: '휴메이크휘트니스 논현점',
-          location: '서울 강남구 강남대로 546 지하2층',
-          info: '헬스 이용권',
-          price: '29,000~100,000원',
-          originalPrice: '',
-          rating: '4.6',
-          reviews: '2,952명 평가'
-        },
-        {
-          id: 16,
-          image: hm1,
-          category: '헬스장 · PT',
-          name: '휴메이크휘트니스 논현점',
-          location: '서울 강남구 강남대로 546 지하2층',
-          info: '헬스 이용권',
-          price: '29,000~100,000원',
-          originalPrice: '',
-          rating: '4.6',
-          reviews: '2,952명 평가'
-        },
-      ],
+      gyms: [],
+      recentGyms: [], // 초기값을 빈 배열로 설정
       trainers: [
         {
           id: 1,
@@ -255,6 +59,126 @@ export default {
         },
       ],
     };
+  },
+  methods: {
+    async fetchNearbyGyms() {
+      try {
+        const currentLocation = await getCurrentLocation(); // 현재 위치 가져오기
+
+        const response = await fetch('http://localhost:8080/api/stores');
+        const responseData = await response.json();
+
+        const storesWithCoordinates = await Promise.all(responseData.data.map(async store => {
+          const coordinates = await getCoordinatesFromAddress(store.storeAddress);
+          if (coordinates.latitude !== 0 && coordinates.longitude !== 0) {
+            const distance = this.getDistance(
+              currentLocation.latitude,
+              currentLocation.longitude,
+              coordinates.latitude,
+              coordinates.longitude
+            );
+
+            // 모든 매장에 대해 데이터를 저장
+            return {
+              id: store.storeId,
+              image: store.image || mk1,
+              category: store.category || '카테고리 정보 없음',
+              name: store.storeName,
+              location: store.storeAddress,
+              info: store.storeInfo || '정보 없음',
+              price: store.storePrice || '가격 정보 없음',
+              rating: store.rating || '평점 없음',
+              reviews: store.reviews || '리뷰 없음',
+              latitude: coordinates.latitude,
+              longitude: coordinates.longitude,
+              distance
+            };
+          }
+        }));
+
+        this.gyms = storesWithCoordinates.filter(store => store && store.distance <= 10);
+
+      } catch (error) {
+        console.error('매장 정보를 가져오거나 지오코딩하는 중 오류 발생:', error);
+      }
+    },
+
+    async fetchRecentGyms() {
+        try {
+            const response = await fetch('http://localhost:8080/api/stores/recent', {
+                method: 'GET',
+                credentials: 'include' // 쿠키를 포함하여 요청
+            });
+            const responseData = await response.json();
+
+            console.log('최근 방문한 매장 응답 데이터:', responseData);
+
+            if (responseData && responseData.data) {
+                this.recentGyms = responseData.data.map(store => ({
+                    id: store.storeId,
+                    image: store.image || mk1,
+                    category: store.category || '카테고리 정보 없음',
+                    name: store.storeName,
+                    location: store.storeAddress,
+                    info: store.storeInfo || '정보 없음',
+                    price: store.storePrice || '가격 정보 없음',
+                    rating: store.rating || '평점 없음',
+                    reviews: store.reviews || '리뷰 없음',
+                }));
+            }
+        } catch (error) {
+            console.error('최근 방문한 매장 정보를 가져오는 중 오류 발생:', error);
+        }
+    },
+
+    getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // 지구 반지름 (km)
+      const dLat = this.deg2rad(lat2 - lat1);
+      const dLon = this.deg2rad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c; // 거리 (km)
+    },
+
+    deg2rad(deg) {
+      return deg * (Math.PI / 180);
+    },
+
+    async navigateToGymDetail(gymId) {
+        console.log('Navigating to gym detail for gymId:', gymId);
+
+        try {
+          // 상세 조회 API 호출
+          const response = await fetch(`http://localhost:8080/api/stores/${gymId}`, {
+            method: 'GET',
+            credentials: 'include'
+          });
+          const storeDetail = await response.json();
+
+          console.log('상세 조회 응답 데이터:', storeDetail);
+
+          // 쿠키 값 디버깅
+          console.log('Updated recentStores cookie value:', document.cookie);
+
+          // 상세 페이지로 이동
+          this.$router.push({ name: "storeDetail", params: { id: gymId } });
+
+         // HomePage에서만 fetchRecentGyms를 호출하게 함
+            if (this.$route.name === 'HomePage') {
+              this.fetchRecentGyms();
+            }
+        } catch (error) {
+          console.error('상세 조회 중 오류 발생:', error);
+        }
+    },
+  },
+
+  mounted() {
+    this.fetchNearbyGyms(); // 페이지 로드 시 현재 위치 기반 운동시설 데이터 로드
+    this.fetchRecentGyms(); // 최근 방문한 운동시설 데이터 로드
   }
 };
 </script>

@@ -8,10 +8,11 @@
       <img v-if="startIndex > 0" src="@/assets/Card_Next_Button.svg" class="card-prev-button" @click="scrollPrev" />
       <div class="gym-list" ref="gymList">
         <GymCard
-            v-for="gym in visibleGyms"
-            :key="gym.id"
-            :gym="gym"
-            class="gym-card"
+          v-for="gym in visibleGyms"
+          :key="gym.id"
+          :gym="gym"
+          class="gym-card"
+          @cardClicked="handleCardClick"
         />
       </div>
       <img v-if="startIndex + 5 < gyms.length" src="@/assets/Card_Next_Button.svg" class="card-next-button" @click="scrollNext" />
@@ -57,12 +58,11 @@ export default {
       if (this.startIndex > 0) {
         this.startIndex -= 1;
       }
-    }
-  },
-  mounted() {
-    if (this.$refs.gymList) {
-      this.gymListElement = this.$refs.gymList;
-    }
+    },
+    handleCardClick(gymId) {
+        console.log('GymSection received cardClicked event:', gymId);  // 이 로그가 출력되는지 확인
+        this.$emit("cardClicked", gymId);  // 이 이벤트가 HomePage로 전달됨
+      }
   }
 };
 </script>
