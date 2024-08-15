@@ -16,7 +16,23 @@
     </aside>
     <main class="main-content">
       <section v-if="activeSection === 'storeList'" class="store-list">
-        <h1 class="page-title">매장 목록</h1>
+        <div class="header-with-buttons">
+          <h1 class="page-title">매장 목록</h1>
+          <button @click="openWriteModal" class="btn">공지사항 작성</button>
+          <button @click="openListModal" class="btn">공지사항 목록</button>
+        </div>
+
+        <!-- 예시 매장 카드 -->
+        <div class="store-card" @click="storeClicked(exampleStore.id)">
+          <img :src="exampleStore.image" alt="store image" class="store-image" />
+          <div class="store-info">
+            <h3>{{ exampleStore.store_name }}</h3>
+            <p>{{ exampleStore.store_address }}</p>
+            <p class="store-price">{{ exampleStore.price }}원~/월</p>
+          </div>
+        </div>
+
+        <!-- 실제 매장 데이터가 로드되면 이 부분이 사용됩니다 -->
         <div class="store-card" v-for="store in stores" :key="store.id" @click="storeClicked(store.id)">
           <img :src="store.image" alt="store image" class="store-image" />
           <div class="store-info">
@@ -26,6 +42,71 @@
           </div>
         </div>
       </section>
+
+      <!-- 공지사항 작성 모달 -->
+      <div v-if="isWriteModalVisible" class="modal" @click.self="closeModal">
+        <div class="modal-content">
+          <span @click="closeModal" class="close">&times;</span>
+          <h2>공지사항 작성</h2>
+          <form @submit.prevent="submitNotice">
+            <label for="title">제목:</label><br>
+            <input type="text" id="title" v-model="noticeTitle" required><br>
+            <label for="content">내용:</label><br>
+            <textarea id="content" v-model="noticeContent" rows="4" required></textarea><br>
+            <button type="submit" class="btn">등록</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- 공지사항 목록 모달 -->
+      <div v-if="isListModalVisible" class="modal-overlay" @click.self="closeModal">
+        <div class="modal">
+          <div class="modal-header">
+            <h2 class="modal-title">공지사항 목록</h2>
+            <button class="close-button" @click="closeModal">&times;</button>
+          </div>
+          <div class="modal-content">
+            <ul id="noticeList">
+              <li v-for="(notice, index) in notices" :key="index" @click="openDetailModal(notice)">
+                <strong>{{ notice.title }}</strong>
+
+                <small>{{ notice.date }}</small>
+
+                {{ notice.content }}
+              </li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" @click="closeModal">닫기</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 공지사항 상세 모달 -->
+      <div v-if="isDetailModalVisible" class="modal-overlay" @click.self="closeModal">
+        <div class="modal">
+          <div class="modal-header">
+            <h2 class="modal-title">{{ detailNotice.title }}</h2>
+            <button class="close-button" @click="closeDetailModal">&times;</button>
+          </div>
+          <div class="modal-content">
+            <h3>{{ detailNotice.title }}</h3>
+            <p>{{ detailNotice.content }}</p>
+            <h4>주요 업데이트 내용:</h4>
+            <ul>
+              <li>사용자 인터페이스 개선</li>
+              <li>보안 시스템 강화</li>
+              <li>새로운 기능 추가</li>
+            </ul>
+            <p>업데이트 완료 후 더욱 향상된 서비스로 찾아뵙겠습니다.</p>
+            <p>감사합니다.</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" @click="closeDetailModal">뒤로가기</button>
+          </div>
+        </div>
+      </div>
+
       <section v-if="activeSection === 'trainerList'" class="trainer-list">
         <div class="trainer-list-header">
           <h1 class="page-title">트레이너 목록</h1>
@@ -43,6 +124,7 @@
           </div>
         </div>
       </section>
+
       <section v-if="activeSection === 'storeRegister'" class="store-register">
         <h1 class="page-title">매장 등록</h1>
         <div class="store-photo">
@@ -79,9 +161,9 @@
           <textarea id="membership" v-model="membership" placeholder="등록할 회원권의 기간과 가격을 입력하세요"></textarea>
         </div>
         <div class="form-field">
-            <label for="price">가격</label>
-            <input type="text" id="price" v-model="price" placeholder="가격을 입력하세요" />
-          </div>
+          <label for="price">가격</label>
+          <input type="text" id="price" v-model="price" placeholder="가격을 입력하세요" />
+        </div>
         <div class="form-field">
           <label for="ptSession">PT 세션</label>
           <textarea id="ptSession" v-model="ptSession" placeholder="등록할 PT 세션의 내용을 입력하세요"></textarea>
@@ -113,6 +195,13 @@ export default {
       activeSection: 'storeList',
       isTrainerModalVisible: false,
       trainerModalType: 'register',
+      exampleStore: {
+        id: 1,
+        store_name: '스파르타 피트니스',
+        store_address: '서울특별시 강남구 역삼동 123-45',
+        price: '100,000',
+        image: 'https://example.com/store-image.jpg' // 예시 이미지 URL
+      },
       stores: [],
       trainers: [],
       storeName: '',
@@ -125,6 +214,20 @@ export default {
       ptSession: '',
       trainerList: '',
       price: '',
+      // 공지사항 관련 데이터
+      isWriteModalVisible: false,
+      isListModalVisible: false,
+      isDetailModalVisible: false,
+      notices: [
+        {
+          title: '2023년 하반기 시스템 업데이트 안내',
+          content: '당사는 더 나은 서비스 제공을 위해 2023년 9월 15일부터 9월 17일까지 시스템 업데이트를 진행할 예정입니다.',
+          date: new Date().toLocaleString(),
+        }
+      ],
+      noticeTitle: '',
+      noticeContent: '',
+      detailNotice: {}
     };
   },
   methods: {
@@ -142,7 +245,7 @@ export default {
       this.isTrainerModalVisible = false;
     },
     storeClicked(storeId) {
-      console.log('Store ID:', storeId); // 디버그용 로그 추가
+      console.log('Store ID:', storeId);
       if (!storeId) {
         console.error('Store ID is undefined or null');
         return;
@@ -174,35 +277,35 @@ export default {
         },
         body: JSON.stringify(payload)
       })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('매장 등록 중 오류가 발생했습니다.');
-          }
-          return response.json();
-        })
-        .then(() => {
-          alert('매장 등록이 완료되었습니다');
-          this.clearStoreForm();
-          this.changeSection('storeList');
-          this.fetchStores();
-        })
-        .catch((error) => {
-          console.error(error);
-          alert('매장 등록 중 오류가 발생했습니다.');
-        });
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('매장 등록 중 오류가 발생했습니다.');
+        }
+        return response.json();
+      })
+      .then(() => {
+        alert('매장 등록이 완료되었습니다');
+        this.clearStoreForm();
+        this.changeSection('storeList');
+        this.fetchStores();
+      })
+      .catch((error) => {
+        console.error(error);
+        alert('매장 등록 중 오류가 발생했습니다.');
+      });
     },
     clearStoreForm() {
-        this.storeName = '';
-        this.storeAddress = '';
-        this.storeIntro = '';
-        this.services = '';
-        this.operatingHours = '';
-        this.phoneNumber = '';
-        this.membership = '';
-        this.ptSession = '';
-        this.trainerList = '';
-        this.price = '';
-      },
+      this.storeName = '';
+      this.storeAddress = '';
+      this.storeIntro = '';
+      this.services = '';
+      this.operatingHours = '';
+      this.phoneNumber = '';
+      this.membership = '';
+      this.ptSession = '';
+      this.trainerList = '';
+      this.price = '';
+    },
     fetchStores() {
       console.log('Fetching stores...');
 
@@ -213,42 +316,73 @@ export default {
           'Content-Type': 'application/json'
         }
       })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok: ' + response.statusText);
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Fetched stores:', data); // 서버 응답 데이터 로그 출력
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok: ' + response.statusText);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Fetched stores:', data);
 
-          if (data.data && Array.isArray(data.data)) {
-            // 서버에서 반환된 데이터를 Vue 상태에 저장
-            this.stores = data.data.map(store => {
-              console.log('Store:', store); // 각 매장 데이터 로그 출력
-              console.log('Store price:', store.price); // 가격 속성 로그 출력
-              return {
-                id: store.storeId, // 서버에서 반환된 데이터 속성 이름 확인
-                store_name: store.storeName, // 서버에서 반환된 데이터 속성 이름 확인
-                store_address: store.storeAddress, // 서버에서 반환된 데이터 속성 이름 확인
-                price: store.storePrice || 'N/A', // 가격 속성 매핑 확인
-                image: store.image || 'default-image-url' // 이미지가 없을 경우 기본 이미지 사용
-              };
-            });
-            console.log('Mapped stores:', this.stores);
-          } else {
-            console.error('Unexpected data format:', data);
-          }
-        })
-        .catch(error => {
-          console.error('There has been a problem with your fetch operation:', error);
-        });
+        if (data.data && Array.isArray(data.data)) {
+          this.stores = data.data.map(store => {
+            console.log('Store:', store);
+            console.log('Store price:', store.price);
+            return {
+              id: store.storeId,
+              store_name: store.storeName,
+              store_address: store.storeAddress,
+              price: store.storePrice || 'N/A',
+              image: store.image || 'default-image-url'
+            };
+          });
+          console.log('Mapped stores:', this.stores);
+        } else {
+          console.error('Unexpected data format:', data);
+        }
+      })
+      .catch(error => {
+        console.error('There has been a problem with your fetch operation:', error);
+      });
+    },
+    // 공지사항 모달 관련 메서드
+    openWriteModal() {
+      this.isWriteModalVisible = true;
+    },
+    openListModal() {
+      this.isListModalVisible = true;
+    },
+    openDetailModal(notice) {
+      this.detailNotice = notice;
+      this.isListModalVisible = false;
+      this.isDetailModalVisible = true;
+    },
+    closeDetailModal() {
+      this.isDetailModalVisible = false;
+      this.isListModalVisible = true;
+    },
+    closeModal() {
+      this.isWriteModalVisible = false;
+      this.isListModalVisible = false;
+      this.isDetailModalVisible = false;
+    },
+    submitNotice() {
+      const date = new Date().toLocaleString();
+      this.notices.push({
+        title: this.noticeTitle,
+        content: this.noticeContent,
+        date
+      });
+      this.noticeTitle = '';
+      this.noticeContent = '';
+      this.closeModal();
+      alert("공지사항이 등록되었습니다.");
     }
   },
   mounted() {
     this.fetchStores();
   }
-
 }
 </script>
 
@@ -298,12 +432,109 @@ export default {
   overflow-y: auto;
 }
 
+.header-with-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
 .page-title {
   font-family: 'Inter';
   font-size: 32px;
   font-weight: 700;
   color: #000000;
-  margin-bottom: 20px;
+}
+
+.btn {
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 600px;
+  animation: modalAppear 0.3s ease-out;
+}
+
+.modal-header {
+  background-color: #4CAF50;
+  color: white;
+  padding: 15px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+.modal-content {
+  padding: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 15px;
+  text-align: right;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-primary {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #45a049;
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .store-card,

@@ -31,11 +31,11 @@
         </div>
         <div class="textarea no-input">
           <strong>제1조(목적)</strong>
-          <p>1. 본 약관은 Fitple가 운영하는 온라인 쇼핑몰 'Fitple(https://fitple.kr)'에서 제공 하는 서비스(이하 '서비스'라 합니다)를 이용함에 있어 당사자의 권리 의무 및 책임사 항을 규정하는 것을 목적으로 합니다.</p>
+          <p>1. 본 약관은 GymSpartae가 운영하는 온라인 쇼핑몰 'GymSparta(https://GymSparta.shop)'에서 제공 하는 서비스(이하 '서비스'라 합니다)를 이용함에 있어 당사자의 권리 의무 및 책임사 항을 규정하는 것을 목적으로 합니다.</p>
           <p>2.PC통신, 무선 등을 이용하는 전자상거래에 대해서도 그 성질에 반하지 않는 한 본 약 관을 준용합니다.</p>
 
           <strong>제2조(정의)</strong>
-          <p>1. '회사'라 함은, 'Fitple'가 재화 또는 용역을 이용자에게 제공하기 위하여 컴퓨터 등 정보통신설비를 이용하여 재화등을 거래할 수 있도록 설정한 가상의 영업장을 운영 하는 사업자를 말하며, 아울러 'Fitple(https://fitple.kr)'을 통해 제공되는 전자상 거래 관련 서비스의 의미로도 사용합니다.</p>
+          <p>1. '회사'라 함은, 'GymSparta'가 재화 또는 용역을 이용자에게 제공하기 위하여 컴퓨터 등 정보통신설비를 이용하여 재화등을 거래할 수 있도록 설정한 가상의 영업장을 운영 하는 사업자를 말하며, 아울러 'GymSparta(https://GymSparta.shop)'을 통해 제공되는 전자상 거래 관련 서비스의 의미로도 사용합니다.</p>
           <p>3. '회원'이라 함은 '회사'에 개인정보를 제공하고 회원으로 등록한 자로서, '회사'의 서 비스를 계속하여 이용할 수 있는 자를 말합니다.</p>
           <p>4. '비회원'이라 함은, 회원으로 등록하지 않고, '회사'가 제공하는 서비스를 이용하는 자 를 말합니다.</p>
           <p>5. '상품'이라 함은 '사이트'를 통하여 제공되는 재화 또는 용역을 말합니다.</p>
@@ -238,35 +238,35 @@
       <div class="fieldset">
         <div class="input-group">
           <label for="business-name">상호명(법인명) <span class="required">*</span></label>
-          <input type="text" id="business-name" v-model="businessName" placeholder="상호명(법인명)" required />
+          <input type="text" id="business-name" v-model="businessName" placeholder="상호명(예: Google)" required />
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
           <label for="business-number">사업자등록번호 <span class="required">*</span></label>
-          <input type="text" id="business-number" v-model="businessNumber" placeholder="사업자등록번호" maxlength="10" required />
+          <input type="text" id="business-number" v-model="businessNumber" placeholder="사업자등록번호(예: 1234567890)" maxlength="10" required />
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
           <label for="postal-code">사업체 주소 <span class="required">*</span></label>
           <div class="postal-code-wrapper">
-            <input type="text" id="postal-code" v-model="postalCode" placeholder="우편번호" required />
+            <input type="text" id="postal-code" v-model="postalCode" placeholder="우편번호(예: 12345)" required />
             <button class="black-button" @click="searchAddress">주소 검색</button>
           </div>
         </div>
         <div class="input-group">
-          <input type="text" id="main-address" v-model="mainAddress" placeholder="메인주소" required />
+          <input type="text" id="main-address" v-model="mainAddress" placeholder="메인주소(예: 서울특별시 강남구 역삼동)" required />
         </div>
         <div class="input-group">
-          <input type="text" id="detail-address" v-model="detailAddress" placeholder="상세주소" />
+          <input type="text" id="detail-address" v-model="detailAddress" placeholder="상세주소(예: 123-45 2층)" />
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
           <label for="user-id">아이디 <span class="required">*</span></label>
           <div class="id-input-wrapper">
-            <input type="text" id="user-id" v-model="userId" placeholder="아이디 입력 (6~20자)" maxlength="20" />
+            <input type="text" id="user-id" v-model="userId" placeholder="아이디 입력 (예: sparta123)" maxlength="20" />
             <button class="black-button">아이디 확인</button>
           </div>
         </div>
@@ -274,31 +274,31 @@
       <div class="section signup-section">
         <div class="input-group">
           <label for="password">비밀번호 <span class="required">*</span></label>
-          <input type="password" id="password" v-model="password" placeholder="비밀번호 입력 (문자, 숫자, 특수문자 포함 8~20자)" @input="checkPasswords" />
+          <input type="password" id="password" v-model="password" placeholder="비밀번호 입력 (예: Password1!)" @input="checkPasswords" />
         </div>
         <div class="input-group">
           <label for="password-confirm">비밀번호 확인 <span class="required">*</span></label>
-          <input type="password" id="password-confirm" v-model="passwordConfirm" placeholder="비밀번호 재입력" @input="checkPasswords" />
+          <input type="password" id="password-confirm" v-model="passwordConfirm" placeholder="비밀번호 재입력 (예: Password1!)" @input="checkPasswords" />
         </div>
         <div v-if="passwordError" class="error-message">{{ passwordError }}</div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
           <label for="name">이름 <span class="required">*</span></label>
-          <input type="text" id="name" v-model="name" placeholder="이름을 입력해주세요." maxlength="50" required />
+          <input type="text" id="name" v-model="name" placeholder="이름(예: 홍길동)" maxlength="50" required />
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
           <label for="email">이메일 <span class="required">*</span></label>
-          <input type="email" id="email" v-model="email" placeholder="이메일을 입력해주세요." required />
+          <input type="email" id="email" v-model="email" placeholder="이메일(예: hong@example.com)" required />
         </div>
       </div>
       <div class="section signup-section">
         <div class="input-group">
           <label for="phone">전화번호 <span class="required">*</span></label>
           <div class="phone-input-wrapper">
-            <input type="tel" id="phone" v-model="phone" placeholder="‘-’ 제외 11자리 입력" maxlength="13" required />
+            <input type="tel" id="phone" v-model="phone" placeholder="‘-’ 제외 11자리 입력 (예: 01012345678)" maxlength="13" required />
             <button class="black-button">인증번호 발송</button>
           </div>
         </div>
@@ -307,7 +307,7 @@
         <div class="input-group">
           <label for="phone-verification">인증번호 확인 <span class="required">*</span></label>
           <div class="phone-input-wrapper">
-            <input type="text" id="phone-verification" v-model="phoneVerification" placeholder="인증번호 입력" required />
+            <input type="text" id="phone-verification" v-model="phoneVerification" placeholder="인증번호 입력 (예: 1234)" required />
             <button class="black-button">인증번호 확인</button>
           </div>
         </div>
@@ -315,7 +315,7 @@
       <div class="section signup-section">
         <div class="input-group">
           <label for="resident-registration-number">주민등록번호(외국인등록번호) <span class="required">*</span></label>
-          <input type="text" id="resident-registration-number" v-model="residentRegistrationNumber" placeholder="주민등록번호(외국인등록번호)" required />
+          <input type="text" id="resident-registration-number" v-model="residentRegistrationNumber" placeholder="주민등록번호(예: 9901011234567)" required />
         </div>
       </div>
       <div class="buttons">
