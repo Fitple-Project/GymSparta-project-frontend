@@ -5,14 +5,16 @@ module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
     port: process.env.VUE_APP_PORT || 7070,
-    proxy: {
-    '/api': {
+    // 개발 환경에서만 프록시 설정 사용
+    proxy: process.env.NODE_ENV === 'development' ? {
+      '/api': {
         target: "http://localhost:8080",
-        changeOrigin:true,
+        changeOrigin: true,
         pathRewrite: {
-          '^/api': ''}
-       }
-    }
+          '^/api': ''
+        }
+      }
+    } : {}
   },
   configureWebpack: {
     plugins: [
