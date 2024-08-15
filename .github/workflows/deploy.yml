@@ -50,7 +50,7 @@ jobs:
 
       # CloudFront 캐시 무효화
       - name: Invalidate CloudFront Cache
-        uses: aws-actions/aws-cloudfront@v1
+        uses: aws-actions/aws-cloudfront-invalidate-cache@v2
         with:
           distribution-id: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
           paths: "/*"
