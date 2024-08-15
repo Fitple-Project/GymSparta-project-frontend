@@ -48,12 +48,16 @@ jobs:
           AWS_REGION: ap-northeast-2  # S3 버킷의 리전
           SOURCE_DIR: 'dist'  # 빌드된 파일이 있는 디렉토리
 
+      # AWS CLI 설치 및 설정
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
       # CloudFront 캐시 무효화
       - name: Invalidate CloudFront Cache
-        uses: aws-actions/aws-cloudfront-invalidate-cache@v2
-        with:
-          distribution-id: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
-          paths: "/*"
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
         env:
           AWS_REGION: ap-northeast-2
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
