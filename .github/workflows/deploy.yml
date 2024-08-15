@@ -48,12 +48,12 @@ jobs:
           AWS_REGION: ap-northeast-2  # S3 버킷의 리전
           SOURCE_DIR: 'dist'  # 빌드된 파일이 있는 디렉토리
 
-      # CloudFront 캐시 무효화 (선택 사항)
+      # CloudFront 캐시 무효화
       - name: Invalidate CloudFront Cache
-        uses: awact/cloudfront-invalidate@v1.0.1
+        uses: chetan/invalidate-cloudfront-action@v1
         with:
-          distribution: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
-          paths: "/*"
+          DISTRIBUTION: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+          PATHS: "/*"
         env:
           AWS_REGION: ap-northeast-2
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
