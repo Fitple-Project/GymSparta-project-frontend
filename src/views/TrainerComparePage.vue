@@ -28,7 +28,7 @@ export default {
   methods: {
     async fetchTrainers() {
       try {
-        const response = await fetch('http://localhost:8080/api/trainers', {
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/trainers', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

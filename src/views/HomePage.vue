@@ -65,7 +65,7 @@ export default {
       try {
         const currentLocation = await getCurrentLocation(); // 현재 위치 가져오기
 
-        const response = await fetch('http://localhost:8080/api/stores');
+        const response = await fetch('http://${process.env.VUE_APP_API_URL}/api/stores');
         const responseData = await response.json();
 
         const storesWithCoordinates = await Promise.all(responseData.data.map(async store => {
@@ -105,7 +105,7 @@ export default {
 
     async fetchRecentGyms() {
         try {
-            const response = await fetch('http://localhost:8080/api/stores/recent', {
+            const response = await fetch('http://${process.env.VUE_APP_API_URL}/api/stores/recent', {
                 method: 'GET',
                 credentials: 'include' // 쿠키를 포함하여 요청
             });
@@ -152,7 +152,7 @@ export default {
 
         try {
           // 상세 조회 API 호출
-          const response = await fetch(`http://localhost:8080/api/stores/${gymId}`, {
+          const response = await fetch(`http://${process.env.VUE_APP_API_URL}/api/stores/${gymId}`, {
             method: 'GET',
             credentials: 'include'
           });

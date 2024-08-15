@@ -252,7 +252,7 @@ export default {
     async fetchUserProfile() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('http://localhost:8080/api/profile/user', {
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/user', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -293,7 +293,7 @@ export default {
     async editProfile() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('http://localhost:8080/api/profile/user', {
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/user', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -326,7 +326,7 @@ export default {
         return;
       }
 
-      fetch('http://localhost:8080/api/profile/users/signout', {
+      fetch('${process.env.VUE_APP_API_URL}/api/profile/users/signout', {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -351,7 +351,7 @@ export default {
     async confirmPasswordChange() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('http://localhost:8080/api/profile/users/password', {
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/users/password', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

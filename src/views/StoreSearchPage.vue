@@ -57,7 +57,7 @@ export default {
         try {
           const currentLocation = await getCurrentLocation(); // 현재 위치 가져오기
 
-          const response = await fetch('http://localhost:8080/api/stores');
+          const response = await fetch('${process.env.VUE_APP_API_URL}/api/stores');
           const responseData = await response.json();
 
           const storesWithCoordinates = await Promise.all(responseData.data.map(async store => {

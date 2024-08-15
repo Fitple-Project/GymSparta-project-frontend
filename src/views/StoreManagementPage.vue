@@ -184,7 +184,9 @@ export default {
         price: this.price || null,
       };
 
-      fetch('http://localhost:8080/api/stores/owners', {
+      const apiUrl = process.env.VUE_APP_API_URL;
+
+      fetch('http://${apiUrl}/api/stores/owners', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -227,7 +229,7 @@ export default {
     fetchStores() {
       console.log('Fetching stores...');
 
-      fetch(`http://localhost:8080/api/stores/owners`, {
+      fetch(`http://${apiUrl}/api/stores/owners`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${this.getAuthToken()}`,

@@ -52,7 +52,7 @@ export default {
     async handleLogin() {
       if (this.userId && this.password) {
         try {
-          const response = await fetch('http://localhost:8080/api/login', {
+          const response = await fetch('${process.env.VUE_APP_API_URL}/api/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ export default {
       }
     },
     handleGoogleLogin() {
-      window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+      window.location.href = '${process.env.VUE_APP_API_URL}/oauth2/authorization/google';
     },
     goToBusinessSignupPage() {
       this.$router.push({ name: 'business-signup' });

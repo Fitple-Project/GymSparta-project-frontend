@@ -167,7 +167,7 @@ export default {
     async fetchOwnerProfile() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('http://localhost:8080/api/profile/owner', {
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -186,7 +186,7 @@ export default {
     async editProfile() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('http://localhost:8080/api/profile/owner', {
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner', {
           // TODO: 헤더에서 토큰 값 가져오기 구현
           method: 'PUT',
           headers: {
@@ -218,7 +218,7 @@ export default {
         return;
       }
 
-      fetch('http://localhost:8080/api/profile/owners/signout', {
+      fetch('${process.env.VUE_APP_API_URL}/api/profile/owners/signout', {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -243,7 +243,7 @@ export default {
     async confirmPasswordChange() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('http://localhost:8080/api/profile/owner/password', {
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner/password', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

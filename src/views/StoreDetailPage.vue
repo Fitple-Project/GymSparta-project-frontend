@@ -44,7 +44,7 @@ const storeDetails = ref(null);
 
 const fetchStoreDetails = async (id) => {
   try {
-    const response = await fetch(`http://localhost:8080/api/stores/${id}`, {
+    const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/${id}`, {
       headers: {
         'Content-Type': 'application/json'
       }

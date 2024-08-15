@@ -78,7 +78,7 @@ export default {
   methods: {
     async fetchTrainerDetails(trainerId) {
       try {
-        const url = 'http://localhost:8080/api/trainers/' + trainerId;
+        const url = '${process.env.VUE_APP_API_URL}/api/trainers/' + trainerId;
         const response = await fetch(url, {
           method: 'GET',
           headers: {
