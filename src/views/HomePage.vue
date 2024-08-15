@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       gyms: [],
-      recentGyms: [], // 초기값을 빈 배열로 설정
+      recentGyms: [],
       trainers: [
         {
           id: 1,
@@ -63,9 +63,9 @@ export default {
   methods: {
     async fetchNearbyGyms() {
       try {
-        const currentLocation = await getCurrentLocation(); // 현재 위치 가져오기
+        const currentLocation = await getCurrentLocation();
 
-        const response = await fetch('${process.env.VUE_APP_API_URL}/api/stores');
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
         const responseData = await response.json();
 
         const storesWithCoordinates = await Promise.all(responseData.data.map(async store => {
@@ -78,7 +78,6 @@ export default {
               coordinates.longitude
             );
 
-            // 모든 매장에 대해 데이터를 저장
             return {
               id: store.storeId,
               image: store.image || mk1,
@@ -105,9 +104,9 @@ export default {
 
     async fetchRecentGyms() {
         try {
-            const response = await fetch('${process.env.VUE_APP_API_URL}/api/stores/recent', {
+            const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/recent`, {
                 method: 'GET',
-                credentials: 'include' // 쿠키를 포함하여 요청
+                credentials: 'include'
             });
             const responseData = await response.json();
 
@@ -132,7 +131,7 @@ export default {
     },
 
     getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371; // 지구 반지름 (km)
+      const R = 6371;
       const dLat = this.deg2rad(lat2 - lat1);
       const dLon = this.deg2rad(lon2 - lon1);
       const a =
@@ -140,7 +139,7 @@ export default {
         Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
         Math.sin(dLon / 2) * Math.sin(dLon / 2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c; // 거리 (km)
+      return R * c;
     },
 
     deg2rad(deg) {
@@ -151,7 +150,6 @@ export default {
         console.log('Navigating to gym detail for gymId:', gymId);
 
         try {
-          // 상세 조회 API 호출
           const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/${gymId}`, {
             method: 'GET',
             credentials: 'include'
@@ -160,16 +158,13 @@ export default {
 
           console.log('상세 조회 응답 데이터:', storeDetail);
 
-          // 쿠키 값 디버깅
           console.log('Updated recentStores cookie value:', document.cookie);
 
-          // 상세 페이지로 이동
           this.$router.push({ name: "storeDetail", params: { id: gymId } });
 
-         // HomePage에서만 fetchRecentGyms를 호출하게 함
-            if (this.$route.name === 'HomePage') {
+          if (this.$route.name === 'HomePage') {
               this.fetchRecentGyms();
-            }
+          }
         } catch (error) {
           console.error('상세 조회 중 오류 발생:', error);
         }
@@ -177,8 +172,8 @@ export default {
   },
 
   mounted() {
-    this.fetchNearbyGyms(); // 페이지 로드 시 현재 위치 기반 운동시설 데이터 로드
-    this.fetchRecentGyms(); // 최근 방문한 운동시설 데이터 로드
+    this.fetchNearbyGyms();
+    this.fetchRecentGyms();
   }
 };
 </script>
