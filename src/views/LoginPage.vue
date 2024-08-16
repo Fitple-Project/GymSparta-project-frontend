@@ -26,9 +26,12 @@
       <span>소셜 로그인/회원가입</span>
     </div>
     <div class="social-login-buttons">
+      <!-- 카카오 로그인 버튼 -->
       <img src="@/assets/Login_Button/Kakao_Button.svg" alt="카카오 로그인" class="social-button" />
+      <!-- 네이버 로그인 버튼 -->
       <img src="@/assets/Login_Button/Naver_Button.svg" alt="네이버 로그인" class="social-button" />
-      <img src="@/assets/Login_Button/Google_Button.svg" alt="구글 로그인" class="social-button" @click="handleGoogleLogin" />
+      <!-- 구글 로그인 버튼, 클릭 시 handleGoogleLogin 메서드 호출 -->
+      <img src="@/assets/Login_Button/Google_Button.svg" alt="구글 로그인" class="social-button" />
     </div>
     <div class="business-login">
       <button @click="goToBusinessSignupPage" class="business-login-link">비즈니스 회원가입</button>
@@ -66,35 +69,37 @@ export default {
           if (response.ok) {
             const data = await response.json();
             alert("로그인 성공");
+
+            localStorage.setItem('userId', data.data.userId);
             localStorage.setItem('accessToken', data.data.accessToken);
+
             eventBus.emit('login');
-            this.$router.push({ path: '/' });
+            const redirectPath = this.$route.query.redirect || '/';
+            this.$router.push(redirectPath); // 로그인 후 원래 가려던 페이지로 이동
           } else {
             const errorData = await response.json();
             alert("로그인 실패: " + (errorData.message || '알 수 없는 오류'));
           }
         } catch (error) {
+          console.error("Login request failed:", error);
           alert("로그인 오류: " + error.message);
         }
       } else {
         alert("아이디와 비밀번호를 입력해주세요.");
       }
     },
-    handleGoogleLogin() {
-      window.location.href = 'http://localhost:8080/oauth2/authorization/google';
-    },
     goToBusinessSignupPage() {
       this.$router.push({ name: 'business-signup' });
     }
   },
-  beforeRouteEnter (to, from, next) {
+  beforeRouteEnter(to, from, next) {
     const isLoggedIn = !!localStorage.getItem('accessToken');
     if (isLoggedIn) {
       next({ name: 'main' });
     } else {
       next();
     }
-  }
+  },
 };
 </script>
 

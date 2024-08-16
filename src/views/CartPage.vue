@@ -4,53 +4,75 @@
       <button @click="goBack" class="back-button">&lt;</button>
       <h1 class="title">장바구니</h1>
     </div>
-    <div v-for="item in cartItems" :key="item.id" class="cart-item">
-      <img :src="require('@/assets/Gym_image/hm1.svg')" alt="product image" class="product-image" />
-      <div class="product-info">
-        <h2>{{ item.months }}개월 회원권</h2>
-        <p>헬스 회원권</p>
-        <p class="original-price">{{ item.originalPrice.toLocaleString() }}원</p>
-        <p class="discount-price">{{ item.discountPercentage }}% {{ item.discountPrice.toLocaleString() }}원</p>
+    <div v-if="cartItems.length === 0" class="empty-cart">
+      장바구니에 담긴 상품이 없습니다.
+    </div>
+    <div v-else>
+      <div v-for="item in cartItems" :key="item.cartItemId" class="cart-item">
+        <input type="checkbox" v-model="item.isSelected" class="select-checkbox" />
+        <img :src="item.product.imageUrl" alt="product image" class="product-image" />
+        <div class="product-info">
+          <h2>{{ item.product.productName }}</h2>
+          <p>{{ item.product.productDescription }}</p>
+          <p class="original-price">{{ item.product.originalPrice.toLocaleString() }}원</p>
+          <p class="discount-price">{{ item.product.discountPercentage }}% {{ item.product.discountPrice.toLocaleString() }}원</p>
+        </div>
+        <button @click="removeItem(item.cartItemId)" class="remove-button">X</button>
       </div>
-      <button @click="removeItem(item.id)" class="remove-button">X</button>
-    </div>
-    <div class="price-info">
-      <p>총 금액: {{ totalPrice.toLocaleString() }}원</p>
-    </div>
-    <div class="button-group">
-      <button @click="goBack" class="browse-more-button">상품 더 둘러보기</button>
-      <button @click="goToPaymentsPage" class="checkout-button">결제하기</button>
+      <div class="price-info">
+        <p>총 금액: {{ selectedTotalPrice.toLocaleString() }}원</p>
+      </div>
+      <div class="button-group">
+        <button @click="goBack" class="browse-more-button">상품 더 둘러보기</button>
+        <button @click="goToPaymentsPage" class="checkout-button">결제하기</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
+import { mapGetters } from 'vuex';
 
 export default {
   computed: {
-    ...mapGetters(['cartItems']),
-    totalPrice() {
-      return this.cartItems.reduce((total, item) => total + item.discountPrice, 0);
+    ...mapGetters(['cartItems', 'isLoggedIn']),
+    selectedItems() {
+      return this.cartItems.filter(item => item.isSelected);
+    },
+    selectedTotalPrice() {
+      return this.selectedItems.reduce((total, item) => total + item.product.discountPrice * item.quantity, 0);
     }
   },
   methods: {
-    ...mapActions(['removeFromCart', 'clearCart']),
+    removeItem(cartItemId) {
+      this.$store.commit('REMOVE_FROM_CART', cartItemId);
+      alert('상품이 삭제되었습니다.');
+    },
     goBack() {
       this.$router.go(-1);
     },
-    removeItem(itemId) {
-      this.removeFromCart(itemId);
-      alert('상품이 삭제되었습니다.');
-    },
     goToPaymentsPage() {
-      this.$router.push({ name: 'Payments' });
+      if (this.selectedItems.length === 0) {
+        alert('결제할 상품을 선택하세요.');
+        return;
+      }
+      this.$router.push({
+        name: 'Payments',
+        query: {
+          items: JSON.stringify(this.selectedItems),
+          totalPrice: this.selectedTotalPrice
+        }
+      });
     }
+  },
+  created() {
+    this.$store.dispatch('initializeCart'); // 장바구니 초기화
   }
 };
 </script>
 
 <style scoped>
+/* 기존 스타일 그대로 유지 */
 .cart-container {
   display: flex;
   flex-direction: column;
@@ -88,6 +110,11 @@ export default {
   padding: 20px;
   margin-top: 20px;
   position: relative;
+}
+
+.select-checkbox {
+  margin-right: 10px;
+  cursor: pointer;
 }
 
 .product-image {
