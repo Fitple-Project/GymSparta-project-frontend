@@ -351,7 +351,7 @@ export default {
   methods: {
     async registerUser() {
       try {
-        const response = await fetch('${process.env.VUE_APP_API_URL}/api/user/signup', {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/user/signup`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

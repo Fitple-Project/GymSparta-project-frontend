@@ -184,7 +184,7 @@ export default {
         price: this.price || null,
       };
 
-      fetch('${process.env.VUE_APP_API_URL}/api/stores/owners', {
+      fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

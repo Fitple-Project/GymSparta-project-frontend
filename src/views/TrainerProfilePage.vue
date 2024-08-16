@@ -321,7 +321,7 @@ export default {
     async confirmPasswordChange() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/users/password', {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/users/password`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

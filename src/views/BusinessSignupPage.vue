@@ -432,7 +432,7 @@ export default {
 
       console.log('회원가입 데이터:', signupData);
 
-      fetch('http://${process.env.VUE_APP_API_URL}/api/owners/signup', {
+      fetch(`${process.env.VUE_APP_API_URL}/api/owners/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
