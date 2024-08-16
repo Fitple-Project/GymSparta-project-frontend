@@ -20,6 +20,11 @@ app.use(cors());
 // JSON 파싱
 app.use(bodyParser.json());
 
+// 헬스 체크 엔드포인트 추가
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.post('/api/stores/owners', async (req, res) => {
   const {
     store_name,
