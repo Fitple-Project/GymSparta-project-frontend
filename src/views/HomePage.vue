@@ -71,6 +71,12 @@ export default {
             });
         const responseData = await response.json();
 
+        // 오류 응답 처리
+            if (response.status !== 200) {
+              console.error('서버 오류:', responseData.error);
+              return;
+            }
+
          // 응답 데이터 확인
           console.log('응답 데이터:', responseData);
 
