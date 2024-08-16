@@ -52,7 +52,7 @@ export default {
     async handleLogin() {
       if (this.userId && this.password) {
         try {
-          const response = await fetch(`${process.env.VUE_APP_API_URL}/api/login`, {
+          const response = await fetch('https://www.gymspartatest.shop/api/login', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
