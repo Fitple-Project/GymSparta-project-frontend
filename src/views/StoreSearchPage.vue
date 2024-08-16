@@ -58,6 +58,13 @@ export default {
           const currentLocation = await getCurrentLocation(); // 현재 위치 가져오기
 
           const response = await fetch('${process.env.VUE_APP_API_URL}/api/stores');
+
+          // 응답의 Content-Type을 확인하여 JSON 응답이 아닌 경우 처리
+              const contentType = response.headers.get("content-type");
+              if (!contentType || !contentType.includes("application/json")) {
+                throw new Error("JSON 응답이 아닙니다");
+              }
+
           const responseData = await response.json();
 
           const storesWithCoordinates = await Promise.all(responseData.data.map(async store => {
