@@ -71,6 +71,9 @@ export default {
             });
         const responseData = await response.json();
 
+         // 응답 데이터 확인
+          console.log('응답 데이터:', responseData);
+
         const storesWithCoordinates = await Promise.all(responseData.data.map(async store => {
           const coordinates = await getCoordinatesFromAddress(store.storeAddress);
           if (coordinates.latitude !== 0 && coordinates.longitude !== 0) {
