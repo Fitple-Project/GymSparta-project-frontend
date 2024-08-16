@@ -109,7 +109,8 @@ export default {
         try {
             const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/recent`, {
                 method: 'GET',
-                credentials: 'include'
+                credentials: 'include',
+                'Content-Type': 'application/json',
             });
             const responseData = await response.json();
 
