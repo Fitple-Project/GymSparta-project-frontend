@@ -141,8 +141,62 @@ export default {
       const button = this.$el.querySelector('.button-popper');
       if (button) {
         const rect = button.getBoundingClientRect();
-        this.tabLeft = rect.left;
-        this.tabTop = rect.bottom + window.scrollY;  // 버튼 바로 아래에 탭 위치
+        this.tabLeft = rect.left + window.scrollX;  // X 좌표 보정
+        this.tabTop = rect.bottom + window.scrollY;  // Y 좌표 보정
+      }
+    },
+    async fetchUserProfile() {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        try {
+          const response = await fetch('http://localhost:8080/api/profile/owner', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            this.userProfile = data; // 유저 정보를 상태에 저장
+            this.isLoggedIn = true;
+          } else if (response.status === 401) {
+            await this.refreshToken(); // 토큰 만료 시 재발급 시도
+          } else {
+            this.performLogout();
+          }
+        } catch (error) {
+          console.error("User profile request failed:", error);
+          this.performLogout();
+        }
+      } else {
+        this.performLogout();
+      }
+    },
+    async refreshToken() {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        try {
+          const response = await fetch('http://localhost:8080/api/refresh-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${refreshToken}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('accessToken', data.data.accessToken);
+            this.fetchUserProfile(); // 새 토큰으로 유저 정보를 다시 가져옴
+          } else {
+            this.performLogout(); // 리프레시 토큰이 유효하지 않으면 로그아웃
+          }
+        } catch (error) {
+          console.error("Token refresh failed:", error);
+          this.performLogout();
+        }
+      } else {
+        this.performLogout(); // 리프레시 토큰이 없으면 로그아웃
       }
     },
     checkTokenValidity() {
@@ -152,16 +206,21 @@ export default {
         const expiry = payload.exp * 1000;
 
         if (Date.now() >= expiry) {
-          this.performLogout();
+          this.refreshToken(); // 토큰 만료 시 재발급 시도
         } else {
           this.isLoggedIn = true;
+          this.fetchUserProfile(); // 유효한 토큰이 있을 때 유저 정보를 가져옴
         }
       } else {
         this.isLoggedIn = false;
+        this.performLogout(); // 토큰이 없으면 로그아웃 처리
       }
     },
     performLogout() {
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userRole');
       this.isLoggedIn = false;
       clearInterval(this.tokenCheckInterval);
       eventBus.emit('logout');
@@ -188,7 +247,7 @@ export default {
           this.goToLoginPage();
         }
       } else {
-        this.goToPage('payment');
+        this.goToPage('payments');
       }
     },
     handleStoreManagement() {
@@ -197,7 +256,12 @@ export default {
           this.goToLoginPage();
         }
       } else {
-        this.goToPage('store-management');
+        const userRole = localStorage.getItem('userRole');
+        if (userRole === 'OWNER') {
+          this.goToPage('store-management');
+        } else {
+          alert('매장 관리 페이지는 점주만 접근 가능합니다.');
+        }
       }
     },
     goToPage(page) {
@@ -211,15 +275,15 @@ export default {
 
       if (page === 'mypage') {
         if (userRole === 'OWNER') {
-          router.push({ name: 'owner-profile', params: { ownerId: userId } });
+          this.$router.push({name: 'owner-profile', params: {ownerId: userId}});
         } else {
-          router.push({ name: 'user-profile', params: { userId } });
+          this.$router.push({name: 'user-profile', params: {userId}});
         }
-      } else if (page === 'payment') {
-        router.push({ name: 'payments' });
+      } else if (page === 'payments') {
+        this.$router.push({name: 'payments'});
       } else if (page === 'store-management') {
         if (userRole === 'OWNER') {
-          router.push({ name: 'store-management' });
+          this.$router.push({name: 'store-management'});
         } else {
           alert('매장 관리 페이지는 점주만 접근 가능합니다.');
         }
@@ -430,7 +494,7 @@ export default {
   z-index: 1000;
   overflow: hidden;
   width: max-content; /* 탭 메뉴의 크기 조절 */
-  margin-left: 0px;
+  margin-left: 187px;
 }
 
 .tab-item {
