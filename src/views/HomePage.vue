@@ -65,7 +65,7 @@ export default {
       try {
         const currentLocation = await getCurrentLocation();
 
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`, {
+        const response = await fetch(`https://api.gymspartatest.shop/api/stores`, {
               method: 'GET',
               credentials: 'include' // 쿠키 포함하여 요청
             });
@@ -115,7 +115,7 @@ export default {
 
     async fetchRecentGyms() {
         try {
-            const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/recent`, {
+            const response = await fetch(`https://api.gymspartatest.shop/api/stores/recent`, {
                 method: 'GET',
                 credentials: 'include',
                 'Content-Type': 'application/json',
