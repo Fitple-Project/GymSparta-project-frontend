@@ -32,26 +32,29 @@ const routes = [
     path: '/login',
     name: 'login',
     component: LoginPage,
+    meta: { requiresGuest: true }
   },
   {
     path: '/signup',
     name: 'signup',
     component: SignupPage,
+    meta: { requiresGuest: true }
   },
   {
     path: '/store/:id',
-    name: 'storeDetail',
+    name: 'store-detail',
     component: StoreDetailPage,
   },
   {
     path: '/store/:id/reviews',
-    name: 'storeReviews',
+    name: 'store-reviews',
     component: StoreReviewPage,
   },
   {
     path: '/business/signup',
     name: 'business-signup',
     component: BusinessSignupPage,
+    meta: { requiresGuest: true }
   },
   {
     path: '/store/search',
@@ -77,6 +80,7 @@ const routes = [
     path: "/store/management",
     name: "store-management",
     component: StoreManagementPage,
+    meta: { requiresAuth: true }
   },
   {
     path: '/membership',
@@ -90,43 +94,49 @@ const routes = [
   },
   {
     path: '/payments',
-    name: 'Payments',
+    name: 'payments',
     component: PaymentsPage
   },
   {
     path: '/payment/complete',
-    name: 'PaymentComplete',
+    name: 'payment-complete',
     component: PaymentCompletePage,
   },
   {
     path: '/profile/user/:userId',
-    name: 'profile',
+    name: 'user-profile',
     component: UserProfilePage,
+    meta: { requiresAuth: true }
   },
   {
     path: '/profile/owner/:ownerId',
-    name: 'ownerProfile',
+    name: 'owner-profile',
     component: OwnerProfilePage,
+    meta: { requiresAuth: true }
   },
   {
     path: '/store/owner/:id',
-    name: 'storeedit',
+    name: 'store-edit',
     component: StoreEditPage,
+    meta: { requiresAuth: true }
   },
   {
-      path: '/store/owner/:id/edit',
-      name: 'store-update',
-      component: StoreUpdatePage,
-    },
+    path: '/store/owner/:id/edit',
+    name: 'store-update',
+    component: StoreUpdatePage,
+    meta: { requiresAuth: true }
+  },
   {
     path: '/trainer/owner/:id',
-    name: 'traineredit',
+    name: 'trainer-edit',
     component: TrainerEditPage,
+    meta: { requiresAuth: true }
   },
   {
     path: '/profile/trainer',
-    name: 'trainerProfile',
+    name: 'trainer-profile',
     component: TrainerProfilePage,
+    meta: { requiresAuth: true }
   },
 ];
 
@@ -136,9 +146,16 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const isLoggedIn = !!localStorage.getItem('accessToken');
+  const accessToken = localStorage.getItem('accessToken');
+  const isLoggedIn = !!accessToken;
 
-  if (to.matched.some(record => record.meta.requiresGuest) && isLoggedIn) {
+  if (isLoggedIn) {
+    console.log("Stored Token:", accessToken);
+  }
+
+  if (to.matched.some(record => record.meta.requiresAuth) && !isLoggedIn) {
+    next({ name: 'login' });
+  } else if (to.matched.some(record => record.meta.requiresGuest) && isLoggedIn) {
     next({ name: 'main' });
   } else {
     next();

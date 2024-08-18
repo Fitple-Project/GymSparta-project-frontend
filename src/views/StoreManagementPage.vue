@@ -44,10 +44,13 @@
       </section>
 
       <!-- 공지사항 작성 모달 -->
-      <div v-if="isWriteModalVisible" class="modal" @click.self="closeModal">
+      div v-if="isWriteModalVisible" class="modal-overlay" @click.self="closeModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2 class="modal-title">공지사항 작성</h2>
+          <button class="close-button" @click="closeModal">&times;</button>
+        </div>
         <div class="modal-content">
-          <span @click="closeModal" class="close">&times;</span>
-          <h2>공지사항 작성</h2>
           <form @submit.prevent="submitNotice">
             <label for="title">제목:</label><br>
             <input type="text" id="title" v-model="noticeRiteTitle" required><br>

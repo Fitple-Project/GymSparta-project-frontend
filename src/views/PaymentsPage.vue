@@ -1,17 +1,22 @@
 <template>
   <div class="payment-container">
+    <!-- 헤더 섹션 -->
     <div class="header">
       <button @click="goBack" class="back-button">&lt;</button>
-      <h1 class="title">결제</h1>
+      <h1 class="title">결제 페이지</h1>
     </div>
-    <div v-for="item in cartItems" :key="item.id" class="product-info">
-      <img :src="require('@/assets/Gym_image/hm1.svg')" alt="product image" class="product-image" />
+
+    <!-- 상품 목록 -->
+    <div v-for="item in selectedItems" :key="item.cartItemId" class="product-info">
+      <img :src="item.product.imageUrl" alt="product image" class="product-image" />
       <div>
-        <h3>{{ item.months }}개월 회원권</h3>
-        <p>헬스 회원권</p>
-        <p class="price">{{ item.discountPrice.toLocaleString() }}원</p>
+        <h3>{{ item.product.productName }}</h3>
+        <p>{{ item.product.productDescription }}</p>
+        <p class="price">{{ (item.product.discountPrice || 0).toLocaleString() }}원</p>
       </div>
     </div>
+
+    <!-- 구매자 정보 입력 -->
     <h2>구매자 정보</h2>
     <div class="form">
       <div class="input-group">
@@ -27,78 +32,33 @@
         <input type="email" id="email" v-model="buyerEmail" />
       </div>
     </div>
-    <h2>결제 수단</h2>
-    <div class="payment-methods">
-      <div class="method">
-        <input type="radio" id="credit-card" name="payment" v-model="paymentMethod" value="신용카드" />
-        <label for="credit-card">신용카드</label>
-      </div>
-      <div class="method">
-        <input type="radio" id="easy-payment" name="payment" v-model="paymentMethod" value="간편 결제" />
-        <label for="easy-payment">간편 결제</label>
-      </div>
-      <div class="method">
-        <input type="radio" id="bank-transfer" name="payment" v-model="paymentMethod" value="무통장 입금" />
-        <label for="bank-transfer">무통장 입금</label>
-      </div>
-    </div>
+
+    <!-- 최종 결제 금액 -->
     <div class="total">
       <h2>최종 결제 금액</h2>
       <p>{{ totalPrice.toLocaleString() }}원</p>
     </div>
-    <button @click="completePayment" class="pay-button">결제하기</button>
+
+    <!-- 카카오페이 버튼 -->
+    <button @click="kakaoPay" :disabled="isProcessing" class="pay-button kakao-pay-button">
+      카카오페이로 결제하기
+    </button>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
 
-export default {
-  data() {
-    return {
-      buyerName: '',
-      buyerPhone: '',
-      buyerEmail: '',
-      paymentMethod: '신용카드'
-    };
-  },
-  computed: {
-    ...mapGetters(['cartItems']),
-    totalPrice() {
-      return this.cartItems.reduce((total, item) => total + item.discountPrice, 0);
-    }
-  },
-  methods: {
-    ...mapActions(['setOrder', 'clearCart']),
-    goBack() {
-      this.$router.go(-1);
-    },
-    completePayment() {
-      const order = {
-        items: this.cartItems,
-        total: this.totalPrice,
-        buyer: {
-          name: this.buyerName,
-          phone: this.buyerPhone,
-          email: this.buyerEmail
-        },
-        paymentMethod: this.paymentMethod,
-        orderNumber: Math.floor(Math.random() * 100000) + 1 // 임의의 주문번호 생성
-      };
-      this.setOrder(order);
-      this.clearCart();
-      this.$router.push({ name: 'PaymentComplete' });
-    }
-  }
-};
 </script>
+
 
 <style scoped>
 .payment-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  padding: 10px; /* 패딩을 줄여 전체 크기 축소 */
+  width: 50%; /* 컨테이너 너비를 50%로 축소 */
+  margin: 0 auto; /* 중앙 정렬 */
   font-family: 'NanumGothic', sans-serif;
 }
 
@@ -111,14 +71,14 @@ export default {
 .back-button {
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 18px; /* 폰트 크기 축소 */
   cursor: pointer;
 }
 
 .title {
   flex: 1;
   text-align: center;
-  font-size: 24px;
+  font-size: 18px; /* 폰트 크기 축소 */
   margin: 0;
 }
 
@@ -126,25 +86,25 @@ export default {
   display: flex;
   align-items: center;
   background: #f1f1f1;
-  border-radius: 30px;
+  border-radius: 15px; /* 라운드 크기 축소 */
   width: 100%;
-  padding: 20px;
-  margin-top: 20px;
+  padding: 10px; /* 패딩을 줄여 전체 크기 축소 */
+  margin-top: 10px; /* 마진을 줄여 간격 축소 */
   position: relative;
 }
 
 .product-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 10px;
+  width: 50px; /* 이미지 크기 축소 */
+  height: 50px;
+  border-radius: 5px; /* 라운드 크기 축소 */
 }
 
 .product-info div {
-  margin-left: 20px;
+  margin-left: 10px; /* 마진을 줄여 간격 축소 */
 }
 
 .price {
-  font-size: 24px;
+  font-size: 18px; /* 폰트 크기 축소 */
   color: blue;
 }
 
@@ -155,47 +115,37 @@ export default {
 .input-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 20px;
+  margin-bottom: 10px; /* 마진을 줄여 간격 축소 */
 }
 
 input[type="text"], input[type="email"] {
   width: 100%;
-  padding: 10px;
+  padding: 5px; /* 패딩을 줄여 전체 크기 축소 */
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
-}
-
-.payment-methods {
-  display: flex;
-  flex-direction: column;
-}
-
-.method {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.method input[type="radio"] {
-  margin-right: 10px;
+  border-radius: 5px; /* 라운드 크기 축소 */
 }
 
 .total {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 10px; /* 마진을 줄여 간격 축소 */
 }
 
-.pay-button {
-  margin-top: 20px;
-  padding: 20px;
-  background: blue;
-  color: white;
+.kakao-pay-button {
+  background-color: #ffeb00;
+  color: #181600;
   border: none;
-  border-radius: 30px;
-  font-size: 24px;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 18px;
   cursor: pointer;
   width: 100%;
+  margin-top: 10px;
+}
+
+.kakao-pay-button:disabled {
+  background: grey;
+  cursor: not-allowed;
 }
 </style>

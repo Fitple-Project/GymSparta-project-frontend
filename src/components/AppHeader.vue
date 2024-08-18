@@ -29,11 +29,11 @@
         class="tab-container"
         @mouseover="handleMouseOver"
         @mouseleave="handleMouseLeave"
-        :style="{ left: tabLeft + 'px' }"
+        :style="{ left: tabLeft + 'px', top: tabTop + 'px' }"
     >
-      <div class="tab-item" @click="goToPage('mypage')">마이페이지</div>
-      <div class="tab-item" @click="goToPage('payment')">결제내역</div>
-      <div class="tab-item" @click="handleDeleteAccount">회원탈퇴</div>
+      <div class="tab-item" @click="handleMyPage">마이페이지</div>
+      <div class="tab-item" @click="handlePayment">결제내역</div>
+      <div class="tab-item" @click="handleStoreManagement">매장 관리</div>
     </div>
 
     <!-- 알림 목록 탭 -->
@@ -79,6 +79,7 @@ export default {
       hideTabTimeout: null,
       hideNotifTimeout: null,
       tabLeft: 0,
+      tabTop: 0,
       notificationTabTop: 0,
       notificationTabLeft: 0,
       locationText: '위치 불러오는 중...',
@@ -120,12 +121,10 @@ export default {
     toggleTab() {
       this.showTab = !this.showTab;
       this.updateTabPosition();
-      console.log("Tab toggled:", this.showTab);
     },
     handleNotifications() {
       this.showNotificationTab = !this.showNotificationTab;
       this.updateNotificationTabPosition();
-      console.log("Notifications toggled:", this.showNotificationTab);
     },
     handleMouseOverNotifications() {
       if (this.hideNotifTimeout) {
@@ -157,34 +156,87 @@ export default {
     updateTabPosition() {
       const button = this.$el.querySelector('.button-popper');
       if (button) {
-        this.tabLeft = button.getBoundingClientRect().left;
+        const rect = button.getBoundingClientRect();
+        this.tabLeft = rect.left + window.scrollX;  // X 좌표 보정
+        this.tabTop = rect.bottom + window.scrollY;  // Y 좌표 보정
       }
     },
-    checkTokenValidity() {
-      const self = this;
+    async fetchUserProfile() {
       const token = localStorage.getItem('accessToken');
       if (token) {
         try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          const expiry = payload.exp * 1000;
+          const response = await fetch('http://localhost:8080/api/profile/owner', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
 
-          if (Date.now() >= expiry) {
-            self.performLogout();
-            self.isLoggedIn = false;
+          if (response.ok) {
+            const data = await response.json();
+            this.userProfile = data; // 유저 정보를 상태에 저장
+            this.isLoggedIn = true;
+          } else if (response.status === 401) {
+            await this.refreshToken(); // 토큰 만료 시 재발급 시도
           } else {
-            self.isLoggedIn = true;
+            this.performLogout();
           }
         } catch (error) {
-          console.error('Token parsing error:', error);
-          self.performLogout();
-          self.isLoggedIn = false;
+          console.error("User profile request failed:", error);
+          this.performLogout();
         }
       } else {
-        self.isLoggedIn = false;
+        this.performLogout();
+      }
+    },
+    async refreshToken() {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        try {
+          const response = await fetch('http://localhost:8080/api/refresh-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${refreshToken}`,
+            },
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('accessToken', data.data.accessToken);
+            this.fetchUserProfile(); // 새 토큰으로 유저 정보를 다시 가져옴
+          } else {
+            this.performLogout(); // 리프레시 토큰이 유효하지 않으면 로그아웃
+          }
+        } catch (error) {
+          console.error("Token refresh failed:", error);
+          this.performLogout();
+        }
+      } else {
+        this.performLogout(); // 리프레시 토큰이 없으면 로그아웃
+      }
+    },
+    checkTokenValidity() {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const expiry = payload.exp * 1000;
+
+        if (Date.now() >= expiry) {
+          this.refreshToken(); // 토큰 만료 시 재발급 시도
+        } else {
+          this.isLoggedIn = true;
+          this.fetchUserProfile(); // 유효한 토큰이 있을 때 유저 정보를 가져옴
+        }
+      } else {
+        this.isLoggedIn = false;
+        this.performLogout(); // 토큰이 없으면 로그아웃 처리
       }
     },
     performLogout() {
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('userRole');
       this.isLoggedIn = false;
       clearInterval(this.tokenCheckInterval);
       eventBus.emit('logout');
@@ -196,29 +248,72 @@ export default {
       clearInterval(this.tokenCheckInterval);
       this.tokenCheckInterval = setInterval(this.checkTokenValidity.bind(this), 10000);
     },
-    goToPage(page) {
-      if (page === 'mypage') {
-        alert('마이페이지로 이동합니다.');
-        const userId = this.getUserId();
-        if (userId) {
-          router.push({ name: 'profile', params: { userId } });
-        } else {
-          console.error('User ID is missing');
+    handleMyPage() {
+      if (!this.isLoggedIn) {
+        if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+          this.goToLoginPage();
         }
-      } else if (page === 'payment') {
-        alert('결제내역 페이지로 이동합니다.');
-        router.push({ name: 'Payments' });
+      } else {
+        this.goToPage('mypage');
+      }
+    },
+    handlePayment() {
+      if (!this.isLoggedIn) {
+        if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+          this.goToLoginPage();
+        }
+      } else {
+        this.goToPage('payments');
+      }
+    },
+    handleStoreManagement() {
+      if (!this.isLoggedIn) {
+        if (confirm('로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?')) {
+          this.goToLoginPage();
+        }
+      } else {
+        const userRole = localStorage.getItem('userRole');
+        if (userRole === 'OWNER') {
+          this.goToPage('store-management');
+        } else {
+          alert('매장 관리 페이지는 점주만 접근 가능합니다.');
+        }
+      }
+    },
+    goToPage(page) {
+      const userId = this.getUserId();
+      const userRole = localStorage.getItem('userRole');
+
+      if (!userId || !userRole) {
+        console.error('User ID 또는 User Role이 누락되었습니다.');
+        return;
+      }
+
+      if (page === 'mypage') {
+        if (userRole === 'OWNER') {
+          this.$router.push({name: 'owner-profile', params: {ownerId: userId}});
+        } else {
+          this.$router.push({name: 'user-profile', params: {userId}});
+        }
+      } else if (page === 'payments') {
+        this.$router.push({name: 'payments'});
+      } else if (page === 'store-management') {
+        if (userRole === 'OWNER') {
+          this.$router.push({name: 'store-management'});
+        } else {
+          alert('매장 관리 페이지는 점주만 접근 가능합니다.');
+        }
       }
       this.showTab = false;
     },
     goToLoginPage() {
-      router.push({ name: 'login' });
+      router.push({name: 'login'});
     },
     goToMainPage() {
-      router.push({ name: 'main' });
+      router.push({name: 'main'});
     },
     goToCartPage() {
-      router.push({ name: 'cart' });
+      router.push({name: 'cart'});
     },
     handleMouseOver() {
       if (this.hideTabTimeout) {
@@ -233,7 +328,7 @@ export default {
     },
     async fetchLocation() {
       try {
-        const { latitude, longitude } = await getCurrentLocation();
+        const {latitude, longitude} = await getCurrentLocation();
         const address = await getAddressFromCoordinates(latitude, longitude);
         this.locationText = address;
       } catch (error) {
@@ -273,41 +368,8 @@ export default {
         this.performLogout();
       }
     },
-    async handleDeleteAccount() {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        alert("로그인 먼저 해주세요.");
-        return;
-      }
-
-      try {
-        const response = await fetch('http://localhost:8080/api/profile/owners/signout', {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.ok) {
-          localStorage.removeItem('accessToken');
-          this.isLoggedIn = false;
-          clearInterval(this.tokenCheckInterval);
-          eventBus.emit('logout');
-          router.push({ name: 'main' });
-          alert("회원탈퇴 성공");
-        } else {
-          const errorData = await response.json();
-          alert(`회원탈퇴 실패: ${errorData.message || '알 수 없는 오류'}`);
-        }
-      } catch (error) {
-        alert(`회원탈퇴 오류: ${error.message}`);
-      }
-    },
     getUserId() {
-      const userId = localStorage.getItem('userId');
-      console.log('User ID:', userId);
-      return userId;
+      return localStorage.getItem('userId');
     }
   },
   created() {
@@ -316,12 +378,10 @@ export default {
 
     eventBus.on('login', () => {
       this.isLoggedIn = true;
-      this.startTokenCheckInterval();
     });
 
     eventBus.on('logout', () => {
       this.isLoggedIn = false;
-      clearInterval(this.tokenCheckInterval);
     });
   },
   mounted() {
@@ -333,7 +393,7 @@ export default {
   beforeUnmount() {
     window.removeEventListener('resize', this.updateTabPosition);
     clearInterval(this.tokenCheckInterval);
-  },
+  }
 };
 </script>
 
@@ -444,13 +504,14 @@ export default {
 
 .tab-container {
   position: absolute;
-  top: 50px;
   background-color: #ffffff;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   overflow: hidden;
+  width: max-content; /* 탭 메뉴의 크기 조절 */
+  margin-left: 187px;
 }
 
 .tab-item {
