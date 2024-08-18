@@ -83,7 +83,8 @@ const fetchStoreDetails = async (id) => {
       headers: {
         'Authorization': `Bearer ${getAuthToken()}`,
         'Content-Type': 'application/json'
-      }
+      },
+      credentials: 'include'
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -122,6 +123,7 @@ const updateStore = async () => {
         'Authorization': `Bearer ${getAuthToken()}`,
         'Content-Type': 'application/json'
       },
+      credentials: 'include'
       body: JSON.stringify(payload)
     });
 

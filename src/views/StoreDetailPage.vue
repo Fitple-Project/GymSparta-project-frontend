@@ -47,7 +47,8 @@ const fetchStoreDetails = async (id) => {
     const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/${id}`, {
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      credentials: 'include'
     });
     if (!response.ok) {
       throw new Error('Failed to fetch store details');

@@ -236,7 +236,8 @@ export default {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': token
-          }
+          },
+          credentials: 'include'
         });
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -278,6 +279,7 @@ export default {
             'Content-Type': 'application/json',
             'Authorization': token
           },
+          credentials: 'include'
           // TODO 사진 변경 추가
           body: JSON.stringify({
             trainerName: this.profileData.trainerName,
@@ -302,6 +304,7 @@ export default {
         headers: {
           'Authorization': `Bearer ${this.$store.getters.accessToken}`,
         },
+        credentials: 'include'
       })
       .then(response => {
         if (response.ok) {
@@ -327,6 +330,7 @@ export default {
             'Content-Type': 'application/json',
             'Authorization': token,
           },
+          credentials: 'include'
           body: JSON.stringify({
             oldPassword: this.oldPassword,
             newPassword: this.newPassword

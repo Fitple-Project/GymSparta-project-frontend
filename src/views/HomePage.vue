@@ -164,6 +164,9 @@ export default {
         try {
           const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/${gymId}`, {
             method: 'GET',
+            headers:{
+            'Content-Type': 'application/json'
+            },
             credentials: 'include'
           });
           const storeDetail = await response.json();

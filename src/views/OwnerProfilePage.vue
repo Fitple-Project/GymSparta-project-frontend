@@ -172,7 +172,8 @@ export default {
           headers: {
              'Content-Type': 'application/json',
              'Authorization': `Bearer ${token}`
-          }
+          },
+          credentials: 'include'
         });
 
         if (!response.ok) {
@@ -193,6 +194,7 @@ export default {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
+          credentials: 'include'
           body: JSON.stringify({
             nickname: this.profileData.nickname,
             email: this.profileData.email,
@@ -222,7 +224,8 @@ export default {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        credentials: 'include'
       }).then(response => {
         if (response.ok) {
           alert('회원탈퇴가 완료되었습니다.');
@@ -249,6 +252,7 @@ export default {
              'Content-Type': 'application/json',
              'Authorization': `Bearer ${token}`
           },
+          credentials: 'include'
           body: JSON.stringify({
             oldPassword: this.oldPassword,
             newPassword: this.newPassword

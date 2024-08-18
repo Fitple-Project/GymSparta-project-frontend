@@ -190,6 +190,7 @@ export default {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.getAuthToken()}`
         },
+        credentials: 'include'
         body: JSON.stringify(payload)
       })
         .then(response => {
@@ -232,7 +233,8 @@ export default {
         headers: {
           'Authorization': `Bearer ${this.getAuthToken()}`,
           'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'include'
       })
         .then(response => {
           if (!response.ok) {

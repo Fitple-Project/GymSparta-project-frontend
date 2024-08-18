@@ -257,7 +257,8 @@ export default {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': token
-          }
+          },
+          credentials: 'include'
         });
 
         if (!response.ok) {
@@ -299,6 +300,7 @@ export default {
             'Content-Type': 'application/json',
             'Authorization': token
           },
+          credentials: 'include'
           // TODO 사진 변경 추가
           body: JSON.stringify({
             username: this.profileData.username,
@@ -330,7 +332,8 @@ export default {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        credentials: 'include'
       }).then(response => {
         if (response.ok) {
           alert('회원탈퇴가 완료되었습니다.');
@@ -357,6 +360,7 @@ export default {
             'Content-Type': 'application/json',
             'Authorization': token,
           },
+          credentials: 'include'
           body: JSON.stringify({
             oldPassword: this.oldPassword,
             newPassword: this.newPassword
