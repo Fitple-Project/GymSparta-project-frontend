@@ -29,7 +29,7 @@
             <strong>☑️ 응모 기간:</strong> 8/19(월) ~ 8/23(금) 23:59까지
           </p>
           <p>
-            <strong>🗓️ 당첨자 발표 및 발송:</strong> 8/26(금)
+            <strong>🗓️ 당첨자 발표 및 발송:</strong> 8/26(월)
           </p>
           <p><strong>🎁 제공되는 경품:</strong></p>
           <ul>
