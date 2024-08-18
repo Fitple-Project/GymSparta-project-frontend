@@ -16,7 +16,7 @@ const db = mysql.createPool({
 
 // CORS 설정 - 특정 도메인에서만 요청 허용
 app.use(cors({
-  origin: 'https://www.gymspartatest.shop', // 요청을 허용할 도메인
+  origin: ['https://www.gymspartatest.shop', 'https://api.gymspartatest.shop'], // 요청을 허용할 도메인
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // 자격 증명(쿠키 등)을 포함한 요청 허용
