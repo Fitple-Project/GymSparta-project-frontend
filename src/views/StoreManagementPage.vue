@@ -50,10 +50,23 @@
           <h2>공지사항 작성</h2>
           <form @submit.prevent="submitNotice">
             <label for="title">제목:</label><br>
-            <input type="text" id="title" v-model="noticeTitle" required><br>
+            <input type="text" id="title" v-model="noticeRiteTitle" required><br>
+
             <label for="content">내용:</label><br>
-            <textarea id="content" v-model="noticeContent" rows="4" required></textarea><br>
-            <button type="submit" class="btn">등록</button>
+            <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea><br>
+
+            <!-- 동적 카테고리 선택박스 (스토어 ID와 이름 표시) -->
+            <label for="category">스토어 선택:</label><br>
+            <select id="category" v-model="selectedStoreId" required>
+              <option value="">스토어를 선택하세요</option>
+              <!-- 스토어 ID와 이름을 동시에 표시 -->
+              <option v-for="store in stores" :key="store.id" :value="store.id">
+                {{ store.id }} - {{ store.store_name }}
+              </option>
+            </select><br><br>
+
+            <!-- 등록 버튼을 클릭하면 `handleSubmit` 메서드가 실행됩니다. -->
+            <button type="button" class="btn" @click="handleSubmit">등록</button>
           </form>
         </div>
       </div>
@@ -63,20 +76,26 @@
         <div class="modal">
           <div class="modal-header">
             <h2 class="modal-title">공지사항 목록</h2>
+            <!-- 동적 카테고리 선택박스 (스토어 ID와 이름 표시) -->
+            <label for="category">스토어 선택:</label><br>
+            <select id="category" v-model="selectedStoreId" required>
+              <option value="">스토어를 선택하세요</option>
+              <!-- 스토어 ID와 이름을 동시에 표시 -->
+              <option v-for="store in stores" :key="store.id" :value="store.id">
+                {{ store.id }} - {{ store.store_name }}
+              </option>
+            </select><br><br>
             <button class="close-button" @click="closeModal">&times;</button>
           </div>
           <div class="modal-content">
             <ul id="noticeList">
-              <li v-for="(notice, index) in notices" :key="index" @click="openDetailModal(notice)">
+              <li v-for="(notice) in notices" :key="notice" @click="openDetailModal(notice.allNotificationId)">
                 <strong>{{ notice.title }}</strong>
-
-                <small>{{ notice.date }}</small>
-
-                {{ notice.content }}
               </li>
             </ul>
           </div>
           <div class="modal-footer">
+            <button class="btn btn-primary" @click="fetchNotices">조회</button>
             <button class="btn btn-primary" @click="closeModal">닫기</button>
           </div>
         </div>
@@ -91,15 +110,7 @@
           </div>
           <div class="modal-content">
             <h3>{{ detailNotice.title }}</h3>
-            <p>{{ detailNotice.content }}</p>
-            <h4>주요 업데이트 내용:</h4>
-            <ul>
-              <li>사용자 인터페이스 개선</li>
-              <li>보안 시스템 강화</li>
-              <li>새로운 기능 추가</li>
-            </ul>
-            <p>업데이트 완료 후 더욱 향상된 서비스로 찾아뵙겠습니다.</p>
-            <p>감사합니다.</p>
+            <p>{{ detailNotice.message }}</p>
           </div>
           <div class="modal-footer">
             <button class="btn btn-primary" @click="closeDetailModal">뒤로가기</button>
@@ -220,17 +231,73 @@ export default {
       isDetailModalVisible: false,
       notices: [
         {
-          title: '2023년 하반기 시스템 업데이트 안내',
-          content: '당사는 더 나은 서비스 제공을 위해 2023년 9월 15일부터 9월 17일까지 시스템 업데이트를 진행할 예정입니다.',
-          date: new Date().toLocaleString(),
+          title: '',
+          allNotificationId: ''
         }
       ],
       noticeTitle: '',
       noticeContent: '',
+      noticeRiteTitle: this.noticeRiteTitle,
+      noticeRiteContent: this.noticeRiteContent,
       detailNotice: {}
     };
   },
   methods: {
+    async fetchNotices() {
+      const token = localStorage.getItem('accessToken');
+      try {
+        const response = await fetch(`http://localhost:8080/api/notification/${this.selectedStoreId}/allNotification`, {   // 서버에서 공지사항 목록 가져오기
+          method: 'GET',                                 // HTTP GET 요청
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`// JSON 형식으로 데이터 수신
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('네트워크 응답이 정상이 아닙니다.');
+        }
+
+        const data = await response.json();               // 서버에서 받은 JSON 데이터를 파싱
+        this.notices = data;                              // 공지사항 목록을 Vue 데이터에 저장
+
+      } catch (error) {
+        console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다.', error);
+        alert('공지사항 목록을 가져오는 중 오류가 발생했습니다.');
+      }
+    },
+    handleSubmit() {
+      // handleSubmit 메서드에서 submitNotice 메서드를 호출합니다.
+      this.submitNotice();
+    },
+    async submitNotice() {
+        const postData = {
+          noticeTitle: this.noticeRiteTitle,
+          noticeContent: this.noticeRiteContent
+        };
+      const token = localStorage.getItem('accessToken');
+      // POST 요청을 통해 서버에 데이터 전송
+      try {
+        // POST 요청 전송
+        const response = await fetch(`http://localhost:8080/api/notification/${this.selectedStoreId}/allNotification`,{
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(postData),
+        });
+
+        // 서버로부터 응답이 성공적으로 돌아온 경우
+        console.log('공지사항이 성공적으로 제출되었습니다:', response.data);
+
+        // 필요 시 성공적인 제출 후 추가 작업 (예: 알림 표시, 모달 닫기 등)
+        this.closeModal();
+      } catch (error) {
+        // 오류가 발생한 경우
+        console.error('공지사항 제출 중 오류가 발생했습니다:', error);
+      }
+    },
     getAuthToken() {
       return localStorage.getItem('accessToken');
     },
@@ -350,34 +417,40 @@ export default {
     openWriteModal() {
       this.isWriteModalVisible = true;
     },
-    openListModal() {
+    async openListModal() {
       this.isListModalVisible = true;
     },
-    openDetailModal(notice) {
-      this.detailNotice = notice;
-      this.isListModalVisible = false;
-      this.isDetailModalVisible = true;
-    },
-    closeDetailModal() {
-      this.isDetailModalVisible = false;
-      this.isListModalVisible = true;
+    async openDetailModal(allNotificationId) {
+      const token = localStorage.getItem('accessToken');
+      try {
+        // 공지사항의 상세 정보를 가져오는 API 요청
+        const response = await fetch(`http://localhost:8080/api/notification/allNotification/${allNotificationId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('네트워크 응답이 정상이 아닙니다.');
+        }
+
+        const data = await response.json();
+        this.detailNotice = data;
+
+        // 모달을 닫고 상세보기 모달을 열기
+        this.isListModalVisible = false;
+        this.isDetailModalVisible = true;
+      } catch (error) {
+        console.error('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.', error);
+        alert('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.');
+      }
     },
     closeModal() {
       this.isWriteModalVisible = false;
       this.isListModalVisible = false;
       this.isDetailModalVisible = false;
-    },
-    submitNotice() {
-      const date = new Date().toLocaleString();
-      this.notices.push({
-        title: this.noticeTitle,
-        content: this.noticeContent,
-        date
-      });
-      this.noticeTitle = '';
-      this.noticeContent = '';
-      this.closeModal();
-      alert("공지사항이 등록되었습니다.");
     }
   },
   mounted() {

@@ -38,6 +38,7 @@
 
 <script>
 import eventBus from '@/eventBus';
+import EventSource from 'eventsource';
 
 export default {
   name: "LoginPage",
@@ -67,8 +68,12 @@ export default {
             const data = await response.json();
             alert("로그인 성공");
             localStorage.setItem('accessToken', data.data.accessToken);
+
+            // SSE 구독 시작
+            this.startSse();
+
             eventBus.emit('login');
-            this.$router.push({ path: '/' });
+            this.$router.push({path: '/'});
           } else {
             const errorData = await response.json();
             alert("로그인 실패: " + (errorData.message || '알 수 없는 오류'));
@@ -84,17 +89,39 @@ export default {
       window.location.href = 'http://localhost:8080/oauth2/authorization/google';
     },
     goToBusinessSignupPage() {
-      this.$router.push({ name: 'business-signup' });
+      this.$router.push({name: 'business-signup'});
+    },
+    // SSE 구독을 위한 메서드 추가
+    startSse() {
+      const token = localStorage.getItem('accessToken');
+      const eventSource = new EventSource(`http://localhost:8080/api/notification/stream`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      eventSource.addEventListener('notification', (event) => {
+        const notification = event.data;
+        // 알림을 처리할 로직
+        alert(`새 알림: ${notification}`);
+      });
+
+      eventSource.onerror = (error) => {
+        console.error('SSE Error:', error);
+        eventSource.close();
+      };
+
+      this.eventSource = eventSource; // eventSource를 인스턴스에 저장하여 필요 시 종료할 수 있습니다.
+    },
+    beforeRouteEnter(to, from, next) {
+      const isLoggedIn = !!localStorage.getItem('accessToken');
+      if (isLoggedIn) {
+        next({name: 'main'});
+      } else {
+        next();
+      }
     }
   },
-  beforeRouteEnter (to, from, next) {
-    const isLoggedIn = !!localStorage.getItem('accessToken');
-    if (isLoggedIn) {
-      next({ name: 'main' });
-    } else {
-      next();
-    }
-  }
 };
 </script>
 

@@ -10,7 +10,6 @@
       </div>
       <div class="auth-menu">
         <div v-if="isLoggedIn">
-          <img class="cart-button" src="../assets/Header/Shopping_Cart.svg" alt="Shopping Cart" @click="goToCartPage"/>
         </div>
         <div v-if="isLoggedIn">
           <!-- 알림 버튼 -->
@@ -76,11 +75,7 @@ export default {
     return {
       showTab: false,
       showNotificationTab: false,
-      notifications: [
-        { title: '알림 1', content: '공지 내용 1' },
-        { title: '알림 2', content: '공지 내용 2' },
-        { title: '알림 3', content: '공지 내용 3' }
-      ],
+      notifications: [],
       hideTabTimeout: null,
       hideNotifTimeout: null,
       tabLeft: 0,
@@ -101,6 +96,27 @@ export default {
     }
   },
   methods: {
+    async fetchNotifications(){
+      const token = localStorage.getItem('accessToken');
+      try {
+        // /user/notification API 호출
+        const response = await fetch('http://localhost:8080/api/notification', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        // 응답을 JSON 형태로 변환
+        this.notifications = await response.json();
+
+      } catch (error) {
+      console.error('Error fetching notifications:', error);
+      }
+    },
     toggleTab() {
       this.showTab = !this.showTab;
       this.updateTabPosition();
@@ -122,10 +138,10 @@ export default {
         this.showNotificationTab = false;
       }, 1500);
     },
-    showNotification(notification) {
-      this.modalTitle = notification.title;
-      this.modalContent = notification.content;
-      this.showModal = true;
+    async showNotification(notification) {
+          this.modalTitle = notification.title;
+          this.modalContent = notification.message;
+          this.showModal = true;
     },
     closeModal() {
       this.showModal = false;
@@ -312,6 +328,7 @@ export default {
     this.updateTabPosition();
     window.addEventListener('resize', this.updateTabPosition);
     this.fetchLocation();
+    this.fetchNotifications();
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.updateTabPosition);
