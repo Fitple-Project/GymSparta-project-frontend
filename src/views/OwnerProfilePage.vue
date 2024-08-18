@@ -247,7 +247,7 @@ export default {
           method: 'PUT',
           headers: {
              'Content-Type': 'application/json',
-             'Authorization': `Bearer ${this.getAuthToken()}`
+             'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             oldPassword: this.oldPassword,
