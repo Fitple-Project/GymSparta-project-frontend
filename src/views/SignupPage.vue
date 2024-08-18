@@ -356,7 +356,7 @@ export default {
           headers: {
             'Content-Type': 'application/json',
           },
-          credentials: 'include'
+          credentials: 'include',
           body: JSON.stringify({
             accountId: this.userId,
             password: this.password,

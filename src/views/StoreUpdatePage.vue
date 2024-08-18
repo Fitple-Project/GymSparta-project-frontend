@@ -84,7 +84,7 @@ const fetchStoreDetails = async (id) => {
         'Authorization': `Bearer ${getAuthToken()}`,
         'Content-Type': 'application/json'
       },
-      credentials: 'include'
+      credentials: 'include',
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -123,7 +123,7 @@ const updateStore = async () => {
         'Authorization': `Bearer ${getAuthToken()}`,
         'Content-Type': 'application/json'
       },
-      credentials: 'include'
+      credentials: 'include',
       body: JSON.stringify(payload)
     });
 

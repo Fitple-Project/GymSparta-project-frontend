@@ -57,7 +57,7 @@ export default {
             headers: {
               'Content-Type': 'application/json'
             },
-            credentials: 'include'
+            credentials: 'include',
             body: JSON.stringify({
               accountId: this.userId,
               password: this.password,
@@ -89,12 +89,12 @@ export default {
     }
   },
   beforeRouteEnter (to, from, next) {
-    const isLoggedIn = !!localStorage.getItem('accessToken');
-    if (isLoggedIn) {
-      next({ name: 'main' });
-    } else {
-      next();
-    }
+      const isLoggedIn = !!localStorage.getItem('accessToken');
+      if (isLoggedIn) {
+        next({ name: 'main' });
+      } else {
+        next();
+      }
   }
 };
 </script>
