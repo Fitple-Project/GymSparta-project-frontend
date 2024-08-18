@@ -7,18 +7,53 @@
           <button class="close-button" @click="closeModal">&times;</button>
         </div>
         <div class="modal-content">
-          <h3>2023년 하반기 시스템 업데이트 안내</h3>
+          <h3>📢 공지</h3>
           <p>안녕하세요, 고객 여러분.</p>
-          <p>당사는 더 나은 서비스 제공을 위해 2023년 9월 15일부터 9월 17일까지 시스템 업데이트를 진행할 예정입니다.</p>
-          <p>업데이트 기간 동안 일부 서비스 이용이 제한될 수 있으니 양해 부탁드립니다.</p>
-          <h4>주요 업데이트 내용:</h4>
+          <p>
+            현재 제공되는 서비스에는 일부 기능(결제 등)이 아직 미구현된 상태입니다.
+            시간적 제약으로 인해 우선 배포를 진행하게 된 점에 대해
+            사과드리며, 빠른 시일 내에 기능을 추가하고 업데이트를 진행할
+            예정입니다.
+          </p>
+          <p>
+            피드백을 주신 분들 중에서 추첨을 통해 선물을 드릴 예정입니다. 여러분의 소중한 피드백과 의견을 바탕으로 더욱 개선된 서비스를 제공할 수 있도록 최선을 다하겠습니다. 불편을 드려 죄송하며, 지속적인 업데이트와 개선을 통해 더 나은 서비스로 보답하겠습니다.
+          </p>
+          <h4>📝 설문 참여 안내</h4>
+          <p>
+            저희 서비스에 대한 설문에 참여해 주시면, 추첨을 통해 다양한 경품을 드립니다. 여러분의 의견이 큰 도움이 되니, 꼭 참여 부탁드립니다!
+          </p>
+          <p>
+            <strong>📑 참여 링크:</strong> <a href="https://forms.gle/aEFQPCPzFgaxpTHR7" target="_blank">설문조사 참여하기</a>
+          </p>
+          <p>
+            <strong>☑️ 응모 기간:</strong> 8/19(월) ~ 8/23(금) 23:59까지
+          </p>
+          <p>
+            <strong>🗓️ 당첨자 발표 및 발송:</strong> 8/26(금)
+          </p>
+          <p><strong>🎁 제공되는 경품:</strong></p>
           <ul>
-            <li>사용자 인터페이스 개선</li>
-            <li>보안 시스템 강화</li>
-            <li>새로운 기능 추가</li>
+            <li>배달의 민족 3만원 상품권 (1명)</li>
+            <li>배달의 민족 2만원 상품권 (2명)</li>
+            <li>메가커피 또는 컴포즈커피 아메리카노 쿠폰 (10명)</li>
           </ul>
-          <p>업데이트 완료 후 더욱 향상된 서비스로 찾아뵙겠습니다.</p>
+          <p>업데이트가 완료되면 더 나은 서비스로 찾아뵙겠습니다.</p>
           <p>감사합니다.</p>
+
+          <h4>🌐 주요 서비스 페이지 안내</h4>
+          <ul>
+            <li><strong>메인 페이지:</strong> <a href="https://gymsparta.shop" target="_blank">https://gymsparta.shop</a></li>
+            <li><strong>로그인 페이지:</strong> <a href="https://gymsparta.shop/login" target="_blank">https://gymsparta.shop/login</a></li>
+            <li><strong>회원가입 페이지:</strong> <a href="https://gymsparta.shop/signup" target="_blank">https://gymsparta.shop/signup</a></li>
+            <li><strong>비즈니스 회원가입 페이지:</strong> <a href="https://gymsparta.shop/business/signup" target="_blank">https://gymsparta.shop/business/signup</a></li>
+            <li><strong>운동 시설 검색 페이지:</strong> <a href="https://gymsparta.shop/store/search" target="_blank">https://gymsparta.shop/store/search</a></li>
+            <li><strong>트레이너 비교 페이지:</strong> <a href="https://gymsparta.shop/trainer/compare" target="_blank">https://gymsparta.shop/trainer/compare</a></li>
+            <li><strong>트레이너 상세 페이지:</strong> <a href="https://gymsparta.shop/trainer/detail/:id" target="_blank">https://gymsparta.shop/trainer/detail/:id</a></li>
+            <li><strong>장바구니 페이지:</strong> <a href="https://gymsparta.shop/cart" target="_blank">https://gymsparta.shop/cart</a></li>
+            <li><strong>결제 페이지:</strong> <a href="https://gymsparta.shop/payments" target="_blank">https://gymsparta.shop/payments</a></li>
+            <li><strong>사용자 프로필 페이지:</strong> <a href="https://gymsparta.shop/profile/user/:userId" target="_blank">https://gymsparta.shop/profile/user/:userId</a></li>
+            <li><strong>점주 프로필 페이지:</strong> <a href="https://gymsparta.shop/profile/owner/:ownerId" target="_blank">https://gymsparta.shop/profile/owner/:ownerId</a></li>
+          </ul>
         </div>
         <div class="modal-footer">
           <button class="btn btn-primary" @click="closeModal">확인</button>
@@ -31,7 +66,7 @@
     <TrainerSection title="트레이너" :trainers="trainers" />
     <GymSection title="주변 운동시설" :gyms="gyms" />
     <GymSection title="최근 둘러본 운동시설" :gyms="recentGyms" />
-    <AppFooter />
+    <AppFooter @show-modal="openModal" />
   </div>
 </template>
 
@@ -285,8 +320,11 @@ export default {
     };
   },
   methods: {
+    openModal() {
+      this.showModal = true; // 모달 표시
+    },
     closeModal() {
-      this.showModal = false;
+      this.showModal = false; // 모달 닫기
     },
     closeForOneDay() {
       const now = new Date();
@@ -317,7 +355,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* 높게 설정하여 상단에 표시 */
+  z-index: 1000;
 }
 
 .modal {
@@ -326,8 +364,11 @@ export default {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   width: 80%;
   max-width: 600px;
+  height: 90%; /* 모달의 전체 높이를 90%로 설정 */
   animation: modalAppear 0.3s ease-out;
-  z-index: 1001; /* 높게 설정하여 상단에 표시 */
+  z-index: 1001;
+  display: flex;
+  flex-direction: column; /* 버튼을 모달 하단에 배치하기 위해 추가 */
 }
 
 .modal-header {
@@ -356,7 +397,7 @@ export default {
 
 .modal-content {
   padding: 20px;
-  max-height: 400px;
+  flex-grow: 1; /* 콘텐츠가 남은 공간을 차지하도록 설정 */
   overflow-y: auto;
 }
 
@@ -364,8 +405,8 @@ export default {
   padding: 15px;
   text-align: right;
   border-top: 1px solid #e0e0e0;
+  background-color: #f9f9f9; /* 버튼 섹션의 배경색을 추가 */
 }
-
 .btn {
   padding: 10px 15px;
   border: none;

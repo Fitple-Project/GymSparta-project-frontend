@@ -1,6 +1,7 @@
 <template>
   <footer class="footer">
     <div class="container">
+      <!-- 기존 Footer HTML 구조 -->
       <div class="section customer-service">
         <h2 class="heading">고객센터</h2>
         <p class="operation-hours">운영 안함</p>
@@ -25,7 +26,7 @@
         <div class="section">
           <h3 class="heading">서비스</h3>
           <div class="links">
-            <a href="#" class="link">공지사항</a>
+            <a href="#" class="link" @click.prevent="showNotice">공지사항</a>
             <a href="#" class="link">자주 묻는 질문</a>
           </div>
         </div>
@@ -56,6 +57,11 @@
 <script>
 export default {
   name: "AppFooter",
+  methods: {
+    showNotice() {
+      this.$emit('show-modal');
+    }
+  }
 };
 </script>
 
