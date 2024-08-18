@@ -56,11 +56,25 @@
         <div class="input-group">
           <div class="confirm-password">Confirm Password</div>
           <div class="confirm-password-field">
+            <div class="field">
+              <input v-model="confirmPassword" class="label" placeholder="Enter Confirm Password" />
+            </div>
             <!--            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />-->
-            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />
-            <button @click="showPasswordModal = true" class="change-button">변경</button>
+            <!--            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />-->
           </div>
         </div>
+        <div class="input-group">
+          <div class="change-password">비밀번호 변경</div>
+          <button @click="showPasswordModal = true" class="change-button">변경</button>
+        </div>
+<!--        <div class="input-group">-->
+<!--          <div class="confirm-password">Confirm Password</div>-->
+<!--          <div class="confirm-password-field">-->
+<!--            &lt;!&ndash;            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />&ndash;&gt;-->
+<!--            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />-->
+<!--            <button @click="showPasswordModal = true" class="change-button">변경</button>-->
+<!--          </div>-->
+<!--        </div>-->
         <div class="buttons">
           <button @click="editProfile" class="edit-button">수정</button>
           <button @click="showDeleteModal = true" class="delete-button">회원탈퇴</button>
@@ -137,8 +151,9 @@ export default {
         ownerPhoneNumber: '',
         mainAddress: '',
         detailedAddress: '',
-        confirmPassword: '',
+
       },
+      confirmPassword: '',
       ownerId: '',
       currentView: 'profile',
       oldPassword: '',
@@ -166,32 +181,34 @@ export default {
     },
     async fetchOwnerProfile() {
       try {
-        const token = localStorage.getItem('Authorization');
+        const token = localStorage.getItem('accessToken');
         const response = await fetch('http://localhost:8080/api/profile/owner', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': token
+            'Authorization': `Bearer ${token}`
           }
         });
 
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        this.profileData = await response.json();
+        const data = await response.json(); // 전체 응답 데이터를 파싱
+        this.profileData = data.data; // 응답 데이터에서 readUserResponse에 해당하는 데이터를 추출
+
       } catch (error) {
         console.error('Error fetching owner:', error);
       }
     },
     async editProfile() {
       try {
-        const token = localStorage.getItem('Authorization');
+        const token = localStorage.getItem('accessToken');
         const response = await fetch('http://localhost:8080/api/profile/owner', {
           // TODO: 헤더에서 토큰 값 가져오기 구현
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': token
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             nickname: this.profileData.nickname,
@@ -200,7 +217,7 @@ export default {
             mainAddress: this.profileData.mainAddress,
             detailedAddress: this.profileData.detailedAddress,
             ownerPhoneNumber: this.profileData.ownerPhoneNumber,
-            password: this.profileData.confirmPassword
+            password: this.confirmPassword
           }),
         });
 
@@ -242,12 +259,12 @@ export default {
     },
     async confirmPasswordChange() {
       try {
-        const token = localStorage.getItem('Authorization');
+        const token = localStorage.getItem('accessToken');
         const response = await fetch('http://localhost:8080/api/profile/owner/password', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': token,
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             oldPassword: this.oldPassword,

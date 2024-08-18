@@ -6,19 +6,24 @@ module.exports = defineConfig({
   devServer: {
     port: process.env.VUE_APP_PORT || 7070,
     proxy: {
-    '/api': {
-        target: "http://localhost:8080",
-        changeOrigin:true,
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
         pathRewrite: {
-          '^/api': ''}
-       }
+          '^/api': ''
+        }
+      }
     }
   },
   configureWebpack: {
     resolve: {
       fallback: {
+        "events": require.resolve("events"),
+        "stream": require.resolve("stream-browserify"),
         "http": require.resolve("stream-http"),
-        "https": require.resolve("https-browserify")
+        "https": require.resolve("https-browserify"),
+        "url": require.resolve("url"),
+        "path": require.resolve("path-browserify")
       }
     },
     plugins: [
