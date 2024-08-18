@@ -41,6 +41,7 @@
 
 <script>
 import eventBus from '@/eventBus';
+import EventSource from 'eventsource';
 
 export default {
   name: "LoginPage",
@@ -72,11 +73,14 @@ export default {
 
             // JWT 토큰 저장
             localStorage.setItem('accessToken', data.data.accessToken);
-            localStorage.setItem('refreshToken', data.data.refreshToken); // 추가
+            localStorage.setItem('refreshToken', data.data.refreshToken);
             localStorage.setItem('userId', data.data.userId);
             localStorage.setItem('userRole', data.data.role);
 
             this.$router.push({ name: 'main' });
+
+            // SSE 구독 시작
+            this.startSse();
 
             eventBus.emit('login');
             const redirectPath = this.$route.query.redirect || '/';
@@ -95,48 +99,27 @@ export default {
     },
     goToBusinessSignupPage() {
       this.$router.push({ name: 'business-signup' });
-    }
-  },
-  async refreshToken() {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (refreshToken) {
-      try {
-        const response = await fetch('http://localhost:8080/api/refresh-token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${refreshToken}`,
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          localStorage.setItem('accessToken', data.data.accessToken);
-          this.fetchUserProfile(); // 새 토큰으로 유저 정보를 다시 가져옴
-        } else {
-          this.performLogout(); // 리프레시 토큰이 유효하지 않으면 로그아웃
+    },
+    startSse() {
+      const token = localStorage.getItem('accessToken');
+      const eventSource = new EventSource(`http://localhost:8080/api/notification/stream`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      } catch (error) {
-        console.error("Token refresh failed:", error);
-        this.performLogout();
-      }
-    } else {
-      this.performLogout(); // 리프레시 토큰이 없으면 로그아웃
-    }
-  },
-  async checkTokenValidity() {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const expiry = payload.exp * 1000;
+      });
 
-      if (Date.now() >= expiry) {
-        await this.refreshToken(); // 토큰이 만료된 경우 재발급 시도
-      } else {
-        this.isLoggedIn = true;
-      }
-    } else {
-      this.isLoggedIn = false;
+      eventSource.addEventListener('notification', (event) => {
+        const notification = event.data;
+        // 알림을 처리할 로직
+        alert(`새 알림: ${notification}`);
+      });
+
+      eventSource.onerror = (error) => {
+        console.error('SSE Error:', error);
+        eventSource.close();
+      };
+
+      this.eventSource = eventSource; // eventSource를 인스턴스에 저장하여 필요 시 종료할 수 있습니다.
     }
   },
   beforeRouteEnter(to, from, next) {
@@ -151,6 +134,7 @@ export default {
 </script>
 
 <style scoped>
+/* 스타일 그대로 유지 */
 .login-page {
   display: flex;
   flex-direction: column;
