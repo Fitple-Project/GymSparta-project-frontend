@@ -15,17 +15,20 @@
       </div>
     </aside>
     <main class="main-content">
+      <!-- 매장 목록 섹션 -->
       <section v-if="activeSection === 'storeList'" class="store-list">
         <h1 class="page-title">매장 목록</h1>
         <div class="store-card" v-for="store in stores" :key="store.id" @click="storeClicked(store.id)">
-          <img :src="store.image" alt="store image" class="store-image" />
+          <img :src="store.image || defaultImage" alt="store image" class="store-image" />
           <div class="store-info">
-            <h3>{{ store.store_name }}</h3>
-            <p>{{ store.store_address }}</p>
-            <p class="store-price">{{ store.price }}원~/월</p>
+            <h3>{{ store.store_name || '이름 없음' }}</h3>
+            <p>{{ store.store_address || '주소 없음' }}</p>
+            <p class="store-price">{{ store.price ? `${store.price}원~/월` : '가격 정보 없음' }}</p>
           </div>
         </div>
       </section>
+
+      <!-- 트레이너 목록 섹션 -->
       <section v-if="activeSection === 'trainerList'" class="trainer-list">
         <div class="trainer-list-header">
           <h1 class="page-title">트레이너 목록</h1>
@@ -35,14 +38,16 @@
           </div>
         </div>
         <div class="trainer-card" v-for="trainer in trainers" :key="trainer.id" @click="goToTrainerDetail(trainer.id)">
-          <img :src="trainer.image" alt="trainer image" class="trainer-image" />
+          <img :src="trainer.image || defaultImage" alt="trainer image" class="trainer-image" />
           <div class="trainer-info">
-            <h3>{{ trainer.name }}</h3>
-            <p>{{ trainer.location }}</p>
-            <p>{{ trainer.price }}</p>
+            <h3>{{ trainer.name || '이름 없음' }}</h3>
+            <p>{{ trainer.location || '위치 정보 없음' }}</p>
+            <p>{{ trainer.price ? `${trainer.price}원~/회` : '가격 정보 없음' }}</p>
           </div>
         </div>
       </section>
+
+      <!-- 매장 등록 섹션 -->
       <section v-if="activeSection === 'storeRegister'" class="store-register">
         <h1 class="page-title">매장 등록</h1>
         <div class="store-photo">
@@ -97,6 +102,8 @@
         </div>
       </section>
     </main>
+
+    <!-- 트레이너 모달 -->
     <TrainerModal v-if="isTrainerModalVisible" :visible="isTrainerModalVisible" :type="trainerModalType" @close="closeTrainerModal" />
 
     <!-- 오류 메시지 모달 -->
@@ -141,6 +148,7 @@ export default {
       ptSession: '',
       trainerList: '',
       price: '',
+      defaultImage: 'path/to/default/image.jpg', // 기본 이미지 경로 설정
       errorMessage: '', // 오류 메시지 저장
       errorDialog: false // 모달 상태 저장
     };
@@ -160,12 +168,11 @@ export default {
       this.isTrainerModalVisible = false;
     },
     storeClicked(storeId) {
-      console.log('Store ID:', storeId); // 디버그용 로그 추가
-      if (!storeId) {
+      if (storeId) {
+        this.$router.push({ name: 'storeedit', params: { id: storeId } });
+      } else {
         console.error('Store ID is undefined or null');
-        return;
       }
-      this.$router.push({ name: 'storeedit', params: { id: storeId } });
     },
     goToTrainerDetail(trainerId) {
       this.$router.push({ name: 'trainer-detail', params: { id: trainerId } });
@@ -190,7 +197,7 @@ export default {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.getAuthToken()}`
         },
-        credentials: 'include'
+        credentials: 'include',
         body: JSON.stringify(payload)
       })
         .then(response => {
@@ -226,8 +233,6 @@ export default {
       this.price = '';
     },
     fetchStores() {
-      console.log('Fetching stores...');
-
       fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
         method: 'GET',
         headers: {
@@ -245,22 +250,14 @@ export default {
           return response.json();
         })
         .then(data => {
-          console.log('Fetched stores:', data); // 서버 응답 데이터 로그 출력
-
           if (data.data && Array.isArray(data.data)) {
-            // 서버에서 반환된 데이터를 Vue 상태에 저장
-            this.stores = data.data.map(store => {
-              console.log('Store:', store); // 각 매장 데이터 로그 출력
-              console.log('Store price:', store.price); // 가격 속성 로그 출력
-              return {
-                id: store.storeId, // 서버에서 반환된 데이터 속성 이름 확인
-                store_name: store.storeName, // 서버에서 반환된 데이터 속성 이름 확인
-                store_address: store.storeAddress, // 서버에서 반환된 데이터 속성 이름 확인
-                price: store.storePrice || 'N/A', // 가격 속성 매핑 확인
-                image: store.image || 'default-image-url' // 이미지가 없을 경우 기본 이미지 사용
-              };
-            });
-            console.log('Mapped stores:', this.stores);
+            this.stores = data.data.map(store => ({
+              id: store.storeId || null,
+              store_name: store.storeName || '이름 없음',
+              store_address: store.storeAddress || '주소 없음',
+              price: store.storePrice || 'N/A',
+              image: store.image || this.defaultImage,
+            }));
           } else {
             console.error('Unexpected data format:', data);
           }

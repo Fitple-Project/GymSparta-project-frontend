@@ -21,7 +21,7 @@
         <div class="profile">
           <div class="avatar"></div>
           <div class="frame">
-            <div class="nickname">{{profileData.nickname}}</div>
+            <div class="nickname">{{ profileData.nickname }}</div>
             <div class="batch">Java_5기</div>
           </div>
         </div>
@@ -50,9 +50,9 @@
           </div>
         </div>
         <div class="input-group">
-          <div class="phone-number">info</div>
+          <div class="phone-number">Info</div>
           <div class="field">
-            <input v-model="profileData.trainerInfo" class="label" placeholder="Enter info" />
+            <input v-model="profileData.trainerInfo" class="label" placeholder="Enter Info" />
           </div>
         </div>
         <div class="input-list">
@@ -67,7 +67,6 @@
         <div class="input-group">
           <div class="confirm-password">Confirm Password</div>
           <div class="confirm-password-field">
-<!--            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />-->
             <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />
             <button @click="showPasswordModal = true" class="change-button">변경</button>
           </div>
@@ -85,33 +84,33 @@
         </div>
         <table>
           <thead>
-          <tr>
-            <th>매장명</th>
-            <th>트레이너명</th>
-            <th>회원권</th>
-            <th>PT</th>
-            <th>결제 금액</th>
-            <th>결제일</th>
-          </tr>
+            <tr>
+              <th>매장명</th>
+              <th>트레이너명</th>
+              <th>회원권</th>
+              <th>PT</th>
+              <th>결제 금액</th>
+              <th>결제일</th>
+            </tr>
           </thead>
           <tbody>
-          <tr v-for="payment in filteredPayments" :key="payment.id">
-            <td>{{ payment.storeName }}</td>
-            <td>{{ payment.trainerName }}</td>
-            <td>{{ payment.membership }}</td>
-            <td>{{ payment.pt }}</td>
-            <td>{{ payment.amount }}</td>
-            <td>{{ payment.date }}</td>
-          </tr>
+            <tr v-for="payment in filteredPayments" :key="payment.id">
+              <td>{{ payment.storeName }}</td>
+              <td>{{ payment.trainerName }}</td>
+              <td>{{ payment.membership }}</td>
+              <td>{{ payment.pt }}</td>
+              <td>{{ payment.amount }}</td>
+              <td>{{ payment.date }}</td>
+            </tr>
           </tbody>
         </table>
       </div>
       <div v-if="currentView === 'reviews'" class="reviews-view">
         <h1>내 헬스장 리뷰 관리</h1>
         <div class="tab-container">
-          <button class="tab active" @click="filterReviews('all')">전체</button>
-          <button class="tab" @click="filterReviews('gym')">매장</button>
-          <button class="tab" @click="filterReviews('trainer')">트레이너</button>
+          <button class="tab" :class="{ active: currentReviewTab === 'all' }" @click="filterReviews('all')">전체</button>
+          <button class="tab" :class="{ active: currentReviewTab === 'gym' }" @click="filterReviews('gym')">매장</button>
+          <button class="tab" :class="{ active: currentReviewTab === 'trainer' }" @click="filterReviews('trainer')">트레이너</button>
         </div>
         <div id="reviewContainer">
           <ul class="review-list">
@@ -181,7 +180,7 @@
 
 <script>
 export default {
-  name: 'UserProfilePage',
+  name: 'TrainerProfilePage',
   data() {
     return {
       showPasswordModal: false,
@@ -199,6 +198,7 @@ export default {
       },
       userId: 1,
       currentView: 'profile',
+      currentReviewTab: 'all',
       oldPassword: '',
       newPassword: '',
       searchTerm: '',
@@ -219,7 +219,7 @@ export default {
     filteredPayments() {
       return this.payments.filter((payment) => {
         return Object.values(payment).some((value) =>
-            typeof value === 'string' && value.toLowerCase().includes(this.searchTerm.toLowerCase())
+          typeof value === 'string' && value.toLowerCase().includes(this.searchTerm.toLowerCase())
         );
       });
     },
@@ -231,11 +231,11 @@ export default {
     async fetchTrainerProfile() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/trainer', {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/trainer`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': token
+            'Authorization': `Bearer ${token}`
           },
           credentials: 'include'
         });
@@ -243,9 +243,8 @@ export default {
           throw new Error('Network response was not ok');
         }
         this.profileData = await response.json();
-
-      }catch (error) {
-        console.error('Error fetching user:', error);
+      } catch (error) {
+        console.error('Error fetching trainer profile:', error);
       }
     },
     changeView(view) {
@@ -258,36 +257,25 @@ export default {
       }
     },
     fetchPayments() {
-      // 백엔드에서 결제 내역을 불러오는 API 예시
-      // this.$axios.get('/api/payments')
-      //   .then(response => {
-      //     this.payments = response.data;
-      //   })
-      //   .catch(error => {
-      //     console.error('Error fetching payments:', error);
-      //   });
-    },
-    searchPayments() {
-      // 필터링은 computed를 통해 이미 수행되고 있으므로 추가 로직 불필요
+      // 결제 내역을 백엔드에서 불러오는 API 호출을 여기에서 처리
     },
     async editProfile() {
       try {
         const token = localStorage.getItem('Authorization');
-        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/trainer', {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/trainer`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': token
+            'Authorization': `Bearer ${token}`
           },
-          credentials: 'include'
-          // TODO 사진 변경 추가
+          credentials: 'include',
           body: JSON.stringify({
             trainerName: this.profileData.trainerName,
             nickname: this.profileData.nickname,
             trainerInfo: this.profileData.trainerInfo,
             email: this.profileData.email,
             trainerPhoneNumber: this.profileData.trainerPhoneNumber,
-            password:this.profileData.confirmPassword
+            password: this.profileData.confirmPassword
           }),
         });
 
@@ -295,21 +283,46 @@ export default {
           this.currentSection = 'complete';
         }
       } catch (error) {
-        this.showModalMessage('프로필 수정 중 오류가 발생했습니다.');
+        alert('프로필 수정 중 오류가 발생했습니다.');
       }
     },
+    async confirmPasswordChange() {
+      try {
+        const token = localStorage.getItem('Authorization');
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/users/password`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            oldPassword: this.oldPassword,
+            newPassword: this.newPassword
+          }),
+        });
+
+        if (response.ok) {
+          this.currentSection = 'complete';
+        }
+      } catch (error) {
+        alert('비밀번호 변경 중 오류가 발생했습니다.');
+      }
+      this.showPasswordModal = false;
+    },
     deleteAccount() {
-      fetch('${process.env.VUE_APP_API_URL}/api/profile/users/signout', {
+      const token = localStorage.getItem('Authorization');
+      fetch(`${process.env.VUE_APP_API_URL}/api/profile/users/signout`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${this.$store.getters.accessToken}`,
+          'Authorization': `Bearer ${token}`,
         },
         credentials: 'include'
       })
       .then(response => {
         if (response.ok) {
           alert('회원탈퇴가 완료되었습니다.');
-          this.$store.dispatch('logout');
+          localStorage.removeItem('Authorization');
           this.$router.push({ name: 'main' });
         } else {
           response.json().then(data => {
@@ -321,35 +334,12 @@ export default {
         alert(`회원탈퇴 실패: ${error.message}`);
       });
     },
-    async confirmPasswordChange() {
-      try {
-        const token = localStorage.getItem('Authorization');
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/users/password`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token,
-          },
-          credentials: 'include'
-          body: JSON.stringify({
-            oldPassword: this.oldPassword,
-            newPassword: this.newPassword
-          }),
-        });
-
-        if (response.ok) {
-          this.currentSection = 'complete';
-        }
-      } catch (error) {
-        this.showModalMessage('비밀번호 변경 중 오류가 발생했습니다.');
-      }
-      this.showPasswordModal = false;
-    },
     confirmDeleteAccount() {
       this.deleteAccount();
       this.showDeleteModal = false;
     },
     filterReviews(type) {
+      this.currentReviewTab = type;
       this.filteredReviews = type === 'all' ? this.reviews : this.reviews.filter(review => review.type === type);
     },
     editReview(review) {
@@ -361,13 +351,13 @@ export default {
       const reviewIndex = this.reviews.findIndex(r => r.id === this.currentEditId);
       this.reviews[reviewIndex].content = this.currentEditContent;
       this.showEditModal = false;
-      this.filterReviews('all');
+      this.filterReviews(this.currentReviewTab);
     },
     deleteReview(id) {
       if (confirm('정말로 이 리뷰를 삭제하시겠습니까?')) {
         const index = this.reviews.findIndex(r => r.id === id);
         this.reviews.splice(index, 1);
-        this.filterReviews('all');
+        this.filterReviews(this.currentReviewTab);
       }
     },
   },

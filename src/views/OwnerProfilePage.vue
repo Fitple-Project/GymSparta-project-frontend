@@ -13,7 +13,7 @@
         <div class="profile">
           <div class="avatar"></div>
           <div class="frame">
-            <div class="nickname">{{profileData.nickname}}}</div>
+            <div class="nickname">{{ profileData.nickname || '닉네임 없음' }}</div>
             <div class="batch">Java_5기</div>
           </div>
         </div>
@@ -56,7 +56,6 @@
         <div class="input-group">
           <div class="confirm-password">Confirm Password</div>
           <div class="confirm-password-field">
-            <!--            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />-->
             <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />
             <button @click="showPasswordModal = true" class="change-button">변경</button>
           </div>
@@ -179,7 +178,8 @@ export default {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        this.profileData = await response.json();
+        const data = await response.json();
+        this.profileData = data || {};
       } catch (error) {
         console.error('Error fetching owner:', error);
       }
@@ -188,13 +188,12 @@ export default {
       try {
         const token = localStorage.getItem('Authorization');
         const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/owner`, {
-          // TODO: 헤더에서 토큰 값 가져오기 구현
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          credentials: 'include'
+          credentials: 'include',
           body: JSON.stringify({
             nickname: this.profileData.nickname,
             email: this.profileData.email,
@@ -210,11 +209,11 @@ export default {
           this.currentSection = 'complete';
         }
       } catch (error) {
-        this.showModalMessage('프로필 수정 중 오류가 발생했습니다.');
+        console.error('프로필 수정 중 오류가 발생했습니다:', error);
       }
     },
     deleteAccount() {
-      const token = localStorage.getItem('accessToken'); // localStorage에서 토큰을 가져옵니다.
+      const token = localStorage.getItem('Authorization');
       if (!token) {
         alert("로그인 먼저 해주세요.");
         return;
@@ -229,11 +228,9 @@ export default {
       }).then(response => {
         if (response.ok) {
           alert('회원탈퇴가 완료되었습니다.');
-          localStorage.removeItem('accessToken');
+          localStorage.removeItem('Authorization');
           eventBus.emit('logout');
-          this.$router.push({
-            name: 'main'
-          });
+          this.$router.push({ name: 'main' });
         } else {
           response.json().then(data => {
             alert(`회원탈퇴 실패: ${data.message}`);
@@ -252,7 +249,7 @@ export default {
              'Content-Type': 'application/json',
              'Authorization': `Bearer ${token}`
           },
-          credentials: 'include'
+          credentials: 'include',
           body: JSON.stringify({
             oldPassword: this.oldPassword,
             newPassword: this.newPassword
@@ -263,7 +260,7 @@ export default {
           this.currentSection = 'complete';
         }
       } catch (error) {
-        this.showModalMessage('비밀번호 변경 중 오류가 발생했습니다.');
+        console.error('비밀번호 변경 중 오류가 발생했습니다:', error);
       }
       this.showPasswordModal = false;
     },
