@@ -118,7 +118,6 @@ export default {
             const response = await fetch(`https://api.gymspartatest.shop/api/stores/recent`, {
                 method: 'GET',
                 credentials: 'include',
-                'Content-Type': 'application/json',
             });
             const responseData = await response.json();
 
