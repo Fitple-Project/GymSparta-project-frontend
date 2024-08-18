@@ -170,8 +170,8 @@ export default {
         const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/owner`, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token
+             'Content-Type': 'application/json',
+             'Authorization': `Bearer ${token}`
           }
         });
 
@@ -191,7 +191,7 @@ export default {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': token
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             nickname: this.profileData.nickname,
@@ -246,8 +246,8 @@ export default {
         const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/owner/password`, {
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token,
+             'Content-Type': 'application/json',
+             'Authorization': `Bearer ${this.getAuthToken()}`
           },
           body: JSON.stringify({
             oldPassword: this.oldPassword,
