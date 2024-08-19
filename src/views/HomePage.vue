@@ -10,7 +10,7 @@
           <h3>📢 공지</h3>
           <p>안녕하세요, 고객 여러분.</p>
           <p>
-            현재 제공되는 서비스에는 일부 기능(결제 등)이 아직 미구현된 상태입니다.
+            현재 제공되는 서비스에는 일부 기능(결제 등)이 아직 연결이 안된 상태입니다.
             시간적 제약으로 인해 우선 배포를 진행하게 된 점에 대해
             사과드리며, 빠른 시일 내에 기능을 추가하고 업데이트를 진행할
             예정입니다.
@@ -63,7 +63,6 @@
     </div>
 
     <SearchContainer />
-    <TrainerSection title="트레이너" :trainers="trainers" />
     <GymSection title="주변 운동시설" :gyms="gyms" />
     <GymSection title="최근 둘러본 운동시설" :gyms="recentGyms" />
     <AppFooter @show-modal="openModal" />
@@ -72,23 +71,17 @@
 
 <script>
 import SearchContainer from "@/components/SearchContainer.vue";
-import TrainerSection from "@/components/TrainerSection.vue";
 import GymSection from "@/components/GymSection.vue";
 import AppFooter from "@/components/AppFooter.vue";
 import mk1 from '@/assets/Gym_image/mk1.svg';
 import dy1 from '@/assets/Gym_image/dy1.svg';
 import h1 from '@/assets/Gym_image/h1.svg';
 import hm1 from '@/assets/Gym_image/hm1.svg';
-import trainer1 from '@/assets/Trainer_image/kim.svg';
-import trainer2 from '@/assets/Trainer_image/hcs.svg';
-import trainer3 from '@/assets/Trainer_image/Ronnie.svg';
-import trainer4 from '@/assets/Trainer_image/Bumstead.svg';
 
 export default {
   name: "HomePage",
   components: {
     SearchContainer,
-    TrainerSection,
     GymSection,
     AppFooter,
   },
@@ -291,44 +284,18 @@ export default {
           reviews: '2,952명 평가'
         },
       ],
-      trainers: [
-        {
-          id: 1,
-          image: trainer1,
-          name: '트레이너 1',
-          description: '설명 1'
-        },
-        {
-          id: 2,
-          image: trainer2,
-          name: '트레이너 2',
-          description: '설명 2'
-        },
-        {
-          id: 3,
-          image: trainer3,
-          name: '트레이너 3',
-          description: '설명 3'
-        },
-        {
-          id: 4,
-          image: trainer4,
-          name: '트레이너 4',
-          description: '설명 4'
-        },
-      ],
     };
   },
   methods: {
     openModal() {
-      this.showModal = true; // 모달 표시
+      this.showModal = true;
     },
     closeModal() {
-      this.showModal = false; // 모달 닫기
+      this.showModal = false;
     },
     closeForOneDay() {
       const now = new Date();
-      const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 현재 시간 + 24시간
+      const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
       localStorage.setItem("suppressModalUntil", tomorrow.getTime());
       this.closeModal();
     },
@@ -336,11 +303,19 @@ export default {
       const suppressUntil = localStorage.getItem("suppressModalUntil");
       if (suppressUntil) {
         const now = new Date().getTime();
-        return now < suppressUntil; // suppressUntil 시간이 현재 시간보다 크면 true 반환
+        return now < suppressUntil;
       }
-      return false; // suppressUntil 값이 없으면 false 반환
+      return false;
+    },
+    searchStores(query) {
+      this.filteredGyms = this.gyms.filter(gym => {
+        return gym.name.includes(query) || gym.location.includes(query);
+      });
     }
   },
+  mounted() {
+    this.filteredGyms = this.gyms; // 초기에는 전체 데이터를 보여줌
+  }
 };
 </script>
 

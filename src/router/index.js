@@ -103,13 +103,13 @@ const routes = [
     component: PaymentCompletePage,
   },
   {
-    path: '/profile/user/:userId',
+    path: '/profile/user',
     name: 'user-profile',
     component: UserProfilePage,
     meta: { requiresAuth: true }
   },
   {
-    path: '/profile/owner/:ownerId',
+    path: '/profile/owner',
     name: 'owner-profile',
     component: OwnerProfilePage,
     meta: { requiresAuth: true }

@@ -30,11 +30,12 @@ export default {
     handleSearch() {
       console.log("검색 버튼 클릭!");
       console.log("검색어:", this.searchKeyword);
+      this.$emit('search', this.searchKeyword);  // 검색어를 상위 컴포넌트에 전달
+      this.$router.push({ name: 'store-search', query: { keyword: this.searchKeyword } }); // 검색 결과 페이지로 이동
     }
   }
 };
 </script>
-
 <style scoped>
 .search-container {
   margin-top: 60px; /* 헤더의 높이만큼 마진을 줘서 서치바가 헤더 아래에 위치하도록 합니다 */
