@@ -388,7 +388,7 @@ export default {
         const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${this.getAuthToken()}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
           credentials: 'include'
