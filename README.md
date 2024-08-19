@@ -1,4 +1,4 @@
-# fitple-project-frontend
+# GymSparta-project-frontend
 
 ## Project setup
 ```
