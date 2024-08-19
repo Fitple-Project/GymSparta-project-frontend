@@ -329,17 +329,19 @@ export default {
       this.$router.push({ name: 'trainer-detail', params: { id: trainerId } });
     },
     registerStore() {
-      const payload = {
-        storeName: this.storeName || null,
-        address: this.storeAddress || null,
-        storeInfo: this.storeIntro || null,
-        storeHour: this.operatingHours || null,
-        storeTel: this.phoneNumber || null,
-        services: this.services ? this.services.split(',') : [],
-        memberships: this.membership ? this.membership.split('\n') : [],
-        ptConsultations: this.ptSession ? this.ptSession.split('\n') : [],
-        trainerList: this.trainerList ? this.trainerList.split(',') : [],
-        price: this.price || null,
+       const payload = {
+         storeName: this.storeName,
+         address: this.storeAddress,
+         storeInfo: this.storeIntro,
+         storeHour: this.operatingHours,
+         storeTel: this.phoneNumber,
+         services: this.services ? this.services.split(',') : [],
+         memberships: this.membership ? this.membership.split('\n') : [],
+         ptConsultations: this.ptSession ? this.ptSession.split('\n') : [],
+         trainerList: this.trainerList ? this.trainerList.split(',') : [],
+         price: this.price,
+     };
+
       };
 
       fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
