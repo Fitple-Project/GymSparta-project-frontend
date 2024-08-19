@@ -384,6 +384,7 @@ export default {
       this.price = '';
     },
     async fetchStores() {
+      const token = localStorage.getItem('accessToken');
       try {
         const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
           method: 'GET',
