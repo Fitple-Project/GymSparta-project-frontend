@@ -73,11 +73,10 @@ const ratingDistribution = ref({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
 
 const fetchStoreDetails = async (id) => {
   try {
-    const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/${id}`, {
+    const response = await fetch(`http://localhost:8080/api/stores/${id}`, {
       headers: {
         'Content-Type': 'application/json'
-      },
-      credentials: 'include'
+      }
     });
     if (!response.ok) {
       throw new Error('Failed to fetch store details');

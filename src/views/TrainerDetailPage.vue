@@ -91,9 +91,8 @@ export default {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-          }
           },
-          credentials: 'include'
+          credentials: 'include' // 여기에 위치해야 합니다.
         });
 
         if (!response.ok) {

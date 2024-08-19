@@ -29,33 +29,34 @@
       </section>
 
       <!-- 공지사항 작성 모달 -->
-      div v-if="isWriteModalVisible" class="modal-overlay" @click.self="closeModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h2 class="modal-title">공지사항 작성</h2>
-          <button class="close-button" @click="closeModal">&times;</button>
-        </div>
-        <div class="modal-content">
-          <form @submit.prevent="submitNotice">
-            <label for="title">제목:</label><br>
-            <input type="text" id="title" v-model="noticeRiteTitle" required><br>
+      <div v-if="isWriteModalVisible" class="modal-overlay" @click.self="closeModal">
+        <div class="modal">
+          <div class="modal-header">
+            <h2 class="modal-title">공지사항 작성</h2>
+            <button class="close-button" @click="closeModal">&times;</button>
+          </div>
+          <div class="modal-content">
+            <form @submit.prevent="submitNotice">
+              <label for="title">제목:</label><br>
+              <input type="text" id="title" v-model="noticeRiteTitle" required><br>
 
-            <label for="content">내용:</label><br>
-            <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea><br>
+              <label for="content">내용:</label><br>
+              <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea><br>
 
-            <!-- 동적 카테고리 선택박스 (스토어 ID와 이름 표시) -->
-            <label for="category">스토어 선택:</label><br>
-            <select id="category" v-model="selectedStoreId" required>
-              <option value="">스토어를 선택하세요</option>
-              <!-- 스토어 ID와 이름을 동시에 표시 -->
-              <option v-for="store in stores" :key="store.id" :value="store.id">
-                {{ store.id }} - {{ store.store_name }}
-              </option>
-            </select><br><br>
+              <!-- 동적 카테고리 선택박스 (스토어 ID와 이름 표시) -->
+              <label for="category">스토어 선택:</label><br>
+              <select id="category" v-model="selectedStoreId" required>
+                <option value="">스토어를 선택하세요</option>
+                <!-- 스토어 ID와 이름을 동시에 표시 -->
+                <option v-for="store in stores" :key="store.id" :value="store.id">
+                  {{ store.id }} - {{ store.store_name }}
+                </option>
+              </select><br><br>
 
-            <!-- 등록 버튼을 클릭하면 `handleSubmit` 메서드가 실행됩니다. -->
-            <button type="button" class="btn" @click="handleSubmit">등록</button>
-          </form>
+              <!-- 등록 버튼을 클릭하면 `handleSubmit` 메서드가 실행됩니다. -->
+              <button type="button" class="btn" @click="handleSubmit">등록</button>
+            </form>
+          </div>
         </div>
       </div>
 
@@ -77,7 +78,7 @@
           </div>
           <div class="modal-content">
             <ul id="noticeList">
-              <li v-for="(notice) in notices" :key="notice" @click="openDetailModal(notice.allNotificationId)">
+              <li v-for="(notice) in notices" :key="notice.allNotificationId" @click="openDetailModal(notice.allNotificationId)">
                 <strong>{{ notice.title }}</strong>
               </li>
             </ul>
@@ -339,7 +340,7 @@ export default {
         price: this.price || null,
       };
 
-      fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
+      fetch(`http://localhost:8080/api/stores/owners`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -380,40 +381,48 @@ export default {
       this.trainerList = '';
       this.price = '';
     },
-    fetchStores() {
-      fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.getAuthToken()}`,
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      })
-        .then(response => {
-          if (!response.ok) {
-            return response.json().then(errorData => {
-              throw new Error(errorData.message || 'HTTP error! status: ' + response.status);
-            });
+    async fetchStores() {
+      try {
+        const response = await fetch(`http://localhost:8080/api/stores/owners`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${this.getAuthToken()}`,
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('네트워크 응답이 정상이 아닙니다.');
+        }
+
+        const data = await response.json();
+        if (data.data && Array.isArray(data.data)) {
+          this.stores = data.data.map(store => ({
+            id: store.storeId || null,
+            store_name: store.storeName || '이름 없음',
+            store_address: store.storeAddress || '주소 없음',
+            price: store.storePrice || 'N/A',
+            image: store.image || this.defaultImage,
+          }));
+        } else {
+          console.error('Unexpected data format:', data);
+        }
+      } catch (error) {
+        this.errorMessage = error.message;
+        this.errorDialog = true;
+        console.error('There has been a problem with your fetch operation:', error);
+      }
+    },
+    async fetchNoticeDetail(noticeId) {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch(`http://localhost:8080/api/notification/${noticeId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           }
-          return response.json();
-        })
-        .then(data => {
-          if (data.data && Array.isArray(data.data)) {
-            this.stores = data.data.map(store => ({
-              id: store.storeId || null,
-              store_name: store.storeName || '이름 없음',
-              store_address: store.storeAddress || '주소 없음',
-              price: store.storePrice || 'N/A',
-              image: store.image || this.defaultImage,
-            }));
-          } else {
-            console.error('Unexpected data format:', data);
-          }
-        })
-        .catch(error => {
-          this.errorMessage = error.message;
-          this.errorDialog = true;
-          console.error('There has been a problem with your fetch operation:', error);
         });
 
         if (!response.ok) {

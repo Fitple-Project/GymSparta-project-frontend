@@ -53,17 +53,14 @@ export default {
   methods: {
       async fetchStores() {
         try {
-          const currentLocation = await getCurrentLocation(); // 현재 위치 가져오기
-
-          const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
-
-          // 응답의 Content-Type을 확인하여 JSON 응답이 아닌 경우 처리
-              const contentType = response.headers.get("content-type");
-              if (!contentType || !contentType.includes("application/json")) {
-                throw new Error("JSON 응답이 아닙니다");
-              }
+          const response = await fetch(`http://localhost:8080/api/stores`);
+          const contentType = response.headers.get("content-type");
+          if (!contentType || !contentType.includes("application/json")) {
+            throw new Error("JSON 응답이 아닙니다");
+          }
 
           const responseData = await response.json();
+          const currentLocation = await getCurrentLocation(); // 현재 위치 가져오기
 
           const storesWithCoordinates = await Promise.all(responseData.data.map(async store => {
             const coordinates = await getCoordinatesFromAddress(store.storeAddress);
@@ -130,65 +127,6 @@ export default {
         const locationMatch = card.location && card.location.includes(this.searchQuery);
         return titleMatch || locationMatch;
       });
-
-         cardClicked(id) {
-            this.$router.push({ name: 'store-detail', params: { id } });
-          },
-          searchStores() {
-            if (this.searchQuery.trim() === '') {
-              // 위치 기반 검색
-              if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                  const { latitude, longitude } = position.coords;
-                  this.fetchStoresByLocation(latitude, longitude);
-                }, () => {
-                  // 위치 권한 거부 시 모든 매장을 조회
-                  this.fetchAllStores();
-                });
-              } else {
-                // 위치 기반을 사용할 수 없을 때 모든 매장을 조회
-                this.fetchAllStores();
-              }
-            } else {
-              // 검색어 기반 검색
-              this.fetchStoresByKeyword(this.searchQuery);
-            }
-          },
-          fetchStoresByKeyword(keyword) {
-            fetch(`http://localhost:8080/api/stores/search?keyword=${encodeURIComponent(keyword)}`)
-            .then(response => response.json())
-            .then(responseData => {
-              if (responseData.data && responseData.data.length > 0) {
-                this.filteredCards = responseData.data;
-              } else {
-                console.log("검색 결과가 없습니다.");
-                this.filteredCards = []; // 빈 결과 처리
-              }
-            })
-            .catch(error => {
-              console.error('검색 중 오류가 발생했습니다:', error);
-            });
-          },
-          fetchStoresByLocation(latitude, longitude) {
-            fetch(`http://localhost:8080/api/stores/search?latitude=${latitude}&longitude=${longitude}`)
-            .then(response => response.json())
-            .then(responseData => {
-              this.filteredCards = responseData.data;
-            })
-            .catch(error => {
-              console.error('위치 기반 검색 중 오류가 발생했습니다:', error);
-            });
-          },
-          fetchAllStores() {
-            fetch('http://localhost:8080/api/stores')
-            .then(response => response.json())
-            .then(responseData => {
-              this.filteredCards = responseData.data;
-            })
-            .catch(error => {
-              console.error('모든 매장 조회 중 오류가 발생했습니다:', error);
-            });
-
       this.updateMapMarkers();
 
       if (this.filteredCards.length === 1) {
