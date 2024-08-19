@@ -129,7 +129,7 @@ export default {
       try {
         const currentLocation = await getCurrentLocation();
 
-        const response = await fetch(`http://localhost:8080/api/stores`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`, {
           method: 'GET',
           credentials: 'include',
         });
@@ -195,7 +195,7 @@ export default {
     },
     async fetchRecentGyms() {
       try {
-        const response = await fetch(`http://localhost:8080/api/stores/recent`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/recent`, {
           method: 'GET',
           credentials: 'include',
         });

@@ -93,7 +93,7 @@ export default {
     },
     fetchReviews() {
       const trainerId = this.$route.params.id;
-      fetch(`http://localhost:8080/api/reviews/trainer/${trainerId}/reviews`, {
+      fetch(`${process.env.VUE_APP_API_URL}/api/reviews/trainer/${trainerId}/reviews`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -120,7 +120,7 @@ export default {
     },
     fetchAverageRating() {
       const trainerId = this.$route.params.id;
-      fetch(`http://localhost:8080/api/reviews/trainer/${trainerId}/average-rating`, {
+      fetch(`${process.env.VUE_APP_API_URL}/api/reviews/trainer/${trainerId}/average-rating`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -148,7 +148,7 @@ export default {
         comment: this.newReview.comment
       };
 
-      fetch('http://localhost:8080/api/reviews', {
+      fetch('${process.env.VUE_APP_API_URL}/api/reviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

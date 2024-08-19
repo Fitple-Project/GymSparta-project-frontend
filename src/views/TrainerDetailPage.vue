@@ -105,7 +105,7 @@ export default {
     },
     async fetchTrainerReviews(trainerId) {
       try {
-        const response = await fetch(`http://localhost:8080/api/reviews/trainer/${trainerId}/reviews`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/reviews/trainer/${trainerId}/reviews`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
