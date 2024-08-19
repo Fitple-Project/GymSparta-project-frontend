@@ -148,7 +148,7 @@ export default {
         comment: this.newReview.comment
       };
 
-      fetch('${process.env.VUE_APP_API_URL}/api/reviews', {
+      fetch(`${process.env.VUE_APP_API_URL}/api/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

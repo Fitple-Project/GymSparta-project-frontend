@@ -258,7 +258,7 @@ export default {
     async fetchUserProfile() {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/user', {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/user`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -365,7 +365,7 @@ export default {
     async confirmPasswordChange() {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/users/password', {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/users/password`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

@@ -104,7 +104,7 @@ export default {
     startSse() {
       const token = localStorage.getItem('accessToken');
 
-      fetch('http://localhost:8080/api/notification/stream', {
+      fetch(`${process.env.VUE_APP_API_URL}/api/notification/stream`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
