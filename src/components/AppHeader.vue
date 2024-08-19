@@ -101,7 +101,7 @@ export default {
       const token = localStorage.getItem('accessToken');
       try {
         // /user/notification API 호출
-        const response = await fetch('http://localhost:8080/api/notification', {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -165,7 +165,7 @@ export default {
       const token = localStorage.getItem('accessToken');
       if (token) {
         try {
-          const response = await fetch('http://localhost:8080/api/profile/owner', {
+          const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/owner`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
@@ -192,7 +192,7 @@ export default {
       const refreshToken = localStorage.getItem('refreshToken');
       if (refreshToken) {
         try {
-          const response = await fetch('http://localhost:8080/api/refresh-token', {
+          const response = await fetch(`${process.env.VUE_APP_API_URL}/api/refresh-token`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -348,7 +348,7 @@ export default {
       }
 
       try {
-        const response = await fetch('http://localhost:8080/api/logout', {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/logout`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
