@@ -78,7 +78,7 @@ const getAuthToken = () => {
 const fetchStoreDetails = async (id) => {
   try {
     console.log('Fetching store details for ID:', id);
-    const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners/${id}`, {
+    const response = await fetch(`http://localhost:8080/api/stores/owners/${id}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${getAuthToken()}`,
@@ -117,7 +117,7 @@ const updateStore = async () => {
       services
     };
 
-    const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners/${route.params.id}`, {
+    const response = await fetch(`http://localhost:8080/api/stores/owners/${route.params.id}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${getAuthToken()}`,

@@ -119,7 +119,7 @@ const goToPtConsultationsPage = () => {
 };
 
 const goToEditPage = () => {
-  router.push({ name: 'store-edit', params: { id: route.params.id } });
+  router.push({ name: 'store-update', params: { id: route.params.id } });
 };
 
 const deleteStore = async () => {
