@@ -225,7 +225,7 @@ export default {
     },
     async navigateToGymDetail(gymId) {
       try {
-        const response = await fetch(`http://localhost:8080/api/stores/${gymId}`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/${gymId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
