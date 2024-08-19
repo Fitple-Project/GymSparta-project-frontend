@@ -90,55 +90,101 @@ export default {
       showModal: !this.isModalSuppressed(),
       gyms: [],
       recentGyms: [],
+      searchQuery: '',
     };
   },
-  methods: {
-    openModal() {
-      this.showModal = true;
-    },
-    closeModal() {
-      this.showModal = false;
-    },
-    closeForOneDay() {
-      const now = new Date();
-      const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-      localStorage.setItem("suppressModalUntil", tomorrow.getTime());
-      this.closeModal();
-    },
-    isModalSuppressed() {
-      const suppressUntil = localStorage.getItem("suppressModalUntil");
-      if (suppressUntil) {
-        const now = new Date().getTime();
-        return now < suppressUntil;
-      }
-      return false;
-    },
-    async fetchNearbyGyms() {
-      try {
-        const currentLocation = await getCurrentLocation();
-
-        const response = await fetch(`http://localhost:8080/api/stores`, {
-          method: 'GET',
-          credentials: 'include' // 쿠키 포함하여 요청
-        });
-        const responseData = await response.json();
-
-        if (response.status !== 200) {
-          console.error('서버 오류:', responseData.error || 'Unknown error');
-          return;
+  computed: {
+      filteredGyms() {
+        // 검색어가 비어있으면 모든 체육관을 반환하고, 아니면 검색어로 필터링
+        if (!this.searchQuery.trim()) {
+          return this.gyms;
         }
+        return this.gyms.filter(gym =>
+          gym.name.includes(this.searchQuery) ||
+          gym.location.includes(this.searchQuery)
+        );
+      }
+    },
+  methods: {
+      openModal() {
+        this.showModal = true;
+      },
+      closeModal() {
+        this.showModal = false;
+      },
+      closeForOneDay() {
+        const now = new Date();
+        const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        localStorage.setItem("suppressModalUntil", tomorrow.getTime());
+        this.closeModal();
+      },
+      isModalSuppressed() {
+        const suppressUntil = localStorage.getItem("suppressModalUntil");
+        if (suppressUntil) {
+          const now = new Date().getTime();
+          return now < suppressUntil;
+        }
+        return false;
+      },
+      async fetchNearbyGyms() {
+        try {
+          const currentLocation = await getCurrentLocation();
 
-        const storesWithCoordinates = await Promise.all(responseData.data.map(async store => {
-          const coordinates = await getCoordinatesFromAddress(store.storeAddress);
-          if (coordinates.latitude !== 0 && coordinates.longitude !== 0) {
-            const distance = this.getDistance(
-              currentLocation.latitude,
-              currentLocation.longitude,
-              coordinates.latitude,
-              coordinates.longitude
-            );
+          const response = await fetch(`http://localhost:8080/api/stores`, {
+            method: 'GET',
+            credentials: 'include' // 쿠키 포함하여 요청
+          });
+          const responseData = await response.json();
 
-            return {
+          if (response.status !== 200) {
+            console.error('서버 오류:', responseData.error || 'Unknown error');
+            return;
+          }
+
+          const storesWithCoordinates = await Promise.all(responseData.data.map(async store => {
+            const coordinates = await getCoordinatesFromAddress(store.storeAddress);
+            if (coordinates.latitude !== 0 && coordinates.longitude !== 0) {
+              const distance = this.getDistance(
+                currentLocation.latitude,
+                currentLocation.longitude,
+                coordinates.latitude,
+                coordinates.longitude
+              );
+
+              return {
+                id: store.storeId,
+                image: store.image || mk1,
+                category: store.category || '카테고리 정보 없음',
+                name: store.storeName,
+                location: store.storeAddress,
+                info: store.storeInfo || '정보 없음',
+                price: store.storePrice || '가격 정보 없음',
+                rating: store.rating || '평점 없음',
+                reviews: store.reviews || '리뷰 없음',
+                latitude: coordinates.latitude,
+                longitude: coordinates.longitude,
+                distance
+              };
+            }
+          }));
+
+          this.gyms = storesWithCoordinates.filter(store => store && store.distance <= 10);
+
+        } catch (error) {
+          console.error('매장 정보를 가져오거나 지오코딩하는 중 오류 발생:', error);
+        }
+      },
+
+      async fetchRecentGyms() {
+        try {
+          const response = await fetch(`http://localhost:8080/api/stores/recent`, {
+            method: 'GET',
+            credentials: 'include',
+          });
+          const responseData = await response.json();
+
+          if (responseData && responseData.data) {
+            this.recentGyms = responseData.data.map(store => ({
               id: store.storeId,
               image: store.image || mk1,
               category: store.category || '카테고리 정보 없음',
@@ -148,90 +194,45 @@ export default {
               price: store.storePrice || '가격 정보 없음',
               rating: store.rating || '평점 없음',
               reviews: store.reviews || '리뷰 없음',
-              latitude: coordinates.latitude,
-              longitude: coordinates.longitude,
-              distance
-            };
+            }));
           }
-        }));
-
-        this.gyms = storesWithCoordinates.filter(store => store && store.distance <= 10);
-
-      } catch (error) {
-        console.error('매장 정보를 가져오거나 지오코딩하는 중 오류 발생:', error);
-      }
-    },
-
-    async fetchRecentGyms() {
-      try {
-        const response = await fetch(`http://localhost:8080/api/stores/recent`, {
-          method: 'GET',
-          credentials: 'include',
-        });
-        const responseData = await response.json();
-
-        if (responseData && responseData.data) {
-          this.recentGyms = responseData.data.map(store => ({
-            id: store.storeId,
-            image: store.image || mk1,
-            category: store.category || '카테고리 정보 없음',
-            name: store.storeName,
-            location: store.storeAddress,
-            info: store.storeInfo || '정보 없음',
-            price: store.storePrice || '가격 정보 없음',
-            rating: store.rating || '평점 없음',
-            reviews: store.reviews || '리뷰 없음',
-          }));
+        } catch (error) {
+          console.error('최근 방문한 매장 정보를 가져오는 중 오류 발생:', error);
         }
-      } catch (error) {
-        console.error('최근 방문한 매장 정보를 가져오는 중 오류 발생:', error);
-      }
-    },
+      },
 
-    getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = this.deg2rad(lat2 - lat1);
-      const dLon = this.deg2rad(lon2 - lon1);
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    },
-
-    deg2rad(deg) {
-      return deg * (Math.PI / 180);
-    },
-
-    async navigateToGymDetail(gymId) {
-      try {
-        const response = await fetch(`http://localhost:8080/api/stores/${gymId}`, {
-          method: 'GET',
-          headers:{
-            'Content-Type': 'application/json'
+      searchStores() {
+            this.$router.push({ name: 'store-search', query: { search: this.searchQuery } });
           },
-          credentials: 'include'
-        });
-        const storeDetail = await response.json();
 
-          console.log('상세 조회 응답 데이터:', storeDetail);
+      async navigateToGymDetail(gymId) {
+        try {
+          const response = await fetch(`http://localhost:8080/api/stores/${gymId}`, {
+            method: 'GET',
+            headers:{
+              'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+          });
+          const storeDetail = await response.json();
 
-        this.$router.push({ name: "store-detail", params: { id: gymId } });
+            console.log('상세 조회 응답 데이터:', storeDetail);
 
-        if (this.$route.name === 'HomePage') {
-          this.fetchRecentGyms();
+          this.$router.push({ name: "store-detail", params: { id: gymId } });
+
+          if (this.$route.name === 'HomePage') {
+            this.fetchRecentGyms();
+          }
+        } catch (error) {
+          console.error('상세 조회 중 오류 발생:', error);
         }
-      } catch (error) {
-        console.error('상세 조회 중 오류 발생:', error);
-      }
+      },
     },
-  },
 
-  mounted() {
-    this.fetchNearbyGyms();
-    this.fetchRecentGyms();
-  }
+    mounted() {
+      this.fetchNearbyGyms();
+      this.fetchRecentGyms();
+    }
 };
 </script>
 

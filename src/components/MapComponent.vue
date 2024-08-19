@@ -60,7 +60,7 @@ export default {
         const location = await getCurrentLocation();
         const mapOptions = {
           center: { lat: location.latitude, lng: location.longitude },
-          zoom: 16 // 현재 위치를 중심으로 줌인
+          zoom: this.zoom,
         };
 
         this.map = new google.maps.Map(this.$refs.map, mapOptions);
@@ -108,18 +108,15 @@ export default {
         this.googleMarkers.push(marker);
         bounds.extend(marker.position);
       });
+
+      if (markers.length > 0) {
+        this.map.fitBounds(bounds);
+      }
     },
 
     clearMarkers() {
       this.googleMarkers.forEach(marker => marker.setMap(null));
       this.googleMarkers = [];
-    },
-
-    zoomToLocation(lat, lng, zoomLevel = 21) {
-      if (this.map) {
-        this.map.setCenter({ lat, lng });
-        this.map.setZoom(zoomLevel);
-      }
     }
   }
 };

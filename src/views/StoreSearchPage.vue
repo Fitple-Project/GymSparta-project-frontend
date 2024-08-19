@@ -4,9 +4,9 @@
       <div class="search-bar">
         <div class="search-input">
           <input
-              type="text"
-              v-model="searchQuery"
-              placeholder="원하시는 운동을 검색해보세요"
+            type="text"
+            v-model="searchQuery"
+            placeholder="원하시는 운동을 검색해보세요"
           />
           <button class="search-button" @click="searchStores">검색</button>
         </div>
@@ -32,14 +32,12 @@
 </template>
 
 <script>
-/* global google */
-
 import MapComponent from '@/components/MapComponent.vue';
 import { getCoordinatesFromAddress, getCurrentLocation } from '@/utils/location';
 
 export default {
   components: {
-    MapComponent
+    MapComponent,
   },
   data() {
     return {
@@ -47,22 +45,23 @@ export default {
       currentDate: new Date().toLocaleDateString(),
       cards: [],
       filteredCards: [],
-      mapMarkers: []
+      mapMarkers: [],
     };
   },
   methods: {
-      async fetchStores() {
-        try {
-          const response = await fetch(`http://localhost:8080/api/stores`);
-          const contentType = response.headers.get("content-type");
-          if (!contentType || !contentType.includes("application/json")) {
-            throw new Error("JSON 응답이 아닙니다");
-          }
+    async fetchStores() {
+      try {
+        const response = await fetch(`http://localhost:8080/api/stores`);
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error('JSON 응답이 아닙니다');
+        }
 
-          const responseData = await response.json();
-          const currentLocation = await getCurrentLocation(); // 현재 위치 가져오기
+        const responseData = await response.json();
+        const currentLocation = await getCurrentLocation();
 
-          const storesWithCoordinates = await Promise.all(responseData.data.map(async store => {
+        const storesWithCoordinates = await Promise.all(
+          responseData.data.map(async (store) => {
             const coordinates = await getCoordinatesFromAddress(store.storeAddress);
             if (coordinates.latitude !== 0 && coordinates.longitude !== 0) {
               const distance = this.getDistance(
@@ -72,7 +71,6 @@ export default {
                 coordinates.longitude
               );
 
-              // 모든 매장에 대해 데이터를 저장
               return {
                 id: store.storeId,
                 image: store.image || 'default_image.png',
@@ -81,68 +79,49 @@ export default {
                 price: store.storePrice || '가격 정보 없음',
                 latitude: coordinates.latitude,
                 longitude: coordinates.longitude,
-                distance
+                distance,
               };
             }
-          }));
+          })
+        );
 
-          this.cards = storesWithCoordinates.filter(store => store);
+        this.cards = storesWithCoordinates.filter((store) => store);
 
-          // 현재 위치에서 10km 이내의 매장만 필터링하여 표시
-          this.filteredCards = this.cards.filter(store => store.distance <= 10);
-
-          // 모든 매장을 지도에 마커로 표시
-          this.mapMarkers = this.cards.map(store => ({
-            lat: store.latitude,
-            lng: store.longitude,
-            title: store.title,
-            address: store.location
-          }));
-
-          this.updateMapMarkers();
-        } catch (error) {
-          console.error('매장 정보를 가져오거나 지오코딩하는 중 오류 발생:', error);
-        }
-      },
-
-      cardClicked(id) {
-          this.$router.push({ name: 'storeDetail', params: { id } });
-        },
-
-      updateMapMarkers() {
-        // 지도에 표시될 모든 마커를 업데이트
-        this.$refs.map.addMarkers(this.mapMarkers);
-      },
-
-    async searchStores() {
-    if (!this.searchQuery.trim()) {
-          // 검색어가 없을 때 initMap 호출하여 초기 상태로 돌아감
-          await this.fetchStores();
-          this.$refs.map.initMap();
-          return;
-        }
-
-      this.filteredCards = this.cards.filter(card => {
-        const titleMatch = card.title && card.title.includes(this.searchQuery);
-        const locationMatch = card.location && card.location.includes(this.searchQuery);
-        return titleMatch || locationMatch;
-      });
-      this.updateMapMarkers();
-
-      if (this.filteredCards.length === 1) {
-        const store = this.filteredCards[0];
-        this.$refs.map.zoomToLocation(store.latitude, store.longitude, 18);
-      } else if (this.filteredCards.length > 1) {
-        const bounds = new google.maps.LatLngBounds();
-        this.filteredCards.forEach(store => {
-          bounds.extend({ lat: store.latitude, lng: store.longitude });
-        });
-        this.$refs.map.map.fitBounds(bounds);
+        // 필터링 로직 적용
+        this.searchStores();
+      } catch (error) {
+        console.error('매장 정보를 가져오거나 지오코딩하는 중 오류 발생:', error);
       }
     },
 
+    cardClicked(id) {
+      this.$router.push({ name: 'store-detail', params: { id } });
+    },
+
+    searchStores() {
+      const searchQuery = this.searchQuery.trim();
+
+      if (searchQuery) {
+        // 검색어가 있을 때
+        this.filteredCards = this.cards.filter(
+          (store) =>
+            store.title.includes(searchQuery) || store.location.includes(searchQuery)
+        );
+      } else {
+        // 검색어가 없을 때 주변 매장만 필터링
+        this.filteredCards = this.cards.filter((store) => store.distance <= 10);
+      }
+
+      this.mapMarkers = this.filteredCards.map((store) => ({
+        lat: store.latitude,
+        lng: store.longitude,
+        title: store.title,
+        address: store.location,
+      }));
+    },
+
     getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371; // 지구 반지름 (km)
+      const R = 6371;
       const dLat = this.deg2rad(lat2 - lat1);
       const dLon = this.deg2rad(lon2 - lon1);
       const a =
@@ -150,16 +129,17 @@ export default {
         Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
         Math.sin(dLon / 2) * Math.sin(dLon / 2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c; // 거리 (km)
+      return R * c;
     },
 
     deg2rad(deg) {
       return deg * (Math.PI / 180);
-    }
+    },
   },
   mounted() {
+    this.searchQuery = this.$route.query.search || '';
     this.fetchStores();
-  }
+  },
 };
 </script>
 
@@ -189,7 +169,7 @@ export default {
   align-items: center;
   padding: 0 14px;
   margin-top: 20px;
-  margin-right: 320px;
+  margin-right: 650px;
 }
 
 .search-input {
@@ -220,7 +200,7 @@ export default {
   color: #ffffff;
   border: none;
   cursor: pointer;
-  margin-left: 20px;
+  margin-left: 70px;
 }
 
 .upper-section {

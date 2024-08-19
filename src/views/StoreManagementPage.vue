@@ -241,7 +241,7 @@ export default {
       noticeContent: '',
       noticeRiteTitle: this.noticeRiteTitle,
       noticeRiteContent: this.noticeRiteContent,
-      detailNotice: {}
+      detailNotice: {},
       defaultImage: 'path/to/default/image.jpg', // 기본 이미지 경로 설정
       errorMessage: '', // 오류 메시지 저장
       errorDialog: false // 모달 상태 저장
@@ -318,7 +318,7 @@ export default {
     },
     storeClicked(storeId) {
       if (storeId) {
-        this.$router.push({ name: 'storeedit', params: { id: storeId } });
+        this.$router.push({ name: 'store-edit', params: { id: storeId } });
       } else {
         console.error('Store ID is undefined or null');
       }

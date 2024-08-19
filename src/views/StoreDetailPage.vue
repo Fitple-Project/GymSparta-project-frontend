@@ -144,7 +144,7 @@ const fetchAverageRating = async () => {
 };
 
 const viewAllReviews = () => {
-  router.push({ name: 'storeReviews', params: { id: route.params.id } });
+  router.push({ name: 'store-reviews', params: { id: route.params.id } });
 };
 
 const goToMembershipsPage = () => {
