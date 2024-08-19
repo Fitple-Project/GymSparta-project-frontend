@@ -172,7 +172,7 @@
     async fetchOwnerProfile() {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner', {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/owner`, {
           method: 'GET',
           headers: {
              'Content-Type': 'application/json',
@@ -194,7 +194,7 @@
     async editProfile() {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner', {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/owner`, {
           // TODO: 헤더에서 토큰 값 가져오기 구현
           method: 'PUT',
           headers: {
@@ -257,7 +257,7 @@
     async confirmPasswordChange() {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner/password', {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/owner/password`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

@@ -252,7 +252,7 @@ export default {
     async fetchNotices() {
       const token = localStorage.getItem('accessToken');
       try {
-        const response = await fetch(`http://localhost:8080/api/notification/${this.selectedStoreId}/allNotification`, {   // 서버에서 공지사항 목록 가져오기
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${this.selectedStoreId}/allNotification`, {   // 서버에서 공지사항 목록 가져오기
           method: 'GET',                                 // HTTP GET 요청
           headers: {
             'Content-Type': 'application/json',
@@ -285,7 +285,7 @@ export default {
       // POST 요청을 통해 서버에 데이터 전송
       try {
         // POST 요청 전송
-        const response = await fetch(`http://localhost:8080/api/notification/${this.selectedStoreId}/allNotification`,{
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${this.selectedStoreId}/allNotification`,{
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -385,7 +385,7 @@ export default {
     },
     async fetchStores() {
       try {
-        const response = await fetch(`http://localhost:8080/api/stores/owners`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${this.getAuthToken()}`,
@@ -419,7 +419,7 @@ export default {
     async fetchNoticeDetail(noticeId) {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch(`http://localhost:8080/api/notification/${noticeId}`, {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${noticeId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

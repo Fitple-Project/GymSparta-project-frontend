@@ -56,7 +56,7 @@ export default {
     async handleLogin() {
       if (this.userId && this.password) {
         try {
-          const response = await fetch('http://localhost:8080/api/login', {
+          const response = await fetch(`${process.env.VUE_APP_API_URL}/api/login`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -104,7 +104,7 @@ export default {
     startSse() {
       const token = localStorage.getItem('accessToken');
 
-      fetch('http://localhost:8080/api/notification/stream', {
+      fetch(`${process.env.VUE_APP_API_URL}/api/notification/stream`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

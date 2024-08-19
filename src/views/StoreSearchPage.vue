@@ -51,7 +51,7 @@ export default {
   methods: {
     async fetchStores() {
       try {
-        const response = await fetch(`http://localhost:8080/api/stores`);
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.includes('application/json')) {
           throw new Error('JSON 응답이 아닙니다');
