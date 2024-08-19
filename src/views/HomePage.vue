@@ -43,17 +43,17 @@
 
           <h4>🌐 주요 서비스 페이지 안내</h4>
           <ul>
-            <li><strong>메인 페이지:</strong> <a href="https://gymsparta.shop" target="_blank">https://gymsparta.shop</a></li>
-            <li><strong>로그인 페이지:</strong> <a href="https://gymsparta.shop/login" target="_blank">https://gymsparta.shop/login</a></li>
-            <li><strong>회원가입 페이지:</strong> <a href="https://gymsparta.shop/signup" target="_blank">https://gymsparta.shop/signup</a></li>
-            <li><strong>비즈니스 회원가입 페이지:</strong> <a href="https://gymsparta.shop/business/signup" target="_blank">https://gymsparta.shop/business/signup</a></li>
-            <li><strong>운동 시설 검색 페이지:</strong> <a href="https://gymsparta.shop/store/search" target="_blank">https://gymsparta.shop/store/search</a></li>
-            <li><strong>트레이너 비교 페이지:</strong> <a href="https://gymsparta.shop/trainer/compare" target="_blank">https://gymsparta.shop/trainer/compare</a></li>
-            <li><strong>트레이너 상세 페이지:</strong> <a href="https://gymsparta.shop/trainer/detail/:id" target="_blank">https://gymsparta.shop/trainer/detail/:id</a></li>
-            <li><strong>장바구니 페이지:</strong> <a href="https://gymsparta.shop/cart" target="_blank">https://gymsparta.shop/cart</a></li>
-            <li><strong>결제 페이지:</strong> <a href="https://gymsparta.shop/payments" target="_blank">https://gymsparta.shop/payments</a></li>
-            <li><strong>사용자 프로필 페이지:</strong> <a href="https://gymsparta.shop/profile/user/:userId" target="_blank">https://gymsparta.shop/profile/user/:userId</a></li>
-            <li><strong>점주 프로필 페이지:</strong> <a href="https://gymsparta.shop/profile/owner/:ownerId" target="_blank">https://gymsparta.shop/profile/owner/:ownerId</a></li>
+            <li><strong>메인 페이지:</strong> <a href="https://www.gymspartatest.shop" target="_blank">https://gymsparta.shop</a></li>
+            <li><strong>로그인 페이지:</strong> <a href="https://www.gymspartatest.shop/login" target="_blank">https://gymsparta.shop/login</a></li>
+            <li><strong>회원가입 페이지:</strong> <a href="https://www.gymspartatest.shop/signup" target="_blank">https://gymsparta.shop/signup</a></li>
+            <li><strong>비즈니스 회원가입 페이지:</strong> <a href="https://www.gymspartatest.shop/business/signup" target="_blank">https://gymsparta.shop/business/signup</a></li>
+            <li><strong>운동 시설 검색 페이지:</strong> <a href="https://www.gymspartatest.shop/store/search" target="_blank">https://gymsparta.shop/store/search</a></li>
+            <li><strong>트레이너 비교 페이지:</strong> <a href="https://www.gymspartatest.shop/trainer/compare" target="_blank">https://gymsparta.shop/trainer/compare</a></li>
+            <li><strong>트레이너 상세 페이지:</strong> <a href="https://www.gymspartatest.shop/trainer/detail/:id" target="_blank">https://gymsparta.shop/trainer/detail/:id</a></li>
+            <li><strong>장바구니 페이지:</strong> <a href="https://www.gymspartatest.shop/cart" target="_blank">https://gymsparta.shop/cart</a></li>
+            <li><strong>결제 페이지:</strong> <a href="https://www.gymspartatest.shop/payments" target="_blank">https://gymsparta.shop/payments</a></li>
+            <li><strong>사용자 프로필 페이지:</strong> <a href="https://www.gymspartatest.shop/profile/user/:userId" target="_blank">https://gymsparta.shop/profile/user/:userId</a></li>
+            <li><strong>점주 프로필 페이지:</strong> <a href="https://www.gymspartatest.shop/profile/owner/:ownerId" target="_blank">https://gymsparta.shop/profile/owner/:ownerId</a></li>
           </ul>
         </div>
         <div class="modal-footer">
