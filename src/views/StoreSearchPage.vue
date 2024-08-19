@@ -3,18 +3,16 @@
     <div class="background">
       <div class="search-bar">
         <div class="search-input">
-          <input type="text" v-model="searchQuery" placeholder="원하시는 운동을 검색해보세요" />
+          <input
+              type="text"
+              v-model="searchQuery"
+              placeholder="원하시는 운동을 검색해보세요"
+          />
           <button class="search-button" @click="searchStores">검색</button>
         </div>
       </div>
       <div class="upper-section">
         <div class="search-info">{{ filteredCards.length }} results • {{ currentDate }}</div>
-        <div class="filters">
-          <div class="filter-item">가격</div>
-          <div class="filter-item">회원 할인가</div>
-          <div class="filter-item">쿠폰</div>
-          <div class="filter-item">More</div>
-        </div>
       </div>
       <div class="main-content">
         <div class="cards">
@@ -133,6 +131,64 @@ export default {
         return titleMatch || locationMatch;
       });
 
+         cardClicked(id) {
+            this.$router.push({ name: 'store-detail', params: { id } });
+          },
+          searchStores() {
+            if (this.searchQuery.trim() === '') {
+              // 위치 기반 검색
+              if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                  const { latitude, longitude } = position.coords;
+                  this.fetchStoresByLocation(latitude, longitude);
+                }, () => {
+                  // 위치 권한 거부 시 모든 매장을 조회
+                  this.fetchAllStores();
+                });
+              } else {
+                // 위치 기반을 사용할 수 없을 때 모든 매장을 조회
+                this.fetchAllStores();
+              }
+            } else {
+              // 검색어 기반 검색
+              this.fetchStoresByKeyword(this.searchQuery);
+            }
+          },
+          fetchStoresByKeyword(keyword) {
+            fetch(`http://localhost:8080/api/stores/search?keyword=${encodeURIComponent(keyword)}`)
+            .then(response => response.json())
+            .then(responseData => {
+              if (responseData.data && responseData.data.length > 0) {
+                this.filteredCards = responseData.data;
+              } else {
+                console.log("검색 결과가 없습니다.");
+                this.filteredCards = []; // 빈 결과 처리
+              }
+            })
+            .catch(error => {
+              console.error('검색 중 오류가 발생했습니다:', error);
+            });
+          },
+          fetchStoresByLocation(latitude, longitude) {
+            fetch(`http://localhost:8080/api/stores/search?latitude=${latitude}&longitude=${longitude}`)
+            .then(response => response.json())
+            .then(responseData => {
+              this.filteredCards = responseData.data;
+            })
+            .catch(error => {
+              console.error('위치 기반 검색 중 오류가 발생했습니다:', error);
+            });
+          },
+          fetchAllStores() {
+            fetch('http://localhost:8080/api/stores')
+            .then(response => response.json())
+            .then(responseData => {
+              this.filteredCards = responseData.data;
+            })
+            .catch(error => {
+              console.error('모든 매장 조회 중 오류가 발생했습니다:', error);
+            });
+
       this.updateMapMarkers();
 
       if (this.filteredCards.length === 1) {
@@ -187,14 +243,15 @@ export default {
 
 .search-bar {
   height: 46px;
-  width: 430px;
+  width: 100%;
+  max-width: 500px;
   background: #f5f5f5;
   border-radius: 8px;
   display: flex;
   align-items: center;
   padding: 0 14px;
-  margin-top: 10px;
-  margin-left: -745px;
+  margin-top: 20px;
+  margin-right: 320px;
 }
 
 .search-input {
@@ -225,7 +282,7 @@ export default {
   color: #ffffff;
   border: none;
   cursor: pointer;
-  margin-left: auto;
+  margin-left: 20px;
 }
 
 .upper-section {
@@ -285,6 +342,7 @@ export default {
   background: #ffffff;
   border: 1px solid #d3d3d3;
   border-radius: 20px;
+  box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.08);
   display: flex;
   gap: 20px;
   cursor: pointer;
@@ -305,7 +363,7 @@ export default {
 .card-title {
   font-family: 'Inter';
   font-weight: 700;
-  font-size: 20px;
+  font-size: 24px;
   color: #000000;
 }
 
@@ -319,7 +377,7 @@ export default {
 .card-price {
   font-family: 'Inter';
   font-weight: 700;
-  font-size: 16px;
+  font-size: 20px;
   color: #000000;
 }
 

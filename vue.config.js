@@ -17,6 +17,16 @@ module.exports = defineConfig({
     } : {}
   },
   configureWebpack: {
+    resolve: {
+      fallback: {
+        "events": require.resolve("events"),
+        "stream": require.resolve("stream-browserify"),
+        "http": require.resolve("stream-http"),
+        "https": require.resolve("https-browserify"),
+        "url": require.resolve("url"),
+        "path": require.resolve("path-browserify")
+      }
+    },
     plugins: [
       new webpack.DefinePlugin({
         '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': JSON.stringify(true)

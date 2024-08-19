@@ -1,6 +1,7 @@
 <template>
   <footer class="footer">
     <div class="container">
+      <!-- 기존 Footer HTML 구조 -->
       <div class="section customer-service">
         <h2 class="heading">고객센터</h2>
         <p class="operation-hours">운영 안함</p>
@@ -25,7 +26,7 @@
         <div class="section">
           <h3 class="heading">서비스</h3>
           <div class="links">
-            <a href="#" class="link">공지사항</a>
+            <a href="#" class="link" @click.prevent="showNotice">공지사항</a>
             <a href="#" class="link">자주 묻는 질문</a>
           </div>
         </div>
@@ -39,15 +40,15 @@
       </div>
       <div class="horizontal-border"></div>
       <div class="company-info">
-        <p>Fitple 주소 : 서울 강남구 테헤란로44길 8 12층 (아이콘역삼빌딩) | 대표이사 : 이인빈 | 사업자등록번호 : 등록안함  <a href="#" class="link">사업자정보확인</a></p>
-        <p>전자우편주소 : fitple@gmail.com | 통신판매번호 : 000-무허가-등록안함 | 관광사업자 등록번호 : 등록안함 | 전화번호 : 0000-0000 | 호스팅서비스제공자의 상호 표시 : Fitple <br>Fitple는 통신판매중개자로서 통신판매의 당사자가 아니며, 상품의 예약, 이용 및 환불 등과 관련한 의무와 책임은 각 판매자에게 있습니다.</p>
+        <p>GymSparta 주소 : 서울 강남구 테헤란로44길 8 12층 (아이콘역삼빌딩) | 대표이사 : 이인빈 | 사업자등록번호 : 등록안함  <a href="#" class="link">사업자정보확인</a></p>
+        <p>전자우편주소 : GymSparta@gmail.com | 통신판매번호 : 000-무허가-등록안함 | 관광사업자 등록번호 : 등록안함 | 전화번호 : 0000-0000 | 호스팅서비스제공자의 상호 표시 : GymSparta <br>GymSparta는 통신판매중개자로서 통신판매의 당사자가 아니며, 상품의 예약, 이용 및 환불 등과 관련한 의무와 책임은 각 판매자에게 있습니다.</p>
         <div class="legal-links">
           <a href="#" class="link">이용약관</a>
           <a href="#" class="link">개인정보처리방침</a>
           <a href="#" class="link">소비자 분쟁해결 기준</a>
           <a href="#" class="link">콘텐츠산업진흥법에 의한 표시</a>
         </div>
-        <p class="copyright">Copyright FITPLE Corp. All rights reserved.</p>
+        <p class="copyright">Copyright GymSparta Corp. All rights reserved.</p>
       </div>
     </div>
   </footer>
@@ -56,6 +57,11 @@
 <script>
 export default {
   name: "AppFooter",
+  methods: {
+    showNotice() {
+      this.$emit('show-modal');
+    }
+  }
 };
 </script>
 

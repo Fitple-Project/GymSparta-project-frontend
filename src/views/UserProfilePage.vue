@@ -21,20 +21,20 @@
         <div class="profile">
           <div class="avatar"></div>
           <div class="frame">
-            <div class="nickname">{{ profileData.nickname }}</div>
+            <div class="nickname">{{profileData.nickname }}</div>
             <div class="batch">Java_5기</div>
           </div>
         </div>
         <div class="input-group">
           <div class="username">Username</div>
           <div class="field">
-            <div class="label">{{ profileData.username }}</div>
+            <input v-model="profileData.userName" class="label" placeholder="Enter Username" />
           </div>
         </div>
         <div class="input-group">
           <div class="nickname">Nickname</div>
           <div class="field">
-            <div class="label">{{ profileData.nickname }}</div>
+            <input v-model="profileData.nickname" class="label" placeholder="Enter Nickname" />
           </div>
         </div>
         <div class="input-group">
@@ -64,18 +64,22 @@
         <div class="input-group">
           <div class="confirm-password">Confirm Password</div>
           <div class="confirm-password-field">
-            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />
-            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />
-            <button @click="showPasswordModal = true" class="change-button">변경</button>
+            <div class="field">
+              <input v-model="confirmPassword" class="label" placeholder="Enter Confirm Password" />
+            </div>
+<!--            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />-->
+<!--            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />-->
           </div>
+        </div>
+        <div class="input-group">
+          <div class="change-password">비밀번호 변경</div>
+            <button @click="showPasswordModal = true" class="change-button">변경</button>
         </div>
         <div class="buttons">
           <button @click="editProfile" class="edit-button">수정</button>
           <button @click="showDeleteModal = true" class="delete-button">회원탈퇴</button>
         </div>
       </div>
-
-      <!-- 결제 내역 관리 -->
       <div v-if="currentView === 'payments'" class="payments-view">
         <h1>헬스장 결제 내역 관리</h1>
         <div class="search-container">
@@ -105,8 +109,6 @@
           </tbody>
         </table>
       </div>
-
-      <!-- 리뷰 관리 -->
       <div v-if="currentView === 'reviews'" class="reviews-view">
         <h1>내 헬스장 리뷰 관리</h1>
         <div class="tab-container">
@@ -128,8 +130,6 @@
         </div>
       </div>
     </main>
-
-    <!-- 비밀번호 변경 모달 -->
     <div v-if="showPasswordModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
@@ -156,8 +156,6 @@
         </div>
       </div>
     </div>
-
-    <!-- 회원 탈퇴 모달 -->
     <div v-if="showDeleteModal" class="modal">
       <div class="modal-content delete-modal-content">
         <div class="modal-header">
@@ -173,8 +171,6 @@
         </div>
       </div>
     </div>
-
-    <!-- 리뷰 수정 모달 -->
     <div id="editModal" class="modal" v-if="showEditModal">
       <div class="modal-content">
         <span class="close" @click="showEditModal = false">&times;</span>
@@ -197,16 +193,16 @@ export default {
       showDeleteModal: false,
       showEditModal: false,
       profileData: {
-        username: '',
+        userName: '',
         nickname: '',
         email: '',
         zipcode: '',
         phoneNumber: '',
         mainAddress: '',
         detailedAddress: '',
-        password: '',  // 추가
-        confirmPassword: ''  // 추가
       },
+      confirmPassword: '',
+      userId: '',
       currentView: 'profile',
       oldPassword: '',
       newPassword: '',
@@ -214,7 +210,37 @@ export default {
       currentEditId: null,
       currentEditContent: '',
       payments: [],
-      reviews: [],
+      reviews: [{
+        id: 1,
+        type: 'gym',
+        target: '파워짐',
+        content: '시설이 깨끗하고 넓어서 좋아요.',
+        date: '2023-05-01'
+      }, {
+        id: 2,
+        type: 'trainer',
+        target: '김철수 트레이너',
+        content: '친절하고 전문적인 지도를 해주십니다.',
+        date: '2023-05-02'
+      }, {
+        id: 3,
+        type: 'gym',
+        target: '헬스월드',
+        content: '24시간 운영이라 편리해요.',
+        date: '2023-05-03'
+      }, {
+        id: 4,
+        type: 'trainer',
+        target: '박영희 트레이너',
+        content: '맞춤형 운동 프로그램을 짜주셔서 효과적이에요.',
+        date: '2023-05-04'
+      }, {
+        id: 5,
+        type: 'gym',
+        target: '피트니스팩토리',
+        content: '다양한 운동기구가 있어서 좋아요.',
+        date: '2023-05-05'
+      }],
       filteredReviews: []
     };
   },
@@ -231,8 +257,8 @@ export default {
   methods: {
     async fetchUserProfile() {
       try {
-        const token = localStorage.getItem('Authorization');
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/user`, {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/user', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -244,7 +270,9 @@ export default {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        this.profileData = await response.json();
+        const data = await response.json(); // 전체 응답 데이터를 파싱
+        this.profileData = data.data; // 응답 데이터에서 readUserResponse에 해당하는 데이터를 추출
+
       } catch (error) {
         console.error('Error fetching user:', error);
       }
@@ -258,9 +286,22 @@ export default {
         this.filterReviews('all');
       }
     },
+    fetchPayments() {
+      // 백엔드에서 결제 내역을 불러오는 API 예시
+      // this.$axios.get('/api/payments')
+      //   .then(response => {
+      //     this.payments = response.data;
+      //   })
+      //   .catch(error => {
+      //     console.error('Error fetching payments:', error);
+      //   });
+    },
+    searchPayments() {
+      // 필터링은 computed를 통해 이미 수행되고 있으므로 추가 로직 불필요
+    },
     async editProfile() {
       try {
-        const token = localStorage.getItem('Authorization');
+        const token = localStorage.getItem('accessToken');
         const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/user`, {
           method: 'PUT',
           headers: {
@@ -269,15 +310,14 @@ export default {
           },
           credentials: 'include',
           body: JSON.stringify({
-            username: this.profileData.username,
+            username: this.profileData.userName,
             nickname: this.profileData.nickname,
             zipcode: this.profileData.zipcode,
             email: this.profileData.email,
             mainAddress: this.profileData.mainAddress,
             detailedAddress: this.profileData.detailedAddress,
             phoneNumber: this.profileData.phoneNumber,
-            password: this.profileData.password,
-            confirmPassword: this.profileData.confirmPassword
+            password:this.confirmPassword
           }),
         });
 
@@ -288,32 +328,8 @@ export default {
         this.showModalMessage('프로필 수정 중 오류가 발생했습니다.');
       }
     },
-    async confirmPasswordChange() {
-      try {
-        const token = localStorage.getItem('Authorization');
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/users/password`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            oldPassword: this.oldPassword,
-            newPassword: this.newPassword
-          }),
-        });
-
-        if (response.ok) {
-          this.currentSection = 'complete';
-        }
-      } catch (error) {
-        this.showModalMessage('비밀번호 변경 중 오류가 발생했습니다.');
-      }
-      this.showPasswordModal = false;
-    },
     deleteAccount() {
-      const token = localStorage.getItem('Authorization');
+      const token = localStorage.getItem('accessToken'); // localStorage에서 토큰을 가져옵니다.
       if (!token) {
         alert("로그인 먼저 해주세요.");
         return;
@@ -328,7 +344,7 @@ export default {
       }).then(response => {
         if (response.ok) {
           alert('회원탈퇴가 완료되었습니다.');
-          localStorage.removeItem('Authorization');
+          localStorage.removeItem('accessToken');
           eventBus.emit('logout');
           this.$router.push({
             name: 'main'
@@ -341,6 +357,29 @@ export default {
       }).catch(error => {
         alert(`회원탈퇴 실패: ${error.message}`);
       });
+    },
+    async confirmPasswordChange() {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/users/password', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            oldPassword: this.oldPassword,
+            newPassword: this.newPassword
+          }),
+        });
+
+        if (response.ok) {
+          this.currentSection = 'complete';
+        }
+      } catch (error) {
+        this.showModalMessage('비밀번호 변경 중 오류가 발생했습니다.');
+      }
+      this.showPasswordModal = false;
     },
     confirmDeleteAccount() {
       this.deleteAccount();

@@ -33,20 +33,25 @@
         </div>
         <div class="section reviews">
           <h2>리뷰</h2>
-          <button class="view-all-reviews" @click="viewAllReviews">리뷰 전체 보기</button>
           <div class="review-cards">
-            <div class="review-card" v-for="review in trainer.reviews" :key="review.id">
-              <img :src="review.userProfile" alt="User profile" class="user-profile"/>
-              <div class="review-content">
-                <div class="user-info">
-                  <h3>{{ review.username }}</h3>
-                  <p>{{ review.score }}점</p>
+            <div class="review-card" v-for="review in reviews && reviews.length > 0 ? reviews.slice(0, 3) : []" :key="review.id">
+              <div class="user-info">
+                <img :src="review.userProfile" alt="user profile" class="user-profile" />
+                <div>
+                  <h3>{{ review.user }}</h3>
+                  <p>{{ review.date }}</p>
                 </div>
-                <p>{{ review.content }}</p>
-                <img v-if="review.image" :src="review.image" alt="Review image" class="review-image"/>
+              </div>
+              <div class="review-content">
+                <div class="review-rating">
+                  <span class="star" v-for="n in review.rating" :key="n">★</span>
+                </div>
+                <p>{{ review.comment }}</p>
+                <img v-if="review.image" :src="review.image" alt="review image" class="review-image" />
               </div>
             </div>
           </div>
+          <button class="view-all-reviews" @click="viewAllReviews">모든 리뷰 보기</button>
         </div>
       </div>
     </div>
@@ -68,12 +73,14 @@ export default {
         careers: [],
         ptPrograms: [],
         reviews: []
-      }
+      },
+      reviews: []
     };
   },
   created() {
     const trainerId = this.$route.params.id;
     this.fetchTrainerDetails(trainerId);
+    this.fetchTrainerReviews(trainerId);
   },
   methods: {
     async fetchTrainerDetails(trainerId) {
@@ -83,6 +90,8 @@ export default {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+          }
           },
           credentials: 'include'
         });
@@ -95,13 +104,38 @@ export default {
         console.error('Error fetching trainers:', error);
       }
     },
+    async fetchTrainerReviews(trainerId) {
+      try {
+        const response = await fetch(`http://localhost:8080/api/reviews/trainer/${trainerId}/reviews`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await response.json();
+        this.reviews = data.data.map((review, index) => ({
+          ...review,
+          user: `사용자${index + 1}`
+        }));
+        this.calculateRatingDistribution();
+      } catch (error) {
+        console.error('리뷰를 가져오는 중 오류가 발생했습니다.', error);
+      }
+    },
+    calculateRatingDistribution() {
+      const distribution = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0};
+      this.reviews.forEach(review => {
+        distribution[review.rating]++;
+      });
+      this.ratingDistribution = distribution;
+    },
     navigateToPayment(ptId) {
       console.log("Navigate to payment for PT Program ID:", ptId);
       // 여기서 결제 페이지로 이동하는 로직을 추가할 수 있습니다.
       // this.$router.push({ name: 'payment', params: { ptId } });
     },
     viewAllReviews() {
-      this.$router.push({ name: 'trainer-reviews', params: { id: this.trainer.id } });
+      this.$router.push({name: 'trainer-reviews', params: {id: this.trainer.id}});
     }
   }
 };
@@ -305,32 +339,3 @@ export default {
   margin-top: 10px;
 }
 </style>
-
-<!--// 여기서 id를 이용해 백엔드 API 호출을 추가할 수 있습니다.-->
-<!--// axios.get(`/api/trainer/${trainerId}`).then(response => {-->
-<!--//   this.trainer = response.data;-->
-<!--// });-->
-<!--// 예시 데이터를 사용합니다.-->
-<!--this.trainer = {-->
-<!--id: trainerId,-->
-<!--image: "example-image.png",-->
-<!--name: "이민수 선생님",-->
-<!--location: "서울특별시 ㅇㅇ구",-->
-<!--price: "40,000원~/회당",-->
-<!--description: "트레이너 설명 예시입니다.",-->
-<!--introduction: "트레이너 소개 예시입니다.",-->
-<!--careers: [-->
-<!--"경력 사항 1",-->
-<!--"경력 사항 2",-->
-<!--"경력 사항 3"-->
-<!--],-->
-<!--ptPrograms: [-->
-<!--{ id: 1, name: "PT 10회", price: "600,000원", sessionPrice: "회당 60,000원" },-->
-<!--{ id: 2, name: "PT 20회", price: "1,200,000원", sessionPrice: "회당 60,000원" },-->
-<!--{ id: 3, name: "PT 30회", price: "1,800,000원", sessionPrice: "회당 60,000원" }-->
-<!--],-->
-<!--reviews: [-->
-<!--{ id: 1, userProfile: "user1.png", username: "User1", score: 5, content: "리뷰 내용 예시 1", image: "review1.png" },-->
-<!--{ id: 2, userProfile: "user2.png", username: "User2", score: 4, content: "리뷰 내용 예시 2" }-->
-<!--]-->
-<!--};-->

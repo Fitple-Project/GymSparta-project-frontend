@@ -13,7 +13,7 @@
         <div class="profile">
           <div class="avatar"></div>
           <div class="frame">
-            <div class="nickname">{{ profileData.nickname || '닉네임 없음' }}</div>
+            <div class="nickname">{{profileData.nickname}}}</div>
             <div class="batch">Java_5기</div>
           </div>
         </div>
@@ -56,10 +56,25 @@
         <div class="input-group">
           <div class="confirm-password">Confirm Password</div>
           <div class="confirm-password-field">
-            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />
-            <button @click="showPasswordModal = true" class="change-button">변경</button>
+            <div class="field">
+              <input v-model="confirmPassword" class="label" placeholder="Enter Confirm Password" />
+            </div>
+            <!--            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />-->
+            <!--            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />-->
           </div>
         </div>
+        <div class="input-group">
+          <div class="change-password">비밀번호 변경</div>
+          <button @click="showPasswordModal = true" class="change-button">변경</button>
+        </div>
+<!--        <div class="input-group">-->
+<!--          <div class="confirm-password">Confirm Password</div>-->
+<!--          <div class="confirm-password-field">-->
+<!--            &lt;!&ndash;            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />&ndash;&gt;-->
+<!--            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />-->
+<!--            <button @click="showPasswordModal = true" class="change-button">변경</button>-->
+<!--          </div>-->
+<!--        </div>-->
         <div class="buttons">
           <button @click="editProfile" class="edit-button">수정</button>
           <button @click="showDeleteModal = true" class="delete-button">회원탈퇴</button>
@@ -136,8 +151,9 @@ export default {
         ownerPhoneNumber: '',
         mainAddress: '',
         detailedAddress: '',
-        confirmPassword: '',
+
       },
+      confirmPassword: '',
       ownerId: '',
       currentView: 'profile',
       oldPassword: '',
@@ -165,8 +181,8 @@ export default {
     },
     async fetchOwnerProfile() {
       try {
-        const token = localStorage.getItem('Authorization');
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/owner`, {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner', {
           method: 'GET',
           headers: {
              'Content-Type': 'application/json',
@@ -178,16 +194,18 @@ export default {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        const data = await response.json();
-        this.profileData = data || {};
+        const data = await response.json(); // 전체 응답 데이터를 파싱
+        this.profileData = data.data; // 응답 데이터에서 readUserResponse에 해당하는 데이터를 추출
+
       } catch (error) {
         console.error('Error fetching owner:', error);
       }
     },
     async editProfile() {
       try {
-        const token = localStorage.getItem('Authorization');
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/owner`, {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner', {
+          // TODO: 헤더에서 토큰 값 가져오기 구현
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -201,7 +219,7 @@ export default {
             mainAddress: this.profileData.mainAddress,
             detailedAddress: this.profileData.detailedAddress,
             ownerPhoneNumber: this.profileData.ownerPhoneNumber,
-            password: this.profileData.confirmPassword
+            password: this.confirmPassword
           }),
         });
 
@@ -209,11 +227,11 @@ export default {
           this.currentSection = 'complete';
         }
       } catch (error) {
-        console.error('프로필 수정 중 오류가 발생했습니다:', error);
+        this.showModalMessage('프로필 수정 중 오류가 발생했습니다.');
       }
     },
     deleteAccount() {
-      const token = localStorage.getItem('Authorization');
+      const token = localStorage.getItem('accessToken'); // localStorage에서 토큰을 가져옵니다.
       if (!token) {
         alert("로그인 먼저 해주세요.");
         return;
@@ -228,9 +246,11 @@ export default {
       }).then(response => {
         if (response.ok) {
           alert('회원탈퇴가 완료되었습니다.');
-          localStorage.removeItem('Authorization');
+          localStorage.removeItem('accessToken');
           eventBus.emit('logout');
-          this.$router.push({ name: 'main' });
+          this.$router.push({
+            name: 'main'
+          });
         } else {
           response.json().then(data => {
             alert(`회원탈퇴 실패: ${data.message}`);
@@ -242,12 +262,12 @@ export default {
     },
     async confirmPasswordChange() {
       try {
-        const token = localStorage.getItem('Authorization');
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/owner/password`, {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner/password', {
           method: 'PUT',
           headers: {
-             'Content-Type': 'application/json',
-             'Authorization': `Bearer ${token}`
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           },
           credentials: 'include',
           body: JSON.stringify({
@@ -260,7 +280,7 @@ export default {
           this.currentSection = 'complete';
         }
       } catch (error) {
-        console.error('비밀번호 변경 중 오류가 발생했습니다:', error);
+        this.showModalMessage('비밀번호 변경 중 오류가 발생했습니다.');
       }
       this.showPasswordModal = false;
     },

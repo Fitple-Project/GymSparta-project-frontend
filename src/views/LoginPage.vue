@@ -26,9 +26,12 @@
       <span>소셜 로그인/회원가입</span>
     </div>
     <div class="social-login-buttons">
+      <!-- 카카오 로그인 버튼 -->
       <img src="@/assets/Login_Button/Kakao_Button.svg" alt="카카오 로그인" class="social-button" />
+      <!-- 네이버 로그인 버튼 -->
       <img src="@/assets/Login_Button/Naver_Button.svg" alt="네이버 로그인" class="social-button" />
-      <img src="@/assets/Login_Button/Google_Button.svg" alt="구글 로그인" class="social-button" @click="handleGoogleLogin" />
+      <!-- 구글 로그인 버튼, 클릭 시 handleGoogleLogin 메서드 호출 -->
+      <img src="@/assets/Login_Button/Google_Button.svg" alt="구글 로그인" class="social-button" />
     </div>
     <div class="business-login">
       <button @click="goToBusinessSignupPage" class="business-login-link">비즈니스 회원가입</button>
@@ -38,6 +41,7 @@
 
 <script>
 import eventBus from '@/eventBus';
+import 'web-streams-polyfill';
 
 export default {
   name: "LoginPage",
@@ -67,39 +71,87 @@ export default {
           if (response.ok) {
             const data = await response.json();
             alert("로그인 성공");
+
+            // JWT 토큰 저장
             localStorage.setItem('accessToken', data.data.accessToken);
+            localStorage.setItem('refreshToken', data.data.refreshToken);
+            localStorage.setItem('userId', data.data.userId);
+            localStorage.setItem('userRole', data.data.role);
+
+            this.$router.push({ name: 'main' });
+
+            // SSE 구독 시작
+            this.startSse();
+
             eventBus.emit('login');
-            this.$router.push({ path: '/' });
+            const redirectPath = this.$route.query.redirect || '/';
+            this.$router.push(redirectPath);
           } else {
             const errorData = await response.json();
             alert("로그인 실패: " + (errorData.message || '알 수 없는 오류'));
           }
         } catch (error) {
+          console.error("Login request failed:", error);
           alert("로그인 오류: " + error.message);
         }
       } else {
         alert("아이디와 비밀번호를 입력해주세요.");
       }
     },
-    handleGoogleLogin() {
-      window.location.href = `${process.env.VUE_APP_API_URL}/oauth2/authorization/google`;
-    },
     goToBusinessSignupPage() {
       this.$router.push({ name: 'business-signup' });
+    },
+    startSse() {
+      const token = localStorage.getItem('accessToken');
+
+      fetch('http://localhost:8080/api/notification/stream', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        reader.read().then(function processText({ done, value }) {
+          if (done) return;
+
+          buffer += decoder.decode(value, { stream: true });
+          let boundary = buffer.indexOf('\n\n'); // SSE 이벤트는 \n\n로 구분됨
+          while (boundary >= 0) {
+            const eventText = buffer.slice(0, boundary).trim();
+            buffer = buffer.slice(boundary + 2);
+
+            // 이벤트를 처리
+            const events = eventText.split('\n').filter(line => line.startsWith('data:'));
+            if (events.length > 0) {
+              const notification = events[0].slice(5); // 'data:' 제거
+              alert(`새 알림: ${notification}`);
+            }
+
+            boundary = buffer.indexOf('\n\n');
+          }
+
+          reader.read().then(processText);
+        });
+      })
+      .catch(error => {
+        console.error('SSE Error:', error);
+      })}},
+  beforeRouteEnter(to, from, next) {
+    const isLoggedIn = !!localStorage.getItem('accessToken');
+    if (isLoggedIn) {
+      next({ name: 'main' });
+    } else {
+      next();
     }
   },
-  beforeRouteEnter (to, from, next) {
-      const isLoggedIn = !!localStorage.getItem('accessToken');
-      if (isLoggedIn) {
-        next({ name: 'main' });
-      } else {
-        next();
-      }
-  }
 };
 </script>
 
 <style scoped>
+/* 스타일 그대로 유지 */
 .login-page {
   display: flex;
   flex-direction: column;
