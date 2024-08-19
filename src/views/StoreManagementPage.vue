@@ -228,8 +228,6 @@ export default {
       ptSession: '',
       trainerList: '',
       price: '',
-      latitude: null,
-      longitude: null,
       // 공지사항 관련 데이터
       isWriteModalVisible: false,
       isListModalVisible: false,
@@ -342,8 +340,6 @@ export default {
         ptConsultations: this.ptSession ? this.ptSession.split('\n') : [],
         trainerList: this.trainerList ? this.trainerList.split(',') : [],
         price: this.price || null,
-        latitude: this.latitude,  // 여기서 latitude 값을 추가
-        longitude: this.longitude,  // 여기서 longitude 값을 추가
       };
 
       fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
