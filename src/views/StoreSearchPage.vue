@@ -4,9 +4,9 @@
       <div class="search-bar">
         <div class="search-input">
           <input
-              type="text"
-              v-model="searchQuery"
-              placeholder="원하시는 운동을 검색해보세요"
+            type="text"
+            v-model="searchQuery"
+            placeholder="원하시는 운동을 검색해보세요"
           />
           <button class="search-button" @click="searchStores">검색</button>
         </div>
@@ -25,85 +25,121 @@
             </div>
           </div>
         </div>
-        <div class="map"></div>
+        <MapComponent ref="map" :markers="mapMarkers" class="map" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import MapComponent from '@/components/MapComponent.vue';
+import { getCoordinatesFromAddress, getCurrentLocation } from '@/utils/location';
+
 export default {
+  components: {
+    MapComponent,
+  },
   data() {
     return {
       searchQuery: '',
       currentDate: new Date().toLocaleDateString(),
       cards: [],
-      filteredCards: []
+      filteredCards: [],
+      mapMarkers: [],
     };
   },
   methods: {
+    async fetchStores() {
+      try {
+        const response = await fetch(`http://localhost:8080/api/stores`);
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          throw new Error('JSON 응답이 아닙니다');
+        }
+
+        const responseData = await response.json();
+        const currentLocation = await getCurrentLocation();
+
+        const storesWithCoordinates = await Promise.all(
+          responseData.data.map(async (store) => {
+            const coordinates = await getCoordinatesFromAddress(store.storeAddress);
+            if (coordinates.latitude !== 0 && coordinates.longitude !== 0) {
+              const distance = this.getDistance(
+                currentLocation.latitude,
+                currentLocation.longitude,
+                coordinates.latitude,
+                coordinates.longitude
+              );
+
+              return {
+                id: store.storeId,
+                image: store.image || 'default_image.png',
+                title: store.storeName,
+                location: store.storeAddress,
+                price: store.storePrice || '가격 정보 없음',
+                latitude: coordinates.latitude,
+                longitude: coordinates.longitude,
+                distance,
+              };
+            }
+          })
+        );
+
+        this.cards = storesWithCoordinates.filter((store) => store);
+
+        // 필터링 로직 적용
+        this.searchStores();
+      } catch (error) {
+        console.error('매장 정보를 가져오거나 지오코딩하는 중 오류 발생:', error);
+      }
+    },
+
     cardClicked(id) {
       this.$router.push({ name: 'store-detail', params: { id } });
     },
+
     searchStores() {
-      if (this.searchQuery.trim() === '') {
-        // 위치 기반 검색
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(position => {
-            const { latitude, longitude } = position.coords;
-            this.fetchStoresByLocation(latitude, longitude);
-          }, () => {
-            // 위치 권한 거부 시 모든 매장을 조회
-            this.fetchAllStores();
-          });
-        } else {
-          // 위치 기반을 사용할 수 없을 때 모든 매장을 조회
-          this.fetchAllStores();
-        }
+      const searchQuery = this.searchQuery.trim();
+
+      if (searchQuery) {
+        // 검색어가 있을 때
+        this.filteredCards = this.cards.filter(
+          (store) =>
+            store.title.includes(searchQuery) || store.location.includes(searchQuery)
+        );
       } else {
-        // 검색어 기반 검색
-        this.fetchStoresByKeyword(this.searchQuery);
+        // 검색어가 없을 때 주변 매장만 필터링
+        this.filteredCards = this.cards.filter((store) => store.distance <= 10);
       }
+
+      this.mapMarkers = this.filteredCards.map((store) => ({
+        lat: store.latitude,
+        lng: store.longitude,
+        title: store.title,
+        address: store.location,
+      }));
     },
-    fetchStoresByKeyword(keyword) {
-      fetch(`http://localhost:8080/api/stores/search?keyword=${encodeURIComponent(keyword)}`)
-      .then(response => response.json())
-      .then(responseData => {
-        if (responseData.data && responseData.data.length > 0) {
-          this.filteredCards = responseData.data;
-        } else {
-          console.log("검색 결과가 없습니다.");
-          this.filteredCards = []; // 빈 결과 처리
-        }
-      })
-      .catch(error => {
-        console.error('검색 중 오류가 발생했습니다:', error);
-      });
+
+    getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = this.deg2rad(lat2 - lat1);
+      const dLon = this.deg2rad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
     },
-    fetchStoresByLocation(latitude, longitude) {
-      fetch(`http://localhost:8080/api/stores/search?latitude=${latitude}&longitude=${longitude}`)
-      .then(response => response.json())
-      .then(responseData => {
-        this.filteredCards = responseData.data;
-      })
-      .catch(error => {
-        console.error('위치 기반 검색 중 오류가 발생했습니다:', error);
-      });
+
+    deg2rad(deg) {
+      return deg * (Math.PI / 180);
     },
-    fetchAllStores() {
-      fetch('http://localhost:8080/api/stores')
-      .then(response => response.json())
-      .then(responseData => {
-        this.filteredCards = responseData.data;
-      })
-      .catch(error => {
-        console.error('모든 매장 조회 중 오류가 발생했습니다:', error);
-      });
-    }
   },
   mounted() {
-    this.searchStores();
-  }
+    this.searchQuery = this.$route.query.search || '';
+    this.fetchStores();
+  },
 };
 </script>
 
@@ -133,7 +169,12 @@ export default {
   align-items: center;
   padding: 0 14px;
   margin-top: 20px;
-  margin-right: 320px;
+  margin-right: 650px;
+}
+
+.search-input {
+  display: flex;
+  flex: 1;
 }
 
 .search-input {
@@ -141,7 +182,7 @@ export default {
 }
 
 .search-input input {
-  width: 40%;
+  width: 70%;
   border: none;
   background: none;
   font-family: 'Inter';
@@ -159,33 +200,38 @@ export default {
   color: #ffffff;
   border: none;
   cursor: pointer;
-  margin-left: 20px;
+  margin-left: 70px;
 }
 
 .upper-section {
-  width: 90%;
-  max-width: 1200px;
-  margin-top: 20px;
+  width: 430px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-top: 10px;
+  margin-left: -745px;
+  margin-bottom: 10px;
 }
 
 .search-info {
   font-family: 'Roboto';
-  font-size: 20px;
+  font-size: 16px;
   color: #a5a7a7;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .filters {
   display: flex;
-  gap: 16px;
+  gap: 8px;
 }
 
 .filter-item {
   border: 1px solid #a5a7a7;
   border-radius: 8px;
-  padding: 8px 16px;
+  padding: 4px 8px;
   font-family: 'Roboto';
-  font-size: 16px;
+  font-size: 14px;
   color: #a5a7a7;
 }
 
@@ -193,7 +239,7 @@ export default {
   display: flex;
   width: 90%;
   max-width: 1200px;
-  height: calc(100% - 200px);
+  height: calc(100% - 100px);
   margin-top: 20px;
   gap: 20px;
 }
@@ -202,15 +248,17 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 20px;
   overflow-y: auto;
+  max-height: 700px;
+  width: 430px;
 }
 
 .card {
-  width: 100%;
-  height: 261px;
+  width: 99%;
+  height: 150px;
   background: #ffffff;
-  border: 1px solid #ffffff;
+  border: 1px solid #d3d3d3;
   border-radius: 20px;
   box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.08);
   display: flex;
@@ -219,8 +267,8 @@ export default {
 }
 
 .card-image {
-  width: 182px;
-  height: 221px;
+  width: 100px;
+  height: 100px;
   margin: 20px;
 }
 
@@ -252,8 +300,11 @@ export default {
 }
 
 .map {
+  width: calc(100% - 450px);
+  height: 800px;
   flex: 1;
   background: #f4f7ff;
   border-radius: 20px;
+  margin-top: -100px;
 }
 </style>

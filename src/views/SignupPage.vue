@@ -351,11 +351,12 @@ export default {
   methods: {
     async registerUser() {
       try {
-        const response = await fetch('http://localhost:8080/api/user/signup', {
+        const response = await fetch(`http://localhost:8080/api/user/signup`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify({
             accountId: this.userId,
             password: this.password,

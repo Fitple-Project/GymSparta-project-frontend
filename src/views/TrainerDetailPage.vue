@@ -85,13 +85,14 @@ export default {
   methods: {
     async fetchTrainerDetails(trainerId) {
       try {
-        const url = 'http://localhost:8080/api/trainers/' + trainerId;
+        const url = `${process.env.VUE_APP_API_URL}/api/trainers/` + trainerId;
         const response = await fetch(url, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-          }
+          },
+          credentials: 'include' // 여기에 위치해야 합니다.
         });
 
         if (!response.ok) {

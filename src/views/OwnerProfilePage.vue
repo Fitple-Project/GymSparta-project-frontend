@@ -142,43 +142,44 @@
           mainAddress: '',
           detailedAddress: '',
 
-        },
-        confirmPassword: '',
-        ownerId: '',
-        currentView: 'profile',
-        oldPassword: '',
-        newPassword: '',
-        searchTerm: '',
-        currentEditId: null,
-        currentEditContent: '',
-        payments: [],
-        reviews: [
-          { id: 1, type: 'gym', target: '파워짐', content: '시설이 깨끗하고 넓어서 좋아요.', date: '2023-05-01' },
-          { id: 2, type: 'trainer', target: '김철수 트레이너', content: '친절하고 전문적인 지도를 해주십니다.', date: '2023-05-02' },
-          { id: 3, type: 'gym', target: '헬스월드', content: '24시간 운영이라 편리해요.', date: '2023-05-03' },
-          { id: 4, type: 'trainer', target: '박영희 트레이너', content: '맞춤형 운동 프로그램을 짜주셔서 효과적이에요.', date: '2023-05-04' },
-          { id: 5, type: 'gym', target: '피트니스팩토리', content: '다양한 운동기구가 있어서 좋아요.', date: '2023-05-05' }
-        ],
-        filteredReviews: [],
-      };
-    },
-    created() {
-      this.fetchOwnerProfile();
-    },
-    methods: {
-      changeView(view) {
-        this.currentView = view;
       },
-      async fetchOwnerProfile() {
-        try {
-          const token = localStorage.getItem('accessToken');
-          const response = await fetch('http://localhost:8080/api/profile/owner', {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
-          });
+      confirmPassword: '',
+      ownerId: '',
+      currentView: 'profile',
+      oldPassword: '',
+      newPassword: '',
+      searchTerm: '',
+      currentEditId: null,
+      currentEditContent: '',
+      payments: [],
+      reviews: [
+        { id: 1, type: 'gym', target: '파워짐', content: '시설이 깨끗하고 넓어서 좋아요.', date: '2023-05-01' },
+        { id: 2, type: 'trainer', target: '김철수 트레이너', content: '친절하고 전문적인 지도를 해주십니다.', date: '2023-05-02' },
+        { id: 3, type: 'gym', target: '헬스월드', content: '24시간 운영이라 편리해요.', date: '2023-05-03' },
+        { id: 4, type: 'trainer', target: '박영희 트레이너', content: '맞춤형 운동 프로그램을 짜주셔서 효과적이에요.', date: '2023-05-04' },
+        { id: 5, type: 'gym', target: '피트니스팩토리', content: '다양한 운동기구가 있어서 좋아요.', date: '2023-05-05' }
+      ],
+      filteredReviews: [],
+    };
+  },
+  created() {
+    this.fetchOwnerProfile();
+  },
+  methods: {
+    changeView(view) {
+      this.currentView = view;
+    },
+    async fetchOwnerProfile() {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner', {
+          method: 'GET',
+          headers: {
+             'Content-Type': 'application/json',
+             'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include'
+        });
 
           if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -186,30 +187,31 @@
           const data = await response.json(); // 전체 응답 데이터를 파싱
           this.profileData = data.data; // 응답 데이터에서 readUserResponse에 해당하는 데이터를 추출
 
-        } catch (error) {
-          console.error('Error fetching owner:', error);
-        }
-      },
-      async editProfile() {
-        try {
-          const token = localStorage.getItem('accessToken');
-          const response = await fetch('http://localhost:8080/api/profile/owner', {
-            // TODO: 헤더에서 토큰 값 가져오기 구현
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              nickname: this.profileData.nickname,
-              email: this.profileData.email,
-              zipcode: this.profileData.zipcode,
-              mainAddress: this.profileData.mainAddress,
-              detailedAddress: this.profileData.detailedAddress,
-              ownerPhoneNumber: this.profileData.ownerPhoneNumber,
-              password: this.confirmPassword
-            }),
-          });
+      } catch (error) {
+        console.error('Error fetching owner:', error);
+      }
+    },
+    async editProfile() {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner', {
+          // TODO: 헤더에서 토큰 값 가져오기 구현
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            nickname: this.profileData.nickname,
+            email: this.profileData.email,
+            zipcode: this.profileData.zipcode,
+            mainAddress: this.profileData.mainAddress,
+            detailedAddress: this.profileData.detailedAddress,
+            ownerPhoneNumber: this.profileData.ownerPhoneNumber,
+            password: this.confirmPassword
+          }),
+        });
 
           const data = await response.json(); // 응답을 JSON으로 파싱
 
@@ -229,42 +231,44 @@
           return;
         }
 
-        fetch('http://localhost:8080/api/profile/owners/signout', {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }).then(response => {
-          if (response.ok) {
-            alert('회원탈퇴가 완료되었습니다.');
-            localStorage.removeItem('accessToken');
-            eventBus.emit('logout');
-            this.$router.push({
-              name: 'main'
-            });
-          } else {
-            response.json().then(data => {
-              alert(`회원탈퇴 실패: ${data.message}`);
-            });
-          }
-        }).catch(error => {
-          alert(`회원탈퇴 실패: ${error.message}`);
-        });
-      },
-      async confirmPasswordChange() {
-        try {
-          const token = localStorage.getItem('accessToken');
-          const response = await fetch('http://localhost:8080/api/profile/owner/password', {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              oldPassword: this.oldPassword,
-              newPassword: this.newPassword
-            }),
+      fetch(`${process.env.VUE_APP_API_URL}/api/profile/owners/signout`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        credentials: 'include'
+      }).then(response => {
+        if (response.ok) {
+          alert('회원탈퇴가 완료되었습니다.');
+          localStorage.removeItem('accessToken');
+          eventBus.emit('logout');
+          this.$router.push({
+            name: 'main'
           });
+        } else {
+          response.json().then(data => {
+            alert(`회원탈퇴 실패: ${data.message}`);
+          });
+        }
+      }).catch(error => {
+        alert(`회원탈퇴 실패: ${error.message}`);
+      });
+    },
+    async confirmPasswordChange() {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner/password', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            oldPassword: this.oldPassword,
+            newPassword: this.newPassword
+          }),
+        });
 
           const data = await response.json(); // 응답을 JSON으로 파싱
 

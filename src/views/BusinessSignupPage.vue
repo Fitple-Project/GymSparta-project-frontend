@@ -432,7 +432,7 @@ export default {
 
       console.log('회원가입 데이터:', signupData);
 
-      fetch('http://localhost:8080/api/owners/signup', {
+      fetch(`http://localhost:8080/api/owners/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
