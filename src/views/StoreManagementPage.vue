@@ -342,8 +342,6 @@ export default {
          price: this.price,
      };
 
-      };
-
       fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
         method: 'POST',
         headers: {
