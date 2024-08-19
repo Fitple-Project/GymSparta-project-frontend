@@ -28,13 +28,13 @@
         <div class="input-group">
           <div class="username">Username</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.userName" class="label" placeholder="Enter Username" />
           </div>
         </div>
         <div class="input-group">
           <div class="nickname">Nickname</div>
           <div class="field">
-            <div class="label">Label</div>
+            <input v-model="profileData.nickname" class="label" placeholder="Enter Nickname" />
           </div>
         </div>
         <div class="input-group">
@@ -64,10 +64,16 @@
         <div class="input-group">
           <div class="confirm-password">Confirm Password</div>
           <div class="confirm-password-field">
-            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />
-            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />
-            <button @click="showPasswordModal = true" class="change-button">변경</button>
+            <div class="field">
+              <input v-model="confirmPassword" class="label" placeholder="Enter Confirm Password" />
+            </div>
+<!--            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />-->
+<!--            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />-->
           </div>
+        </div>
+        <div class="input-group">
+          <div class="change-password">비밀번호 변경</div>
+            <button @click="showPasswordModal = true" class="change-button">변경</button>
         </div>
         <div class="buttons">
           <button @click="editProfile" class="edit-button">수정</button>
@@ -187,7 +193,7 @@ export default {
       showDeleteModal: false,
       showEditModal: false,
       profileData: {
-        username: '',
+        userName: '',
         nickname: '',
         email: '',
         zipcode: '',
@@ -251,19 +257,21 @@ export default {
   methods: {
     async fetchUserProfile() {
       try {
-        const token = localStorage.getItem('Authorization');
+        const token = localStorage.getItem('accessToken');
         const response = await fetch('http://localhost:8080/api/profile/user', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': token
+            'Authorization': `Bearer ${token}`
           }
         });
 
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-        this.profileData = await response.json();
+        const data = await response.json(); // 전체 응답 데이터를 파싱
+        this.profileData = data.data; // 응답 데이터에서 readUserResponse에 해당하는 데이터를 추출
+
       } catch (error) {
         console.error('Error fetching user:', error);
       }
@@ -292,23 +300,23 @@ export default {
     },
     async editProfile() {
       try {
-        const token = localStorage.getItem('Authorization');
+        const token = localStorage.getItem('accessToken');
         const response = await fetch('http://localhost:8080/api/profile/user', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': token
+            'Authorization': `Bearer ${token}`
           },
           // TODO 사진 변경 추가
           body: JSON.stringify({
-            username: this.profileData.username,
+            username: this.profileData.userName,
             nickname: this.profileData.nickname,
             zipcode: this.profileData.zipcode,
             email: this.profileData.email,
             mainAddress: this.profileData.mainAddress,
             detailedAddress: this.profileData.detailedAddress,
             phoneNumber: this.profileData.phoneNumber,
-            password:this.profileData.confirmPassword
+            password:this.confirmPassword
           }),
         });
 
@@ -350,12 +358,12 @@ export default {
     },
     async confirmPasswordChange() {
       try {
-        const token = localStorage.getItem('Authorization');
+        const token = localStorage.getItem('accessToken');
         const response = await fetch('http://localhost:8080/api/profile/users/password', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': token,
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             oldPassword: this.oldPassword,

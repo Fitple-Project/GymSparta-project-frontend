@@ -41,7 +41,7 @@
 
 <script>
 import eventBus from '@/eventBus';
-import EventSource from 'eventsource';
+import 'web-streams-polyfill';
 
 export default {
   name: "LoginPage",
@@ -102,26 +102,42 @@ export default {
     },
     startSse() {
       const token = localStorage.getItem('accessToken');
-      const eventSource = new EventSource(`http://localhost:8080/api/notification/stream`, {
+
+      fetch('http://localhost:8080/api/notification/stream', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
-      });
+      })
+      .then(response => {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
 
-      eventSource.addEventListener('notification', (event) => {
-        const notification = event.data;
-        // 알림을 처리할 로직
-        alert(`새 알림: ${notification}`);
-      });
+        reader.read().then(function processText({ done, value }) {
+          if (done) return;
 
-      eventSource.onerror = (error) => {
+          buffer += decoder.decode(value, { stream: true });
+          let boundary = buffer.indexOf('\n\n'); // SSE 이벤트는 \n\n로 구분됨
+          while (boundary >= 0) {
+            const eventText = buffer.slice(0, boundary).trim();
+            buffer = buffer.slice(boundary + 2);
+
+            // 이벤트를 처리
+            const events = eventText.split('\n').filter(line => line.startsWith('data:'));
+            if (events.length > 0) {
+              const notification = events[0].slice(5); // 'data:' 제거
+              alert(`새 알림: ${notification}`);
+            }
+
+            boundary = buffer.indexOf('\n\n');
+          }
+
+          reader.read().then(processText);
+        });
+      })
+      .catch(error => {
         console.error('SSE Error:', error);
-        eventSource.close();
-      };
-
-      this.eventSource = eventSource; // eventSource를 인스턴스에 저장하여 필요 시 종료할 수 있습니다.
-    }
-  },
+      })}},
   beforeRouteEnter(to, from, next) {
     const isLoggedIn = !!localStorage.getItem('accessToken');
     if (isLoggedIn) {
