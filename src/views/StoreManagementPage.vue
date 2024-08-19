@@ -41,10 +41,11 @@
             <p class="store-price">{{ store.price }}원~/월</p>
           </div>
         </div>
+
       </section>
 
       <!-- 공지사항 작성 모달 -->
-      div v-if="isWriteModalVisible" class="modal-overlay" @click.self="closeModal">
+      <div v-if="isWriteModalVisible" class="modal-overlay" @click.self="closeModal">
       <div class="modal">
         <div class="modal-header">
           <h2 class="modal-title">공지사항 작성</h2>
@@ -72,6 +73,7 @@
             <button type="button" class="btn" @click="handleSubmit">등록</button>
           </form>
         </div>
+      </div>
       </div>
 
       <!-- 공지사항 목록 모달 -->
@@ -291,14 +293,15 @@ export default {
             body: JSON.stringify(postData),
         });
 
-        // 서버로부터 응답이 성공적으로 돌아온 경우
-        console.log('공지사항이 성공적으로 제출되었습니다:', response.data);
+        const data = await response.json(); // 응답을 JSON으로 파싱
 
-        // 필요 시 성공적인 제출 후 추가 작업 (예: 알림 표시, 모달 닫기 등)
-        this.closeModal();
+        if (response.ok) {
+          alert(`공지 작성: ${data.message}`);
+        } else {
+          alert(`오류: ${data.message}`);
+        }
       } catch (error) {
-        // 오류가 발생한 경우
-        console.error('공지사항 제출 중 오류가 발생했습니다:', error);
+        alert('공지 작성 중 오류가 발생하였습니다');
       }
     },
     getAuthToken() {

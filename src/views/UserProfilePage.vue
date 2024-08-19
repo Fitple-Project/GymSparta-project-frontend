@@ -28,7 +28,7 @@
         <div class="input-group">
           <div class="username">Username</div>
           <div class="field">
-            <input v-model="profileData.userName" class="label" placeholder="Enter Username" />
+            <input v-model="profileData.userName" class="label" placeholder="Enter Username" disabled />
           </div>
         </div>
         <div class="input-group">
@@ -65,7 +65,7 @@
           <div class="confirm-password">Confirm Password</div>
           <div class="confirm-password-field">
             <div class="field">
-              <input v-model="confirmPassword" class="label" placeholder="Enter Confirm Password" />
+              <input type="password" v-model="confirmPassword" class="label" placeholder="Enter Confirm Password" />
             </div>
 <!--            <input type="password" v-model="profileData.password" class="label" placeholder="Enter Password" />-->
 <!--            <input type="password" v-model="profileData.confirmPassword" class="label" placeholder="Confirm Password" />-->
@@ -320,11 +320,15 @@ export default {
           }),
         });
 
+        const data = await response.json(); // 응답을 JSON으로 파싱
+
         if (response.ok) {
-          this.currentSection = 'complete';
+          alert(`프로필 수정: ${data.message}`);
+        } else {
+          alert(`오류: ${data.message}`);
         }
       } catch (error) {
-        this.showModalMessage('프로필 수정 중 오류가 발생했습니다.');
+        alert('프로필 수정 중 오류가 발생하였습니다');
       }
     },
     deleteAccount() {
@@ -371,13 +375,16 @@ export default {
           }),
         });
 
+        const data = await response.json(); // 응답을 JSON으로 파싱
+
         if (response.ok) {
-          this.currentSection = 'complete';
+          alert(`비밀번호 수정: ${data.message}`);
+        } else {
+          alert(`오류: ${data.message}`);
         }
       } catch (error) {
-        this.showModalMessage('비밀번호 변경 중 오류가 발생했습니다.');
+        alert('비밀번호 수정 중 오류가 발생하였습니다');
       }
-      this.showPasswordModal = false;
     },
     confirmDeleteAccount() {
       this.deleteAccount();
