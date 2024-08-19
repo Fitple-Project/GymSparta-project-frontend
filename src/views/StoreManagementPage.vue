@@ -340,6 +340,8 @@ export default {
         ptConsultations: this.ptSession ? this.ptSession.split('\n') : [],
         trainerList: this.trainerList ? this.trainerList.split(',') : [],
         price: this.price || null,
+        latitude: latitude,  // 여기서 latitude 값을 추가
+        longitude: longitude,  // 여기서 longitude 값을 추가
       };
 
       fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
