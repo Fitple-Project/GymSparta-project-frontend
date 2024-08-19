@@ -21,7 +21,7 @@
         <div class="profile">
           <div class="avatar"></div>
           <div class="frame">
-            <div class="nickname">{{profileData.nickname}}}</div>
+            <div class="nickname">{{profileData.nickname }}</div>
             <div class="batch">Java_5기</div>
           </div>
         </div>
@@ -258,12 +258,13 @@ export default {
     async fetchUserProfile() {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('http://localhost:8080/api/profile/user', {
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/user', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
-          }
+          },
+          credentials: 'include'
         });
 
         if (!response.ok) {
@@ -301,13 +302,13 @@ export default {
     async editProfile() {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('http://localhost:8080/api/profile/user', {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/user`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          // TODO 사진 변경 추가
+          credentials: 'include',
           body: JSON.stringify({
             username: this.profileData.userName,
             nickname: this.profileData.nickname,
@@ -334,11 +335,12 @@ export default {
         return;
       }
 
-      fetch('http://localhost:8080/api/profile/users/signout', {
+      fetch(`${process.env.VUE_APP_API_URL}/api/profile/users/signout`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        credentials: 'include',
       }).then(response => {
         if (response.ok) {
           alert('회원탈퇴가 완료되었습니다.');
@@ -359,7 +361,7 @@ export default {
     async confirmPasswordChange() {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('http://localhost:8080/api/profile/users/password', {
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/users/password', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

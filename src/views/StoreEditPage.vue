@@ -72,7 +72,8 @@ const fetchStoreDetails = async (id) => {
       headers: {
         'Authorization': `Bearer ${getAuthToken()}`,
         'Content-Type': 'application/json'
-      }
+      },
+      credentials: 'include'
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -118,7 +119,7 @@ const goToPtConsultationsPage = () => {
 };
 
 const goToEditPage = () => {
-  router.push({ name: 'store-update', params: { id: route.params.id } });
+  router.push({ name: 'store-edit', params: { id: route.params.id } });
 };
 
 const deleteStore = async () => {
@@ -128,7 +129,8 @@ const deleteStore = async () => {
       headers: {
         'Authorization': `Bearer ${getAuthToken()}`,
         'Content-Type': 'application/json'
-      }
+      },
+      credentials: 'include'
     });
     if (response.ok) {
       console.log('매장 삭제 성공');

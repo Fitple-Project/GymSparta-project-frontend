@@ -182,12 +182,13 @@ export default {
     async fetchOwnerProfile() {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('http://localhost:8080/api/profile/owner', {
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner', {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
+             'Content-Type': 'application/json',
+             'Authorization': `Bearer ${token}`
+          },
+          credentials: 'include'
         });
 
         if (!response.ok) {
@@ -203,13 +204,14 @@ export default {
     async editProfile() {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('http://localhost:8080/api/profile/owner', {
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner', {
           // TODO: 헤더에서 토큰 값 가져오기 구현
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
+          credentials: 'include',
           body: JSON.stringify({
             nickname: this.profileData.nickname,
             email: this.profileData.email,
@@ -235,11 +237,12 @@ export default {
         return;
       }
 
-      fetch('http://localhost:8080/api/profile/owners/signout', {
+      fetch(`${process.env.VUE_APP_API_URL}/api/profile/owners/signout`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
-        }
+        },
+        credentials: 'include'
       }).then(response => {
         if (response.ok) {
           alert('회원탈퇴가 완료되었습니다.');
@@ -260,12 +263,13 @@ export default {
     async confirmPasswordChange() {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await fetch('http://localhost:8080/api/profile/owner/password', {
+        const response = await fetch('${process.env.VUE_APP_API_URL}/api/profile/owner/password', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
+          credentials: 'include',
           body: JSON.stringify({
             oldPassword: this.oldPassword,
             newPassword: this.newPassword

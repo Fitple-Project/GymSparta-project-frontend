@@ -15,62 +15,48 @@
       </div>
     </aside>
     <main class="main-content">
+      <!-- 매장 목록 섹션 -->
       <section v-if="activeSection === 'storeList'" class="store-list">
-        <div class="header-with-buttons">
-          <h1 class="page-title">매장 목록</h1>
-          <button @click="openWriteModal" class="btn">공지사항 작성</button>
-          <button @click="openListModal" class="btn">공지사항 목록</button>
-        </div>
-
-        <!-- 예시 매장 카드 -->
-        <div class="store-card" @click="storeClicked(exampleStore.id)">
-          <img :src="exampleStore.image" alt="store image" class="store-image" />
-          <div class="store-info">
-            <h3>{{ exampleStore.store_name }}</h3>
-            <p>{{ exampleStore.store_address }}</p>
-            <p class="store-price">{{ exampleStore.price }}원~/월</p>
-          </div>
-        </div>
-
-        <!-- 실제 매장 데이터가 로드되면 이 부분이 사용됩니다 -->
+        <h1 class="page-title">매장 목록</h1>
         <div class="store-card" v-for="store in stores" :key="store.id" @click="storeClicked(store.id)">
-          <img :src="store.image" alt="store image" class="store-image" />
+          <img :src="store.image || defaultImage" alt="store image" class="store-image" />
           <div class="store-info">
-            <h3>{{ store.store_name }}</h3>
-            <p>{{ store.store_address }}</p>
-            <p class="store-price">{{ store.price }}원~/월</p>
+            <h3>{{ store.store_name || '이름 없음' }}</h3>
+            <p>{{ store.store_address || '주소 없음' }}</p>
+            <p class="store-price">{{ store.price ? `${store.price}원~/월` : '가격 정보 없음' }}</p>
           </div>
         </div>
       </section>
 
       <!-- 공지사항 작성 모달 -->
-      div v-if="isWriteModalVisible" class="modal-overlay" @click.self="closeModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h2 class="modal-title">공지사항 작성</h2>
-          <button class="close-button" @click="closeModal">&times;</button>
-        </div>
-        <div class="modal-content">
-          <form @submit.prevent="submitNotice">
-            <label for="title">제목:</label><br>
-            <input type="text" id="title" v-model="noticeRiteTitle" required><br>
+      <div v-if="isWriteModalVisible" class="modal-overlay" @click.self="closeModal">
+        <div class="modal">
+          <div class="modal-header">
+            <h2 class="modal-title">공지사항 작성</h2>
+            <button class="close-button" @click="closeModal">&times;</button>
+          </div>
+          <div class="modal-content">
+            <form @submit.prevent="submitNotice">
+              <label for="title">제목:</label><br>
+              <input type="text" id="title" v-model="noticeRiteTitle" required><br>
 
-            <label for="content">내용:</label><br>
-            <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea><br>
+              <label for="content">내용:</label><br>
+              <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea><br>
 
-            <!-- 동적 카테고리 선택박스 (스토어 ID와 이름 표시) -->
-            <label for="category">스토어 선택:</label><br>
-            <select id="category" v-model="selectedStoreId" required>
-              <option value="">스토어를 선택하세요</option>
-              <!-- 스토어 ID와 이름을 동시에 표시 -->
-              <option v-for="store in stores" :key="store.id" :value="store.id">
-                {{ store.id }} - {{ store.store_name }}
-              </option>
-            </select><br><br>
+              <!-- 동적 카테고리 선택박스 (스토어 ID와 이름 표시) -->
+              <label for="category">스토어 선택:</label><br>
+              <select id="category" v-model="selectedStoreId" required>
+                <option value="">스토어를 선택하세요</option>
+                <!-- 스토어 ID와 이름을 동시에 표시 -->
+                <option v-for="store in stores" :key="store.id" :value="store.id">
+                  {{ store.id }} - {{ store.store_name }}
+                </option>
+              </select><br><br>
 
-            <!-- 등록 버튼을 클릭하면 `handleSubmit` 메서드가 실행됩니다. -->
-            <button type="button" class="btn" @click="handleSubmit">등록</button>
-          </form>
+              <!-- 등록 버튼을 클릭하면 `handleSubmit` 메서드가 실행됩니다. -->
+              <button type="button" class="btn" @click="handleSubmit">등록</button>
+            </form>
+          </div>
         </div>
       </div>
 
@@ -92,7 +78,7 @@
           </div>
           <div class="modal-content">
             <ul id="noticeList">
-              <li v-for="(notice) in notices" :key="notice" @click="openDetailModal(notice.allNotificationId)">
+              <li v-for="(notice) in notices" :key="notice.allNotificationId" @click="openDetailModal(notice.allNotificationId)">
                 <strong>{{ notice.title }}</strong>
               </li>
             </ul>
@@ -130,15 +116,17 @@
           </div>
         </div>
         <div class="trainer-card" v-for="trainer in trainers" :key="trainer.id" @click="goToTrainerDetail(trainer.id)">
-          <img :src="trainer.image" alt="trainer image" class="trainer-image" />
+          <img :src="trainer.image || defaultImage" alt="trainer image" class="trainer-image" />
           <div class="trainer-info">
-            <h3>{{ trainer.name }}</h3>
-            <p>{{ trainer.location }}</p>
-            <p>{{ trainer.price }}</p>
+            <h3>{{ trainer.name || '이름 없음' }}</h3>
+            <p>{{ trainer.location || '위치 정보 없음' }}</p>
+            <p>{{ trainer.price ? `${trainer.price}원~/회` : '가격 정보 없음' }}</p>
           </div>
         </div>
       </section>
 
+
+      <!-- 매장 등록 섹션 -->
       <section v-if="activeSection === 'storeRegister'" class="store-register">
         <h1 class="page-title">매장 등록</h1>
         <div class="store-photo">
@@ -193,7 +181,25 @@
         </div>
       </section>
     </main>
+
+    <!-- 트레이너 모달 -->
     <TrainerModal v-if="isTrainerModalVisible" :visible="isTrainerModalVisible" :type="trainerModalType" @close="closeTrainerModal" />
+
+    <!-- 오류 메시지 모달 -->
+    <div v-if="errorDialog" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">오류 발생</h5>
+          <button type="button" class="close" @click="errorDialog = false">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>{{ errorMessage }}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" @click="errorDialog = false">확인</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -209,13 +215,6 @@ export default {
       activeSection: 'storeList',
       isTrainerModalVisible: false,
       trainerModalType: 'register',
-      exampleStore: {
-        id: 1,
-        store_name: '스파르타 피트니스',
-        store_address: '서울특별시 강남구 역삼동 123-45',
-        price: '100,000',
-        image: 'https://example.com/store-image.jpg' // 예시 이미지 URL
-      },
       stores: [],
       trainers: [],
       storeName: '',
@@ -242,7 +241,10 @@ export default {
       noticeContent: '',
       noticeRiteTitle: this.noticeRiteTitle,
       noticeRiteContent: this.noticeRiteContent,
-      detailNotice: {}
+      detailNotice: {},
+      defaultImage: 'path/to/default/image.jpg', // 기본 이미지 경로 설정
+      errorMessage: '', // 오류 메시지 저장
+      errorDialog: false // 모달 상태 저장
     };
   },
   methods: {
@@ -315,12 +317,11 @@ export default {
       this.isTrainerModalVisible = false;
     },
     storeClicked(storeId) {
-      console.log('Store ID:', storeId);
-      if (!storeId) {
+      if (storeId) {
+        this.$router.push({ name: 'store-edit', params: { id: storeId } });
+      } else {
         console.error('Store ID is undefined or null');
-        return;
       }
-      this.$router.push({ name: 'storeedit', params: { id: storeId } });
     },
     goToTrainerDetail(trainerId) {
       this.$router.push({ name: 'trainer-detail', params: { id: trainerId } });
@@ -339,30 +340,34 @@ export default {
         price: this.price || null,
       };
 
-      fetch('http://localhost:8080/api/stores/owners', {
+      fetch(`http://localhost:8080/api/stores/owners`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.getAuthToken()}`
         },
+        credentials: 'include',
         body: JSON.stringify(payload)
       })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('매장 등록 중 오류가 발생했습니다.');
-        }
-        return response.json();
-      })
-      .then(() => {
-        alert('매장 등록이 완료되었습니다');
-        this.clearStoreForm();
-        this.changeSection('storeList');
-        this.fetchStores();
-      })
-      .catch((error) => {
-        console.error(error);
-        alert('매장 등록 중 오류가 발생했습니다.');
-      });
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(errorData => {
+              throw new Error(errorData.message || '알 수 없는 오류가 발생했습니다.');
+            });
+          }
+          return response.json();
+        })
+        .then(() => {
+          alert('매장 등록이 완료되었습니다');
+          this.clearStoreForm();
+          this.changeSection('storeList');
+          this.fetchStores();
+        })
+        .catch((error) => {
+          this.errorMessage = error.message;
+          this.errorDialog = true;
+          console.error(error);
+        });
     },
     clearStoreForm() {
       this.storeName = '';
@@ -376,58 +381,43 @@ export default {
       this.trainerList = '';
       this.price = '';
     },
-    fetchStores() {
-      console.log('Fetching stores...');
+    async fetchStores() {
+      try {
+        const response = await fetch(`http://localhost:8080/api/stores/owners`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${this.getAuthToken()}`,
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        });
 
-      fetch(`http://localhost:8080/api/stores/owners`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.getAuthToken()}`,
-          'Content-Type': 'application/json'
-        }
-      })
-      .then(response => {
         if (!response.ok) {
-          throw new Error('Network response was not ok: ' + response.statusText);
+          throw new Error('네트워크 응답이 정상이 아닙니다.');
         }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Fetched stores:', data);
 
+        const data = await response.json();
         if (data.data && Array.isArray(data.data)) {
-          this.stores = data.data.map(store => {
-            console.log('Store:', store);
-            console.log('Store price:', store.price);
-            return {
-              id: store.storeId,
-              store_name: store.storeName,
-              store_address: store.storeAddress,
-              price: store.storePrice || 'N/A',
-              image: store.image || 'default-image-url'
-            };
-          });
-          console.log('Mapped stores:', this.stores);
+          this.stores = data.data.map(store => ({
+            id: store.storeId || null,
+            store_name: store.storeName || '이름 없음',
+            store_address: store.storeAddress || '주소 없음',
+            price: store.storePrice || 'N/A',
+            image: store.image || this.defaultImage,
+          }));
         } else {
           console.error('Unexpected data format:', data);
         }
-      })
-      .catch(error => {
+      } catch (error) {
+        this.errorMessage = error.message;
+        this.errorDialog = true;
         console.error('There has been a problem with your fetch operation:', error);
-      });
+      }
     },
-    // 공지사항 모달 관련 메서드
-    openWriteModal() {
-      this.isWriteModalVisible = true;
-    },
-    async openListModal() {
-      this.isListModalVisible = true;
-    },
-    async openDetailModal(allNotificationId) {
-      const token = localStorage.getItem('accessToken');
+    async fetchNoticeDetail(noticeId) {
       try {
-        // 공지사항의 상세 정보를 가져오는 API 요청
-        const response = await fetch(`http://localhost:8080/api/notification/allNotification/${allNotificationId}`, {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch(`http://localhost:8080/api/notification/${noticeId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -766,5 +756,76 @@ export default {
 
 .unregister-button {
   background: #ff6b6b;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 500px;
+  max-width: 90%;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #F26921;
+}
+
+.modal-body {
+  margin-top: 10px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.close {
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 24px;
+}
+
+.close:hover {
+  color: red;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
 }
 </style>

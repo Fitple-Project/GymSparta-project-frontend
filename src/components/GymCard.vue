@@ -1,5 +1,5 @@
 <template>
-  <div class="gym-card">
+  <div class="gym-card" @click="handleClick">
     <img :src="gym.image" alt="Gym Image" class="gym-image" />
     <div class="gym-details">
       <div class="gym-category">{{ gym.category }}</div>
@@ -28,8 +28,14 @@ export default {
     gym: {
       type: Object,
       required: true,
-    }
-  }
+    },
+  },
+  methods: {
+    handleClick() {
+      console.log('GymCard clicked:', this.gym.id);  // 클릭이 발생하면 콘솔에 로그를 남김
+      this.$emit("cardClicked", this.gym.id);
+    },
+  },
 };
 </script>
 
