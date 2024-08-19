@@ -27,10 +27,10 @@
             <strong>📑 참여 링크:</strong> <a href="https://forms.gle/aEFQPCPzFgaxpTHR7" target="_blank">설문조사 참여하기</a>
           </p>
           <p>
-            <strong>☑️ 응모 기간:</strong> 8/19(월) ~ 8/23(금) 23:59까지
+            <strong>☑️ 응모 기간:</strong> 1차 8/19(월) ~ 8/28(금) 23:59까지
           </p>
           <p>
-            <strong>🗓️ 당첨자 발표 및 발송:</strong> 8/26(월)
+            <strong>🗓️ 당첨자 발표 및 발송:</strong> 8/30(월)
           </p>
           <p><strong>🎁 제공되는 경품:</strong></p>
           <ul>
