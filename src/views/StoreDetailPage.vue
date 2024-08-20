@@ -183,24 +183,24 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 80%; /* 폭을 80%로 늘려서 더 넓게 보이도록 조정 */
+  width: 80%;
   max-width: 800px;
   background-color: #fff;
   border: 1px solid #ebebeb;
   border-radius: 20px;
   box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.08);
-  padding: 30px; /* 전체적인 padding을 늘려 여유를 줌 */
+  padding: 30px;
   margin: 0 auto;
 }
 
 .store-header, .store-info {
   width: 100%;
   text-align: center;
-  margin-bottom: 20px; /* 섹션 간 간격 추가 */
+  margin-bottom: 20px;
 }
 
 .store-image {
-  width: 70%; /* 이미지 크기를 적절히 조정 */
+  width: 70%;
   height: auto;
   border-radius: 20px;
   margin-bottom: 20px;
@@ -225,7 +225,7 @@ onMounted(() => {
 
 .section {
   margin-bottom: 40px;
-  text-align: center; /* 모든 섹션의 텍스트 중앙 정렬 */
+  text-align: center;
 }
 
 .section h2 {
@@ -240,14 +240,25 @@ onMounted(() => {
   width: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 20px 0; /* 섹션 내 여백 추가 */
+  align-items: flex-start; /* Flex alignment 수정 */
+  padding: 20px 0;
+}
+
+.membership-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
 }
 
 .membership-card {
-  width: 100%;
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  padding: 15px;
+  border: 1px solid #ebebeb;
+  border-radius: 10px;
+  background-color: #f9f9f9;
 }
 
 .review-header {
