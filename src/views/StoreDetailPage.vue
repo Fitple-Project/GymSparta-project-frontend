@@ -244,6 +244,12 @@ onMounted(() => {
   padding: 20px 0; /* 섹션 내 여백 추가 */
 }
 
+.membership-card {
+  width: 100%
+  display: flex;
+  align-items: center;
+}
+
 .review-header {
   display: flex;
   justify-content: space-between;
