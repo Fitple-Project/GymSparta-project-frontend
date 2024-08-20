@@ -158,6 +158,7 @@ export default {
     centerMapOnCurrentLocation() {
       if (this.currentLocation && this.$refs.map) {
         this.$refs.map.centerMap(this.currentLocation.latitude, this.currentLocation.longitude);
+        this.$refs.map.setZoom(15);  // 줌 레벨 설정
       }
     },
 
