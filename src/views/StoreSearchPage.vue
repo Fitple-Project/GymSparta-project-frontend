@@ -49,59 +49,73 @@ export default {
     };
   },
   methods: {
-    async fetchStores() {
+    async fetchNearbyGyms() {
       try {
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`);
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          throw new Error('JSON 응답이 아닙니다');
-        }
+        // 현재 위치 정보를 가져옵니다.
+        const currentLocation = await getCurrentLocation();
+        console.log('현재 위치:', currentLocation);
+
+        // 서버에서 매장 데이터를 가져옵니다.
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`, {
+          method: 'GET',
+          credentials: 'include',
+        });
 
         const responseData = await response.json();
-        const currentLocation = await getCurrentLocation();
 
-        const storesWithCoordinates = await Promise.all(
-          responseData.data.map(async (store) => {
-            if (!store.storeAddress || store.storeAddress.trim() === "") {
-              // 주소가 없거나 빈 값일 경우, 해당 매장을 제외합니다.
+        if (response.status !== 200) {
+          console.error('서버 오류:', responseData.error || 'Unknown error');
+          return;
+        }
+
+        // 각 매장의 주소를 지오코딩하고 유효한 좌표가 있는 매장만 필터링합니다.
+        const storesWithCoordinates = await Promise.allSettled(responseData.data.map(async store => {
+          if (!store.storeAddress || store.storeAddress.trim() === "") {
+            return null;
+          }
+
+          try {
+            const coordinates = await getCoordinatesFromAddress(store.storeAddress);
+            if (coordinates.latitude !== 0 && coordinates.longitude !== 0) {
+              const distance = this.getDistance(
+                currentLocation.latitude,
+                currentLocation.longitude,
+                coordinates.latitude,
+                coordinates.longitude
+              );
+
+              return {
+                id: store.storeId,
+                image: store.image || 'default_image.png',
+                title: store.storeName,
+                location: store.storeAddress,
+                price: store.storePrice || '가격 정보 없음',
+                latitude: coordinates.latitude,
+                longitude: coordinates.longitude,
+                distance,
+              };
+            } else {
+              console.warn(`매장 '${store.storeName}'의 유효한 좌표를 찾을 수 없습니다.`);
               return null;
             }
+          } catch (error) {
+            console.error(`매장 '${store.storeName}'의 지오코딩 실패:`, error);
+            return null;
+          }
+        }));
 
-            try {
-              const coordinates = await getCoordinatesFromAddress(store.storeAddress);
-              if (coordinates.latitude !== 0 && coordinates.longitude !== 0) {
-                const distance = this.getDistance(
-                  currentLocation.latitude,
-                  currentLocation.longitude,
-                  coordinates.latitude,
-                  coordinates.longitude
-                );
+        this.cards = storesWithCoordinates
+          .filter(result => result.status === 'fulfilled' && result.value !== null)
+          .map(result => result.value);
 
-                return {
-                  id: store.storeId,
-                  image: store.image || 'default_image.png',
-                  title: store.storeName,
-                  location: store.storeAddress,
-                  price: store.storePrice || '가격 정보 없음',
-                  latitude: coordinates.latitude,
-                  longitude: coordinates.longitude,
-                  distance,
-                };
-              } else {
-                // 유효한 좌표를 찾을 수 없는 경우 해당 매장을 제외합니다.
-                return null;
-              }
-            } catch (error) {
-              console.error(`매장 '${store.storeName}'의 지오코딩 실패:`, error);
-              return null; // 오류가 발생한 경우 null을 반환
-            }
-          })
-        );
+        if (this.cards.length === 0) {
+          console.warn('주변에 표시할 수 있는 매장이 없습니다.');
+        } else {
+          console.log(`${this.cards.length}개의 매장이 표시됩니다.`);
+        }
 
-        this.cards = storesWithCoordinates.filter((store) => store !== null);
-
-        // 필터링 로직 적용
-        this.searchStores();
+        this.filteredCards = this.cards;
+        this.updateMapMarkers();
       } catch (error) {
         console.error('매장 정보를 가져오거나 지오코딩하는 중 오류 발생:', error);
       }
@@ -121,10 +135,14 @@ export default {
             store.title.includes(searchQuery) || store.location.includes(searchQuery)
         );
       } else {
-        // 검색어가 없을 때 주변 매장만 필터링
-        this.filteredCards = this.cards.filter((store) => store.distance <= 10);
+        // 검색어가 없을 때 모든 매장을 표시
+        this.filteredCards = this.cards;
       }
 
+      this.updateMapMarkers();
+    },
+
+    updateMapMarkers() {
       this.mapMarkers = this.filteredCards.map((store) => ({
         lat: store.latitude,
         lng: store.longitude,
@@ -151,7 +169,7 @@ export default {
   },
   mounted() {
     this.searchQuery = this.$route.query.search || '';
-    this.fetchStores();
+    this.fetchNearbyGyms(); // 페이지 로드 시 주변 매장을 조회합니다.
   },
 };
 </script>
