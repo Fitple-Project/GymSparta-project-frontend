@@ -74,7 +74,7 @@ export default {
 
             try {
               const coordinates = await getCoordinatesFromAddress(store.storeAddress);
-              if (coordinates.latitude && coordinates.longitude) {
+              if (coordinates && coordinates.latitude && coordinates.longitude) {
                 const distance = this.getDistance(
                   currentLocation.latitude,
                   currentLocation.longitude,
@@ -106,7 +106,7 @@ export default {
         );
 
         this.cards = storesWithCoordinates
-          .filter((result) => result.status === 'fulfilled' && result.value !== null)
+          .filter((result) => result.status === 'fulfilled' && result.value !== null && result.value.id)
           .map((result) => result.value);
 
         if (this.cards.length === 0) {
