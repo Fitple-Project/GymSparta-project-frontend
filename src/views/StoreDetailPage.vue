@@ -164,10 +164,9 @@ onMounted(() => {
 
 <style scoped>
 .container {
-  position: relative;
   width: 100%;
   height: 100%;
-  background: #ffffff;
+  background-color: #ffffff;
 }
 
 .background {
@@ -185,14 +184,15 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   width: 60%;
-  background: #fff;
+  background-color: #fff;
   border: 1px solid #ebebeb;
   border-radius: 20px;
   box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.08);
   padding: 20px;
 }
 
-.store-rating {
+.store-header, .store-info {
+  width: 100%;
   text-align: center;
 }
 
@@ -202,38 +202,21 @@ onMounted(() => {
   border-radius: 20px;
 }
 
-.store-info {
-  margin-top: 20px;
-  width: 100%;
+.store-name, .store-location, .store-phone {
+  font-family: 'Inter', sans-serif;
+  color: #000000;
 }
 
 .store-name {
-  font-family: 'Inter';
   font-weight: 700;
   font-size: 28.8px;
-  color: #000000;
-  text-align: center;
-}
-
-.store-location {
-  font-family: 'Inter';
-  font-weight: 400;
-  font-size: 19.2px;
-  color: #000000;
-  text-align: center;
-}
-
-.store-phone {
-  font-family: 'Inter';
-  font-weight: 400;
-  font-size: 19.2px;
-  color: #000000;
-  text-align: center;
-}
-
-.sections {
-  width: 100%;
   margin-top: 20px;
+}
+
+.store-location, .store-phone, .store-rating {
+  font-weight: 400;
+  font-size: 19.2px;
+  margin-top: 10px;
 }
 
 .section {
@@ -241,7 +224,7 @@ onMounted(() => {
 }
 
 .section h2 {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
   font-size: 24px;
   color: #000000;
@@ -262,14 +245,13 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: 20px;
 }
 
 .rating-card {
   display: flex;
   justify-content: space-between;
   padding: 10px;
-  background: #f9f9f9;
+  background-color: #f9f9f9;
   border: 1px solid #ebebeb;
   border-radius: 10px;
 }
@@ -285,21 +267,10 @@ onMounted(() => {
   display: flex;
   gap: 20px;
   padding: 20px;
-  background: #fff;
+  background-color: #fff;
   border: 1px solid #ebebeb;
   border-radius: 20px;
   box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.08);
-}
-
-.user-profile {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-}
-
-.review-content {
-  display: flex;
-  flex-direction: column;
 }
 
 .user-info {
@@ -308,18 +279,28 @@ onMounted(() => {
   gap: 10px;
 }
 
+.user-profile {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
 .user-info h3 {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
   font-size: 16px;
   color: #000000;
 }
 
 .user-info p {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-size: 14px;
   color: #000000;
+}
+
+.review-content {
+  flex-grow: 1;
 }
 
 .review-image {
@@ -332,7 +313,7 @@ onMounted(() => {
 .view-all-reviews {
   background: none;
   border: none;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
   font-size: 14px;
   color: #0000EE;
