@@ -69,7 +69,8 @@ export default {
         const storesWithCoordinates = await Promise.allSettled(
           responseData.data.map(async (store) => {
             if (!store.storeAddress || store.storeAddress.trim() === "") {
-              return null;
+              console.warn(`매장 '${store.storeName}'의 주소가 없습니다.`);
+              return { id: store.storeId, valid: false };
             }
 
             try {
@@ -92,21 +93,24 @@ export default {
                     latitude: coordinates.latitude,
                     longitude: coordinates.longitude,
                     distance,
+                    valid: true,
                   };
+                } else {
+                  return { id: store.storeId, valid: false };
                 }
               } else {
                 console.warn(`매장 '${store.storeName}'의 유효한 좌표를 찾을 수 없습니다.`);
-                return null;
+                return { id: store.storeId, valid: false };
               }
             } catch (error) {
               console.error(`매장 '${store.storeName}'의 지오코딩 실패:`, error);
-              return null;
+              return { id: store.storeId, valid: false };
             }
           })
         );
 
         this.cards = storesWithCoordinates
-          .filter((result) => result.status === 'fulfilled' && result.value !== null && result.value.id)
+          .filter((result) => result.status === 'fulfilled' && result.value.valid)
           .map((result) => result.value);
 
         if (this.cards.length === 0) {
