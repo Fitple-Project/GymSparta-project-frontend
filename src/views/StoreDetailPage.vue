@@ -184,6 +184,7 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   width: 80%; /* 폭을 80%로 늘려서 더 넓게 보이도록 조정 */
+  max-width: 800px;
   background-color: #fff;
   border: 1px solid #ebebeb;
   border-radius: 20px;
@@ -236,6 +237,7 @@ onMounted(() => {
 }
 
 .membership-section, .pt-section {
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
