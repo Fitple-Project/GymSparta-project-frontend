@@ -25,13 +25,14 @@
             </div>
           </div>
         </div>
-        <MapComponent ref="map" :markers="mapMarkers" class="map" />
+        <MapComponent ref="map" :markers="mapMarkers" @map-loaded="onMapLoaded" class="map" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { nextTick } from 'vue';
 import MapComponent from '@/components/MapComponent.vue';
 import { getCoordinatesFromAddress, getCurrentLocation } from '@/utils/location';
 
@@ -118,7 +119,11 @@ export default {
 
         this.filteredCards = this.cards.filter(store => store.distance <= 5);
         this.updateMapMarkers(this.cards);
-        this.centerMapOnCurrentLocation();
+
+        // 지도가 로드된 후에만 중심을 맞추도록 함
+        nextTick(() => {
+          this.centerMapOnCurrentLocation();
+        });
       } catch (error) {
         console.error('매장 정보를 가져오거나 지오코딩하는 중 오류 발생:', error);
       }
@@ -146,13 +151,18 @@ export default {
 
     updateMapMarkers(stores) {
       this.mapMarkers = stores
-        .filter(store => store.latitude && store.longitude)  // 유효한 좌표만 포함
+        .filter(store => store.latitude && store.longitude)
         .map((store) => ({
           lat: store.latitude,
           lng: store.longitude,
           title: store.title,
           address: store.location,
         }));
+    },
+
+    onMapLoaded() {
+      // 지도 로드 완료 후에 현재 위치를 중심으로 지도 설정
+      this.centerMapOnCurrentLocation();
     },
 
     centerMapOnCurrentLocation() {
