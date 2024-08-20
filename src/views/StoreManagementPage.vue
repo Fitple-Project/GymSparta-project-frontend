@@ -291,21 +291,20 @@ export default {
       try {
         const response = await fetch(`${process.env.VUE_APP_API_URL}/upload`, {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.getAuthToken()}`,
-          },
           body: formData,
         });
 
         if (!response.ok) {
-          throw new Error('이미지 업로드 실패');
+          throw new Error('이미지 업로드 중 오류가 발생했습니다.');
         }
 
-        const data = await response.json();
-        return data.url; // 업로드된 이미지의 URL을 반환
+        // 응답이 JSON이 아닌 URL 문자열일 경우 그대로 사용
+        const imageUrl = await response.text(); // 여기서 JSON이 아닌 텍스트로 처리
+        return imageUrl;
       } catch (error) {
         console.error('이미지 업로드 중 오류 발생:', error);
-        alert('이미지 업로드에 실패했습니다.');
+        alert('이미지 업로드 중 오류가 발생했습니다. 다시 시도해주세요.');
+        return null;
       }
     },
     // 공지사항 작성 제출 메서드
