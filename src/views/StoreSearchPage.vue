@@ -82,7 +82,7 @@ export default {
                   coordinates.longitude
                 );
 
-                if (distance <= 5) {
+                if (distance <= 10) {
                   return {
                     id: store.storeId,
                     image: store.image || 'default_image.png',
@@ -144,18 +144,20 @@ export default {
     },
 
     updateMapMarkers() {
-      this.mapMarkers = this.filteredCards.map((store) => ({
-        lat: store.latitude,
-        lng: store.longitude,
-        title: store.title,
-        address: store.location,
-      }));
+      this.mapMarkers = this.filteredCards
+        .filter(store => store.latitude && store.longitude) // 유효한 좌표만 사용
+        .map((store) => ({
+          lat: store.latitude,
+          lng: store.longitude,
+          title: store.title,
+          address: store.location,
+        }));
     },
 
     getDistance(lat1, lon1, lat2, lon2) {
       const R = 6371;
       const dLat = this.deg2rad(lat2 - lat1);
-      const dLon = this.deg2rad(lat2 - lon2);
+      const dLon = this.deg2rad(lon2 - lon1);
       const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
         Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
