@@ -72,18 +72,13 @@ export default {
             const data = await response.json();
             alert("로그인 성공");
 
-            // Remember Me 체크에 따른 저장소 선택
-            if (this.rememberMe) {
-              localStorage.setItem('accessToken', data.data.accessToken);
-              localStorage.setItem('refreshToken', data.data.refreshToken);
-              localStorage.setItem('userId', data.data.userId);
-              localStorage.setItem('userRole', data.data.role);
-            } else {
-              sessionStorage.setItem('accessToken', data.data.accessToken);
-              sessionStorage.setItem('refreshToken', data.data.refreshToken);
-              sessionStorage.setItem('userId', data.data.userId);
-              sessionStorage.setItem('userRole', data.data.role);
-            }
+            // JWT 토큰 저장
+            localStorage.setItem('accessToken', data.data.accessToken);
+            localStorage.setItem('refreshToken', data.data.refreshToken);
+            localStorage.setItem('userId', data.data.userId);
+            localStorage.setItem('userRole', data.data.role);
+
+            this.$router.push({ name: 'main' });
 
             // SSE 구독 시작
             this.startSse();
@@ -107,9 +102,7 @@ export default {
       this.$router.push({ name: 'business-signup' });
     },
     startSse() {
-      const token = this.rememberMe
-        ? localStorage.getItem('accessToken')
-        : sessionStorage.getItem('accessToken');
+      const token = localStorage.getItem('accessToken');
 
       fetch(`${process.env.VUE_APP_API_URL}/api/notification/stream`, {
         headers: {
@@ -145,12 +138,10 @@ export default {
       })
       .catch(error => {
         console.error('SSE Error:', error);
-      })
-    }
-  },
+      })}},
   beforeRouteEnter(to, from, next) {
-    const accessToken = localStorage.getItem('accessToken') || sessionStorage.getItem('accessToken');
-    if (accessToken) {
+    const isLoggedIn = !!localStorage.getItem('accessToken');
+    if (isLoggedIn) {
       next({ name: 'main' });
     } else {
       next();
