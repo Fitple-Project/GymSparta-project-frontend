@@ -21,7 +21,7 @@
         <div class="profile">
           <div class="avatar"></div>
           <div class="frame">
-            <div class="nickname">{{profileData.nickname }}</div>
+            <div class="nickname">{{profileData.nickname}}}</div>
             <div class="batch">Java_5기</div>
           </div>
         </div>
@@ -263,8 +263,7 @@ export default {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
-          },
-          credentials: 'include'
+          }
         });
 
         if (!response.ok) {
@@ -308,7 +307,7 @@ export default {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          credentials: 'include',
+          // TODO 사진 변경 추가
           body: JSON.stringify({
             username: this.profileData.userName,
             nickname: this.profileData.nickname,
@@ -343,8 +342,7 @@ export default {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
-        },
-        credentials: 'include',
+        }
       }).then(response => {
         if (response.ok) {
           alert('회원탈퇴가 완료되었습니다.');

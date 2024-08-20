@@ -30,34 +30,31 @@
 
       <!-- 공지사항 작성 모달 -->
       <div v-if="isWriteModalVisible" class="modal-overlay" @click.self="closeModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h2 class="modal-title">공지사항 작성</h2>
-          <button class="close-button" @click="closeModal">&times;</button>
-        </div>
-        <div class="modal-content">
-          <form @submit.prevent="submitNotice">
-            <label for="title">제목:</label><br>
-            <input type="text" id="title" v-model="noticeRiteTitle" required><br>
-
-              <label for="content">내용:</label><br>
-              <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea><br>
-
-              <!-- 동적 카테고리 선택박스 (스토어 ID와 이름 표시) -->
-              <label for="category">스토어 선택:</label><br>
-              <select id="category" v-model="selectedStoreId" required>
-                <option value="">스토어를 선택하세요</option>
-                <!-- 스토어 ID와 이름을 동시에 표시 -->
-                <option v-for="store in stores" :key="store.id" :value="store.id">
-                  {{ store.id }} - {{ store.store_name }}
-                </option>
-              </select><br><br>
-
-              <!-- 등록 버튼을 클릭하면 `handleSubmit` 메서드가 실행됩니다. -->
-              <button type="button" class="btn" @click="handleSubmit">등록</button>
-            </form>
-          </div>
-        </div>
+            <div class="modal">
+              <div class="modal-header">
+                <h2 class="modal-title">공지사항 작성</h2>
+                <button class="close-button" @click="closeModal">&times;</button>
+              </div>
+              <div class="modal-content">
+                <form @submit.prevent="submitNotice">
+                  <label for="title">제목:</label><br>
+                  <input type="text" id="title" v-model="noticeRiteTitle" required><br>
+                  <label for="content">내용:</label><br>
+                  <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea><br>
+                  <!-- 동적 카테고리 선택박스 (스토어 ID와 이름 표시) -->
+                  <label for="category">스토어 선택:</label><br>
+                  <select id="category" v-model="selectedStoreId" required>
+                    <option value="">스토어를 선택하세요</option>
+                    <!-- 스토어 ID와 이름을 동시에 표시 -->
+                    <option v-for="store in stores" :key="store.id" :value="store.id">
+                      {{ store.id }} - {{ store.store_name }}
+                    </option>
+                  </select><br><br>
+                  <!-- 등록 버튼을 클릭하면 `handleSubmit` 메서드가 실행됩니다. -->
+                  <button type="button" class="btn" @click="handleSubmit">등록</button>
+                </form>
+              </div>
+            </div>
       </div>
 
 
@@ -79,7 +76,7 @@
           </div>
           <div class="modal-content">
             <ul id="noticeList">
-              <li v-for="(notice) in notices" :key="notice.allNotificationId" @click="openDetailModal(notice.allNotificationId)">
+              <li v-for="(notice) in notices" :key="notice" @click="openDetailModal(notice.allNotificationId)">
                 <strong>{{ notice.title }}</strong>
               </li>
             </ul>
@@ -90,7 +87,6 @@
           </div>
         </div>
       </div>
-
       <!-- 공지사항 상세 모달 -->
       <div v-if="isDetailModalVisible" class="modal-overlay" @click.self="closeModal">
         <div class="modal">
@@ -249,83 +245,76 @@ export default {
     };
   },
   methods: {
-    openWriteModal() {
-            this.isWriteModalVisible = true;
-        },
-        closeModal() {
-            this.isWriteModalVisible = false;
-            this.isListModalVisible = false;
-            this.isDetailModalVisible = false;
-        },
-    async fetchNotices() {
-      const token = localStorage.getItem('accessToken');
-      try {
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${this.selectedStoreId}/allNotification`, {   // 서버에서 공지사항 목록 가져오기
-          method: 'GET',                                 // HTTP GET 요청
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`// JSON 형식으로 데이터 수신
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('네트워크 응답이 정상이 아닙니다.');
-        }
-
-        const data = await response.json();               // 서버에서 받은 JSON 데이터를 파싱
-        this.notices = data;                              // 공지사항 목록을 Vue 데이터에 저장
-
-      } catch (error) {
-        console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다.', error);
-        alert('공지사항 목록을 가져오는 중 오류가 발생했습니다.');
-      }
-    },
-    handleSubmit() {
-      // handleSubmit 메서드에서 submitNotice 메서드를 호출합니다.
-      this.submitNotice();
-    },
-    async submitNotice() {
-        const postData = {
-          noticeTitle: this.noticeRiteTitle,
-          noticeContent: this.noticeRiteContent
-        };
-      const token = localStorage.getItem('accessToken');
-      // POST 요청을 통해 서버에 데이터 전송
-      try {
-        // POST 요청 전송
-        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${this.selectedStoreId}/allNotification`,{
-            method: 'POST',
+      async fetchNotices() {
+        const token = localStorage.getItem('accessToken');
+        try {
+          const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${this.selectedStoreId}/allNotification`, {   // 서버에서 공지사항 목록 가져오기
+            method: 'GET',                                 // HTTP GET 요청
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(postData),
-        });
-
-        const data = await response.json(); // 응답을 JSON으로 파싱
-
-        if (response.ok) {
-          alert(`공지 작성: ${data.message}`);
-        } else {
-          alert(`오류: ${data.message}`);
+              'Authorization': `Bearer ${token}`// JSON 형식으로 데이터 수신
+            }
+          });
+          if (!response.ok) {
+            throw new Error('네트워크 응답이 정상이 아닙니다.');
+          }
+          const data = await response.json();               // 서버에서 받은 JSON 데이터를 파싱
+          this.notices = data;                              // 공지사항 목록을 Vue 데이터에 저장
+        } catch (error) {
+          console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다.', error);
+          alert('공지사항 목록을 가져오는 중 오류가 발생했습니다.');
         }
-      } catch (error) {
-        alert('공지 작성 중 오류가 발생하였습니다');
-      }
-    },
-    getAuthToken() {
-      return localStorage.getItem('accessToken');
-    },
-    changeSection(section) {
-      this.activeSection = section;
-    },
-    openTrainerModal(type) {
-      this.trainerModalType = type;
-      this.isTrainerModalVisible = true;
-    },
-    closeTrainerModal() {
-      this.isTrainerModalVisible = false;
-    },
+      },
+      handleSubmit() {
+        // handleSubmit 메서드에서 submitNotice 메서드를 호출합니다.
+        this.submitNotice();
+      },
+      async submitNotice() {
+          const postData = {
+            noticeTitle: this.noticeRiteTitle,
+            noticeContent: this.noticeRiteContent
+          };
+        const token = localStorage.getItem('accessToken');
+        // POST 요청을 통해 서버에 데이터 전송
+        try {
+          // POST 요청 전송
+          const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${this.selectedStoreId}/allNotification`,{
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify(postData),
+          });
+          // 서버로부터 응답이 성공적으로 돌아온 경우
+          console.log('공지사항이 성공적으로 제출되었습니다:', response.data);
+          const data = await response.json(); // 응답을 JSON으로 파싱
+          // 필요 시 성공적인 제출 후 추가 작업 (예: 알림 표시, 모달 닫기 등)
+          this.closeModal();
+          if (response.ok) {
+            alert(`공지 작성: ${data.message}`);
+          } else {
+            alert(`오류: ${data.message}`);
+          }
+        } catch (error) {
+          // 오류가 발생한 경우
+          console.error('공지사항 제출 중 오류가 발생했습니다:', error);
+          alert('공지 작성 중 오류가 발생하였습니다');
+        }
+      },
+      getAuthToken() {
+        return localStorage.getItem('accessToken');
+      },
+      changeSection(section) {
+        this.activeSection = section;
+      },
+      openTrainerModal(type) {
+        this.trainerModalType = type;
+        this.isTrainerModalVisible = true;
+      },
+      closeTrainerModal() {
+        this.isTrainerModalVisible = false;
+      },
     storeClicked(storeId) {
       if (storeId) {
         this.$router.push({ name: 'store-edit', params: { id: storeId } });
