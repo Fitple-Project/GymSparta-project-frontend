@@ -549,9 +549,10 @@ export default {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 80%;
+  width: 50%; /* Adjust the width as needed */
   max-width: 600px;
   animation: modalAppear 0.3s ease-out;
+  padding: 20px;
 }
 
 .modal-header {
@@ -591,12 +592,20 @@ export default {
 }
 
 .btn-primary {
-  background-color: #4CAF50;
+  background-color: #007bff;
   color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
 }
 
 .btn-primary:hover {
-  background-color: #45a049;
+  background-color: #0056b3;
 }
 
 @keyframes modalAppear {
