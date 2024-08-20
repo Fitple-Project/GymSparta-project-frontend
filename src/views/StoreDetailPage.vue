@@ -320,4 +320,10 @@ onMounted(() => {
   cursor: pointer;
   text-decoration: underline;
 }
+
+.membership-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 </style>
