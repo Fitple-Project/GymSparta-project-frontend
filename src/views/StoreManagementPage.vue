@@ -134,8 +134,10 @@
       <section v-if="activeSection === 'storeRegister'" class="store-register">
         <h1 class="page-title">매장 등록</h1>
         <div class="store-photo">
-          <div class="photo-placeholder">매장 사진 등록</div>
-          <div class="photo-icon"></div>
+          <div class="photo-placeholder">
+            <input type="file" @change="handleFileUpload">
+          </div>
+          <img v-if="selectedImage" :src="selectedImage" class="photo-preview">
         </div>
         <div class="form-field">
           <label for="storeName">매장명</label>
@@ -231,6 +233,9 @@ export default {
       ptSession: '',
       trainerList: '',
       price: '',
+      // 파일 업로드 관련 데이터
+      selectedFile: null,
+      selectedImage: null,
       // 공지사항 관련 데이터
       isWriteModalVisible: false,
       isListModalVisible: false,
@@ -268,6 +273,39 @@ export default {
         this.isListModalVisible = false;
       } else if (modalType === 'detail') {
         this.isDetailModalVisible = false;
+      }
+    },
+    // 파일 선택 처리 메서드
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.selectedFile = file;
+        this.selectedImage = URL.createObjectURL(file);
+      }
+    },
+    // 이미지 업로드 메서드
+    async uploadImage(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.getAuthToken()}`,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('이미지 업로드 실패');
+        }
+
+        const data = await response.json();
+        return data.url; // 업로드된 이미지의 URL을 반환
+      } catch (error) {
+        console.error('이미지 업로드 중 오류 발생:', error);
+        alert('이미지 업로드에 실패했습니다.');
       }
     },
     // 공지사항 작성 제출 메서드
@@ -347,28 +385,28 @@ export default {
       }
     },
     async openDetailModal(allNotificationId) {
-          const token = localStorage.getItem('accessToken');
-          try {
-            // 공지사항의 상세 정보를 가져오는 API 요청
-            const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/allNotification/${allNotificationId}`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              }
-            });
-            if (!response.ok) {
-              throw new Error('네트워크 응답이 정상이 아닙니다.');
-            }
-            const data = await response.json();
-            this.detailNotice = data;
-            // 모달을 닫고 상세보기 모달을 열기
-            this.isListModalVisible = false;
-            this.isDetailModalVisible = true;
-          } catch (error) {
-            console.error('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.', error);
-            alert('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.');
+      const token = localStorage.getItem('accessToken');
+      try {
+        // 공지사항의 상세 정보를 가져오는 API 요청
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/allNotification/${allNotificationId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           }
+        });
+        if (!response.ok) {
+          throw new Error('네트워크 응답이 정상이 아닙니다.');
+        }
+        const data = await response.json();
+        this.detailNotice = data;
+        // 모달을 닫고 상세보기 모달을 열기
+        this.isListModalVisible = false;
+        this.isDetailModalVisible = true;
+      } catch (error) {
+        console.error('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.', error);
+        alert('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.');
+      }
     },
     closeDetailModal() {
       this.isDetailModalVisible = false;
@@ -396,7 +434,13 @@ export default {
     goToTrainerDetail(trainerId) {
       this.$router.push({ name: 'trainer-detail', params: { id: trainerId } });
     },
-    registerStore() {
+    async registerStore() {
+      let imageUrl = null;
+
+      if (this.selectedFile) {
+        imageUrl = await this.uploadImage(this.selectedFile);
+      }
+
       const payload = {
         storeName: this.storeName,
         address: this.storeAddress,
@@ -408,6 +452,7 @@ export default {
         ptConsultations: this.ptSession ? this.ptSession.split('\n') : [],
         trainerList: this.trainerList ? this.trainerList.split(',') : [],
         price: this.price,
+        image: imageUrl || this.defaultImage,
       };
 
       fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
@@ -450,6 +495,8 @@ export default {
       this.ptSession = '';
       this.trainerList = '';
       this.price = '';
+      this.selectedFile = null;
+      this.selectedImage = null;
     },
     async fetchStores() {
       const token = localStorage.getItem('accessToken');
@@ -646,10 +693,10 @@ export default {
   background: #d9d9d9;
 }
 
-.photo-icon {
-  width: 104px;
-  height: 104px;
-  border: 4px solid #1e1e1e;
+.photo-preview {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
 }
 
 .form-field {
