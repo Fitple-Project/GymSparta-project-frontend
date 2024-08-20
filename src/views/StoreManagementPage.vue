@@ -95,16 +95,19 @@
       <!-- 공지사항 상세 모달 -->
       <div v-if="isDetailModalVisible" class="modal-overlay" @click.self="closeModal('detail')">
         <div class="modal">
-          <div class="modal-header">
-            <h2 class="modal-title">{{ detailNotice.title }}</h2>
-            <button class="close-button" @click="closeModal('detail')">&times;</button>
-          </div>
           <div class="modal-content">
-            <h3>{{ detailNotice.title }}</h3>
-            <p>{{ detailNotice.message }}</p>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-primary" @click="closeModal('detail')">뒤로가기</button>
+            <h2 class="modal-title">{{ detailNotice.title }}</h2>
+            <div class="form-field">
+              <label for="noticeTitle">제목:</label>
+              <input type="text" id="noticeTitle" v-model="detailNotice.title" disabled>
+            </div>
+            <div class="form-field">
+              <label for="noticeContent">내용:</label>
+              <textarea id="noticeContent" v-model="detailNotice.message" rows="4" disabled></textarea>
+            </div>
+            <div class="button-group">
+              <button class="btn cancel-button" @click="closeModal('detail')">닫기</button>
+            </div>
           </div>
         </div>
       </div>
@@ -342,6 +345,30 @@ export default {
         console.error('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.', error);
         alert('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.');
       }
+    },
+    async openDetailModal(allNotificationId) {
+          const token = localStorage.getItem('accessToken');
+          try {
+            // 공지사항의 상세 정보를 가져오는 API 요청
+            const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/allNotification/${allNotificationId}`, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            if (!response.ok) {
+              throw new Error('네트워크 응답이 정상이 아닙니다.');
+            }
+            const data = await response.json();
+            this.detailNotice = data;
+            // 모달을 닫고 상세보기 모달을 열기
+            this.isListModalVisible = false;
+            this.isDetailModalVisible = true;
+          } catch (error) {
+            console.error('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.', error);
+            alert('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.');
+          }
     },
     closeDetailModal() {
       this.isDetailModalVisible = false;
