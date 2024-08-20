@@ -74,7 +74,7 @@ export default {
 
             try {
               const coordinates = await getCoordinatesFromAddress(store.storeAddress);
-              if (coordinates.latitude !== 0 && coordinates.longitude !== 0) {
+              if (coordinates.latitude && coordinates.longitude) {
                 const distance = this.getDistance(
                   currentLocation.latitude,
                   currentLocation.longitude,
@@ -82,7 +82,7 @@ export default {
                   coordinates.longitude
                 );
 
-                if (distance <= 10) {
+                if (distance <= 5) {
                   return {
                     id: store.storeId,
                     image: store.image || 'default_image.png',
@@ -130,13 +130,11 @@ export default {
       const searchQuery = this.searchQuery.trim();
 
       if (searchQuery) {
-        // 검색어가 있을 때
         this.filteredCards = this.cards.filter(
           (store) =>
             store.title.includes(searchQuery) || store.location.includes(searchQuery)
         );
       } else {
-        // 검색어가 없을 때 모든 매장을 표시
         this.filteredCards = this.cards;
       }
 
@@ -145,7 +143,7 @@ export default {
 
     updateMapMarkers() {
       this.mapMarkers = this.filteredCards
-        .filter(store => store.latitude && store.longitude) // 유효한 좌표만 사용
+        .filter(store => store.latitude && store.longitude)  // 유효한 좌표만 포함
         .map((store) => ({
           lat: store.latitude,
           lng: store.longitude,
@@ -172,7 +170,7 @@ export default {
   },
   mounted() {
     this.searchQuery = this.$route.query.search || '';
-    this.fetchNearbyGyms(); // 페이지 로드 시 주변 매장을 조회합니다.
+    this.fetchNearbyGyms();
   },
 };
 </script>
