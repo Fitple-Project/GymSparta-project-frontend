@@ -252,7 +252,7 @@ onMounted(() => {
 }
 
 .membership-card {
-  width: 100%;
+  width: auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
