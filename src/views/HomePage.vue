@@ -141,34 +141,43 @@ export default {
           return;
         }
 
-        const storesWithCoordinates = await Promise.all(responseData.data.map(async store => {
-          const coordinates = await getCoordinatesFromAddress(store.storeAddress);
-          if (coordinates.latitude !== 0 && coordinates.longitude !== 0) {
-            const distance = this.getDistance(
-              currentLocation.latitude,
-              currentLocation.longitude,
-              coordinates.latitude,
-              coordinates.longitude
-            );
+        const storesWithCoordinates = await Promise.allSettled(responseData.data.map(async store => {
+          try {
+            const coordinates = await getCoordinatesFromAddress(store.storeAddress);
+            if (coordinates.latitude !== 0 && coordinates.longitude !== 0) {
+              const distance = this.getDistance(
+                currentLocation.latitude,
+                currentLocation.longitude,
+                coordinates.latitude,
+                coordinates.longitude
+              );
 
-            return {
-              id: store.storeId,
-              image: store.image || mk1,
-              category: store.category || '카테고리 정보 없음',
-              name: store.storeName,
-              location: store.storeAddress,
-              info: store.storeInfo || '정보 없음',
-              price: store.storePrice || '가격 정보 없음',
-              rating: store.rating || '평점 없음',
-              reviews: store.reviews || '리뷰 없음',
-              latitude: coordinates.latitude,
-              longitude: coordinates.longitude,
-              distance,
-            };
+              return {
+                id: store.storeId,
+                image: store.image || mk1,
+                category: store.category || '카테고리 정보 없음',
+                name: store.storeName,
+                location: store.storeAddress,
+                info: store.storeInfo || '정보 없음',
+                price: store.storePrice || '가격 정보 없음',
+                rating: store.rating || '평점 없음',
+                reviews: store.reviews || '리뷰 없음',
+                latitude: coordinates.latitude,
+                longitude: coordinates.longitude,
+                distance,
+              };
+            }
+          } catch (error) {
+            console.error(`매장 '${store.storeName}'의 지오코딩 실패:`, error);
+            return null; // 오류가 발생한 경우 null을 반환
           }
         }));
 
-        this.gyms = storesWithCoordinates.filter(store => store && store.distance <= 10);
+        // null이 아닌 매장만 필터링
+        this.gyms = storesWithCoordinates
+          .filter(result => result.status === 'fulfilled' && result.value !== null)
+          .map(result => result.value)
+          .filter(store => store.distance <= 10);
 
         if (!this.gyms.length) {
           console.log('주변에 검색된 매장이 없습니다.');
