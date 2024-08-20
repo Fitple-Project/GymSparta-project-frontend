@@ -61,7 +61,7 @@ const store = createStore({
         commit('setLoggedIn', true);
 
         try {
-          const response = await fetch('http://localhost:8080/api/user/me', {
+          const response = await fetch(`${process.env.VUE_APP_API_URL}/api/user/me`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
