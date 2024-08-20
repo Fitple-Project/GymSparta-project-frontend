@@ -163,13 +163,25 @@ export default {
     },
     async fetchUserProfile() {
       const token = localStorage.getItem('accessToken');
+      const userRole = localStorage.getItem('userRole');
       if (token) {
         try {
-          const response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/owner`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
+          let response;
+          if (userRole === 'OWNER') {
+            // 점주의 경우
+            response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/owner`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+              },
+            });
+          } else {
+            // 일반 사용자의 경우
+            response = await fetch(`${process.env.VUE_APP_API_URL}/api/profile/user`, {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+              },
+            });
+          }
 
           if (response.ok) {
             const data = await response.json();
