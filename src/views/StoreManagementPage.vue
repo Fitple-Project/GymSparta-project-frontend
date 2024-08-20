@@ -34,66 +34,65 @@
 
       <!-- 공지사항 작성 모달 -->
       <div v-if="isWriteModalVisible" class="modal-overlay" @click.self="closeModal('write')">
-        <div class="modal">
-          <div class="modal-header">
-            <h2 class="modal-title">공지사항 작성</h2>
-            <button class="close-button" @click="closeModal('write')">&times;</button>
+          <div class="modal">
+              <div class="modal-content">
+                  <h2 class="modal-title">공지사항 작성</h2>
+                  <form @submit.prevent="submitNotice">
+                      <div class="form-field">
+                          <label for="title">제목:</label>
+                          <input type="text" id="title" v-model="noticeRiteTitle" required>
+                      </div>
+                      <div class="form-field">
+                          <label for="content">내용:</label>
+                          <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea>
+                      </div>
+                      <div class="form-field">
+                          <label for="category">스토어 선택:</label>
+                          <select id="category" v-model="selectedStoreId" required>
+                              <option value="">스토어를 선택하세요</option>
+                              <option v-for="store in stores" :key="store.id" :value="store.id">
+                                  {{ store.id }} - {{ store.store_name }}
+                              </option>
+                          </select>
+                      </div>
+                      <div class="button-group">
+                          <button type="button" class="btn btn-primary" @click="handleSubmit">등록</button>
+                          <button type="button" class="btn cancel-button" @click="closeModal('write')">취소</button>
+                      </div>
+                  </form>
+              </div>
+              <button class="close-button" @click="closeModal('write')">&times;</button>
           </div>
-          <div class="modal-content">
-            <form @submit.prevent="submitNotice">
-              <div class="form-field">
-                <label for="title">제목:</label>
-                <input type="text" id="title" v-model="noticeRiteTitle" required />
-              </div>
-              <div class="form-field">
-                <label for="content">내용:</label>
-                <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea>
-              </div>
-              <div class="form-field">
-                <label for="category">스토어 선택:</label>
-                <select id="category" v-model="selectedStoreId" required>
-                  <option value="">스토어를 선택하세요</option>
-                  <option v-for="store in stores" :key="store.id" :value="store.id">
-                    {{ store.id }} - {{ store.store_name }}
-                  </option>
-                </select>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-primary" @click="handleSubmit">등록</button>
-                <button type="button" class="btn cancel-button" @click="closeModal('write')">취소</button>
-              </div>
-            </form>
-          </div>
-        </div>
       </div>
 
       <!-- 공지사항 목록 모달 -->
       <div v-if="isListModalVisible" class="modal-overlay" @click.self="closeModal('list')">
-        <div class="modal">
-          <div class="modal-header">
-            <h2 class="modal-title">공지사항 목록</h2>
-            <label for="category">스토어 선택:</label><br>
-            <select id="category" v-model="selectedStoreId" required>
-              <option value="">스토어를 선택하세요</option>
-              <option v-for="store in stores" :key="store.id" :value="store.id">
-                {{ store.id }} - {{ store.store_name }}
-              </option>
-            </select><br><br>
-            <button class="close-button" @click="closeModal('list')">&times;</button>
+          <div class="modal">
+              <div class="modal-content">
+                  <h2 class="modal-title">공지사항 목록</h2>
+                  <div class="form-field">
+                      <label for="category">스토어 선택:</label>
+                      <select id="category" v-model="selectedStoreId" required>
+                          <option value="">스토어를 선택하세요</option>
+                          <option v-for="store in stores" :key="store.id" :value="store.id">
+                              {{ store.id }} - {{ store.store_name }}
+                          </option>
+                      </select>
+                  </div>
+                  <ul id="noticeList">
+                      <li v-for="(notice) in notices" :key="notice.allNotificationId" @click="openDetailModal(notice.allNotificationId)">
+                          <strong>{{ notice.title }}</strong>
+                      </li>
+                  </ul>
+                  <div class="button-group">
+                      <button class="btn btn-primary" @click="fetchNotices">조회</button>
+                      <button class="btn cancel-button" @click="closeModal('list')">닫기</button>
+                  </div>
+              </div>
+              <button class="close-button" @click="closeModal('list')">&times;</button>
           </div>
-          <div class="modal-content">
-            <ul id="noticeList">
-              <li v-for="(notice) in notices" :key="notice.allNotificationId" @click="openDetailModal(notice.allNotificationId)">
-                <strong>{{ notice.title }}</strong>
-              </li>
-            </ul>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-primary" @click="fetchNotices">조회</button>
-            <button class="btn btn-primary" @click="closeModal('list')">닫기</button>
-          </div>
-        </div>
       </div>
+
 
       <!-- 공지사항 상세 모달 -->
       <div v-if="isDetailModalVisible" class="modal-overlay" @click.self="closeModal('detail')">
