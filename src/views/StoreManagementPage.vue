@@ -41,18 +41,27 @@
           </div>
           <div class="modal-content">
             <form @submit.prevent="submitNotice">
-              <label for="title">제목:</label><br>
-              <input type="text" id="title" v-model="noticeRiteTitle" required><br>
-              <label for="content">내용:</label><br>
-              <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea><br>
-              <label for="category">스토어 선택:</label><br>
-              <select id="category" v-model="selectedStoreId" required>
-                <option value="">스토어를 선택하세요</option>
-                <option v-for="store in stores" :key="store.id" :value="store.id">
-                  {{ store.id }} - {{ store.store_name }}
-                </option>
-              </select><br><br>
-              <button type="button" class="btn" @click="handleSubmit">등록</button>
+              <div class="form-field">
+                <label for="title">제목:</label>
+                <input type="text" id="title" v-model="noticeRiteTitle" required />
+              </div>
+              <div class="form-field">
+                <label for="content">내용:</label>
+                <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea>
+              </div>
+              <div class="form-field">
+                <label for="category">스토어 선택:</label>
+                <select id="category" v-model="selectedStoreId" required>
+                  <option value="">스토어를 선택하세요</option>
+                  <option v-for="store in stores" :key="store.id" :value="store.id">
+                    {{ store.id }} - {{ store.store_name }}
+                  </option>
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" @click="handleSubmit">등록</button>
+                <button type="button" class="btn cancel-button" @click="closeModal('write')">취소</button>
+              </div>
             </form>
           </div>
         </div>
