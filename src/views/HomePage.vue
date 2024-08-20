@@ -135,6 +135,7 @@ export default {
         });
 
         const responseData = await response.json();
+        console.log('Stores response data:', responseData);
 
         if (response.status !== 200) {
           console.error('서버 오류:', responseData.error || 'Unknown error');
@@ -142,6 +143,7 @@ export default {
         }
 
         const storesWithCoordinates = await Promise.allSettled(responseData.data.map(async store => {
+          console.log('Store image URL:', store.image); // 이미지 URL 확인
           try {
             const coordinates = await getCoordinatesFromAddress(store.storeAddress);
             if (coordinates.latitude !== 0 && coordinates.longitude !== 0) {
