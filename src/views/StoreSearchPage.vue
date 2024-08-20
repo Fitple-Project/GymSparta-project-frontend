@@ -46,13 +46,14 @@ export default {
       cards: [],
       filteredCards: [],
       mapMarkers: [],
+      currentLocation: null,
     };
   },
   methods: {
     async fetchNearbyGyms() {
       try {
-        const currentLocation = await getCurrentLocation();
-        console.log('현재 위치:', currentLocation);
+        this.currentLocation = await getCurrentLocation();
+        console.log('현재 위치:', this.currentLocation);
 
         const response = await fetch(`${process.env.VUE_APP_API_URL}/api/stores`, {
           method: 'GET',
@@ -77,27 +78,23 @@ export default {
               const coordinates = await getCoordinatesFromAddress(store.storeAddress);
               if (coordinates && coordinates.latitude && coordinates.longitude) {
                 const distance = this.getDistance(
-                  currentLocation.latitude,
-                  currentLocation.longitude,
+                  this.currentLocation.latitude,
+                  this.currentLocation.longitude,
                   coordinates.latitude,
                   coordinates.longitude
                 );
 
-                if (distance <= 5) {
-                  return {
-                    id: store.storeId,
-                    image: store.image || 'default_image.png',
-                    title: store.storeName,
-                    location: store.storeAddress,
-                    price: store.storePrice || '가격 정보 없음',
-                    latitude: coordinates.latitude,
-                    longitude: coordinates.longitude,
-                    distance,
-                    valid: true,
-                  };
-                } else {
-                  return { id: store.storeId, valid: false };
-                }
+                return {
+                  id: store.storeId,
+                  image: store.image || 'default_image.png',
+                  title: store.storeName,
+                  location: store.storeAddress,
+                  price: store.storePrice || '가격 정보 없음',
+                  latitude: coordinates.latitude,
+                  longitude: coordinates.longitude,
+                  distance,
+                  valid: true,
+                };
               } else {
                 console.warn(`매장 '${store.storeName}'의 유효한 좌표를 찾을 수 없습니다.`);
                 return { id: store.storeId, valid: false };
@@ -119,8 +116,9 @@ export default {
           console.log(`${this.cards.length}개의 매장이 표시됩니다.`);
         }
 
-        this.filteredCards = this.cards;
-        this.updateMapMarkers();
+        this.filteredCards = this.cards.filter(store => store.distance <= 5);
+        this.updateMapMarkers(this.cards);
+        this.centerMapOnCurrentLocation();
       } catch (error) {
         console.error('매장 정보를 가져오거나 지오코딩하는 중 오류 발생:', error);
       }
@@ -131,22 +129,23 @@ export default {
     },
 
     searchStores() {
-      const searchQuery = this.searchQuery.trim();
+      const searchQuery = this.searchQuery.trim().toLowerCase();
 
       if (searchQuery) {
         this.filteredCards = this.cards.filter(
           (store) =>
-            store.title.includes(searchQuery) || store.location.includes(searchQuery)
+            store.title.toLowerCase().includes(searchQuery) ||
+            store.location.toLowerCase().includes(searchQuery)
         );
       } else {
-        this.filteredCards = this.cards;
+        this.filteredCards = this.cards.filter(store => store.distance <= 5);
       }
 
-      this.updateMapMarkers();
+      this.updateMapMarkers(this.filteredCards);
     },
 
-    updateMapMarkers() {
-      this.mapMarkers = this.filteredCards
+    updateMapMarkers(stores) {
+      this.mapMarkers = stores
         .filter(store => store.latitude && store.longitude)  // 유효한 좌표만 포함
         .map((store) => ({
           lat: store.latitude,
@@ -154,6 +153,12 @@ export default {
           title: store.title,
           address: store.location,
         }));
+    },
+
+    centerMapOnCurrentLocation() {
+      if (this.currentLocation && this.$refs.map) {
+        this.$refs.map.centerMap(this.currentLocation.latitude, this.currentLocation.longitude);
+      }
     },
 
     getDistance(lat1, lon1, lat2, lon2) {
