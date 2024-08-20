@@ -249,6 +249,14 @@ export default {
     };
   },
   methods: {
+    openWriteModal() {
+            this.isWriteModalVisible = true;
+        },
+        closeModal() {
+            this.isWriteModalVisible = false;
+            this.isListModalVisible = false;
+            this.isDetailModalVisible = false;
+        },
     async fetchNotices() {
       const token = localStorage.getItem('accessToken');
       try {
