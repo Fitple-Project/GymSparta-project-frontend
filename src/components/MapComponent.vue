@@ -117,6 +117,18 @@ export default {
     clearMarkers() {
       this.googleMarkers.forEach(marker => marker.setMap(null));
       this.googleMarkers = [];
+    },
+
+    centerMap(lat, lng) {
+      if (this.map) {
+        this.map.setCenter({ lat, lng });
+      }
+    },
+
+    setZoom(zoomLevel) {
+      if (this.map) {
+        this.map.setZoom(zoomLevel);
+      }
     }
   }
 };
