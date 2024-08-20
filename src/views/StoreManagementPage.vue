@@ -61,7 +61,6 @@
                       </div>
                   </form>
               </div>
-              <button class="close-button" @click="closeModal('write')">&times;</button>
           </div>
       </div>
 
@@ -89,7 +88,6 @@
                       <button class="btn cancel-button" @click="closeModal('list')">닫기</button>
                   </div>
               </div>
-              <button class="close-button" @click="closeModal('list')">&times;</button>
           </div>
       </div>
 
