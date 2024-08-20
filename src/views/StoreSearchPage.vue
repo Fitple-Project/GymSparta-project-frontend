@@ -138,7 +138,7 @@ export default {
 
                 return {
                   id: store.storeId,
-                  image: store.image || mk1,
+                  image: store.image,
                   category: store.category || '카테고리 정보 없음',
                   name: store.storeName,
                   location: store.storeAddress,
