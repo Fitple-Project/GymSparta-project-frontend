@@ -240,7 +240,7 @@ onMounted(() => {
   width: 100%;
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* Flex alignment 수정 */
+  align-items: flex-start;
   padding: 20px 0;
 }
 
@@ -252,7 +252,7 @@ onMounted(() => {
 }
 
 .membership-card {
-  width: auto;
+  width: 100%; /* 카드의 가로 크기를 100%로 설정 */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -260,6 +260,7 @@ onMounted(() => {
   border: 1px solid #ebebeb;
   border-radius: 10px;
   background-color: #f9f9f9;
+  box-sizing: border-box; /* 패딩 포함하여 크기를 계산 */
 }
 
 .review-header {
