@@ -19,9 +19,9 @@
       <section v-if="activeSection === 'storeList'" class="store-list">
         <h1 class="page-title">매장 목록</h1>
         <div class="store-buttons">
-                  <button @click="openWriteModal" class="register-button">공지사항 작성</button>
-                  <button @click="openListModal" class="register-button">공지사항 목록</button>
-                </div>
+          <button @click="openWriteModal" class="register-button">공지사항 작성</button>
+          <button @click="openListModal" class="register-button">공지사항 목록</button>
+        </div>
         <div class="store-card" v-for="store in stores" :key="store.id" @click="storeClicked(store.id)">
           <img :src="store.image || defaultImage" alt="store image" class="store-image" />
           <div class="store-info">
@@ -33,76 +33,75 @@
       </section>
 
       <!-- 공지사항 작성 모달 -->
-            <div v-if="isWriteModalVisible" class="modal-overlay" @click.self="closeModal">
-              <div class="modal">
-                <div class="modal-header">
-                  <h2 class="modal-title">공지사항 작성</h2>
-                  <button class="close-button" @click="closeModal">&times;</button>
-                </div>
-                <div class="modal-content">
-                  <form @submit.prevent="submitNotice">
-                    <label for="title">제목:</label><br>
-                    <input type="text" id="title" v-model="noticeRiteTitle" required><br>
-                    <label for="content">내용:</label><br>
-                    <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea><br>
-                    <label for="category">스토어 선택:</label><br>
-                    <select id="category" v-model="selectedStoreId" required>
-                      <option value="">스토어를 선택하세요</option>
-                      <option v-for="store in stores" :key="store.id" :value="store.id">
-                        {{ store.id }} - {{ store.store_name }}
-                      </option>
-                    </select><br><br>
-                    <button type="button" class="btn" @click="handleSubmit">등록</button>
-                  </form>
-                </div>
-              </div>
-            </div>
+      <div v-if="isWriteModalVisible" class="modal-overlay" @click.self="closeModal('write')">
+        <div class="modal">
+          <div class="modal-header">
+            <h2 class="modal-title">공지사항 작성</h2>
+            <button class="close-button" @click="closeModal('write')">&times;</button>
+          </div>
+          <div class="modal-content">
+            <form @submit.prevent="submitNotice">
+              <label for="title">제목:</label><br>
+              <input type="text" id="title" v-model="noticeRiteTitle" required><br>
+              <label for="content">내용:</label><br>
+              <textarea id="content" v-model="noticeRiteContent" rows="4" required></textarea><br>
+              <label for="category">스토어 선택:</label><br>
+              <select id="category" v-model="selectedStoreId" required>
+                <option value="">스토어를 선택하세요</option>
+                <option v-for="store in stores" :key="store.id" :value="store.id">
+                  {{ store.id }} - {{ store.store_name }}
+                </option>
+              </select><br><br>
+              <button type="button" class="btn" @click="handleSubmit">등록</button>
+            </form>
+          </div>
+        </div>
+      </div>
 
-            <!-- 공지사항 목록 모달 -->
-            <div v-if="isListModalVisible" class="modal-overlay" @click.self="closeModal">
-              <div class="modal">
-                <div class="modal-header">
-                  <h2 class="modal-title">공지사항 목록</h2>
-                  <label for="category">스토어 선택:</label><br>
-                  <select id="category" v-model="selectedStoreId" required>
-                    <option value="">스토어를 선택하세요</option>
-                    <option v-for="store in stores" :key="store.id" :value="store.id">
-                      {{ store.id }} - {{ store.store_name }}
-                    </option>
-                  </select><br><br>
-                  <button class="close-button" @click="closeModal">&times;</button>
-                </div>
-                <div class="modal-content">
-                  <ul id="noticeList">
-                    <li v-for="(notice) in notices" :key="notice.allNotificationId" @click="openDetailModal(notice.allNotificationId)">
-                      <strong>{{ notice.title }}</strong>
-                    </li>
-                  </ul>
-                </div>
-                <div class="modal-footer">
-                  <button class="btn btn-primary" @click="fetchNotices">조회</button>
-                  <button class="btn btn-primary" @click="closeModal">닫기</button>
-                </div>
-              </div>
-            </div>
+      <!-- 공지사항 목록 모달 -->
+      <div v-if="isListModalVisible" class="modal-overlay" @click.self="closeModal('list')">
+        <div class="modal">
+          <div class="modal-header">
+            <h2 class="modal-title">공지사항 목록</h2>
+            <label for="category">스토어 선택:</label><br>
+            <select id="category" v-model="selectedStoreId" required>
+              <option value="">스토어를 선택하세요</option>
+              <option v-for="store in stores" :key="store.id" :value="store.id">
+                {{ store.id }} - {{ store.store_name }}
+              </option>
+            </select><br><br>
+            <button class="close-button" @click="closeModal('list')">&times;</button>
+          </div>
+          <div class="modal-content">
+            <ul id="noticeList">
+              <li v-for="(notice) in notices" :key="notice.allNotificationId" @click="openDetailModal(notice.allNotificationId)">
+                <strong>{{ notice.title }}</strong>
+              </li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" @click="fetchNotices">조회</button>
+            <button class="btn btn-primary" @click="closeModal('list')">닫기</button>
+          </div>
+        </div>
+      </div>
 
-            <!-- 공지사항 상세 모달 -->
-            <div v-if="isDetailModalVisible" class="modal-overlay" @click.self="closeModal">
-              <div class="modal">
-                <div class="modal-header">
-                  <h2 class="modal-title">{{ detailNotice.title }}</h2>
-                  <button class="close-button" @click="closeDetailModal">&times;</button>
-                </div>
-                <div class="modal-content">
-                  <h3>{{ detailNotice.title }}</h3>
-                  <p>{{ detailNotice.message }}</p>
-                </div>
-                <div class="modal-footer">
-                  <button class="btn btn-primary" @click="closeDetailModal">뒤로가기</button>
-                </div>
-              </div>
-            </div>
-
+      <!-- 공지사항 상세 모달 -->
+      <div v-if="isDetailModalVisible" class="modal-overlay" @click.self="closeModal('detail')">
+        <div class="modal">
+          <div class="modal-header">
+            <h2 class="modal-title">{{ detailNotice.title }}</h2>
+            <button class="close-button" @click="closeModal('detail')">&times;</button>
+          </div>
+          <div class="modal-content">
+            <h3>{{ detailNotice.title }}</h3>
+            <p>{{ detailNotice.message }}</p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary" @click="closeModal('detail')">뒤로가기</button>
+          </div>
+        </div>
+      </div>
 
       <section v-if="activeSection === 'trainerList'" class="trainer-list">
         <div class="trainer-list-header">
@@ -121,7 +120,6 @@
           </div>
         </div>
       </section>
-
 
       <!-- 매장 등록 섹션 -->
       <section v-if="activeSection === 'storeRegister'" class="store-register">
@@ -236,8 +234,8 @@ export default {
       ],
       noticeTitle: '',
       noticeContent: '',
-      noticeRiteTitle: this.noticeRiteTitle,
-      noticeRiteContent: this.noticeRiteContent,
+      noticeRiteTitle: '',
+      noticeRiteContent: '',
       detailNotice: {},
       defaultImage: 'path/to/default/image.jpg', // 기본 이미지 경로 설정
       errorMessage: '', // 오류 메시지 저장
@@ -245,113 +243,116 @@ export default {
     };
   },
   methods: {
-        // 공지사항 작성 모달을 여는 메서드
-        openWriteModal() {
-          this.isWriteModalVisible = true;
-        },
-        // 공지사항 목록 모달을 여는 메서드
-        openListModal() {
-          this.isListModalVisible = true;
-        },
-        // 모달을 닫는 메서드
-        closeModal() {
-          this.isWriteModalVisible = false;
-          this.isListModalVisible = false;
-          this.isDetailModalVisible = false;
-        },
-        // 공지사항 작성 제출 메서드
-        handleSubmit() {
-          this.submitNotice();
-        },
-        // 공지사항 작성 서버 요청
-        async submitNotice() {
-          const postData = {
-            noticeTitle: this.noticeRiteTitle,
-            noticeContent: this.noticeRiteContent
-          };
-          const token = localStorage.getItem('accessToken');
-          try {
-            const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${this.selectedStoreId}/allNotification`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify(postData),
-            });
-            const data = await response.json();
-            this.closeModal();
-            if (response.ok) {
-              alert(`공지 작성: ${data.message}`);
-            } else {
-              alert(`오류: ${data.message}`);
-            }
-          } catch (error) {
-            console.error('공지사항 제출 중 오류가 발생했습니다:', error);
-            alert('공지 작성 중 오류가 발생하였습니다');
+    // 공지사항 작성 모달을 여는 메서드
+    openWriteModal() {
+      this.isWriteModalVisible = true;
+    },
+    // 공지사항 목록 모달을 여는 메서드
+    openListModal() {
+      this.isListModalVisible = true;
+    },
+    // 모달을 닫는 메서드
+    closeModal(modalType) {
+      if (modalType === 'write') {
+        this.isWriteModalVisible = false;
+      } else if (modalType === 'list') {
+        this.isListModalVisible = false;
+      } else if (modalType === 'detail') {
+        this.isDetailModalVisible = false;
+      }
+    },
+    // 공지사항 작성 제출 메서드
+    handleSubmit() {
+      this.submitNotice();
+    },
+    // 공지사항 작성 서버 요청
+    async submitNotice() {
+      const postData = {
+        noticeTitle: this.noticeRiteTitle,
+        noticeContent: this.noticeRiteContent
+      };
+      const token = localStorage.getItem('accessToken');
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${this.selectedStoreId}/allNotification`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(postData),
+        });
+        const data = await response.json();
+        this.closeModal('write');
+        if (response.ok) {
+          alert(`공지 작성: ${data.message}`);
+        } else {
+          alert(`오류: ${data.message}`);
+        }
+      } catch (error) {
+        console.error('공지사항 제출 중 오류가 발생했습니다:', error);
+        alert('공지 작성 중 오류가 발생하였습니다');
+      }
+    },
+    // 공지사항 목록 조회 메서드
+    async fetchNotices() {
+      const token = localStorage.getItem('accessToken');
+      try {
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${this.selectedStoreId}/allNotification`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           }
-        },
-        // 공지사항 목록 조회 메서드
-        async fetchNotices() {
-          const token = localStorage.getItem('accessToken');
-          try {
-            const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${this.selectedStoreId}/allNotification`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              }
-            });
-            if (!response.ok) {
-              throw new Error('네트워크 응답이 정상이 아닙니다.');
-            }
-            const data = await response.json();
-            this.notices = data;
-          } catch (error) {
-            console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다.', error);
-            alert('공지사항 목록을 가져오는 중 오류가 발생했습니다.');
+        });
+        if (!response.ok) {
+          throw new Error('네트워크 응답이 정상이 아닙니다.');
+        }
+        const data = await response.json();
+        this.notices = data;
+      } catch (error) {
+        console.error('공지사항 목록을 가져오는 중 오류가 발생했습니다.', error);
+        alert('공지사항 목록을 가져오는 중 오류가 발생했습니다.');
+      }
+    },
+    // 공지사항 상세 모달 열기
+    async fetchNoticeDetail(noticeId) {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${noticeId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           }
-        },
-        // 공지사항 상세 모달 열기
-        async fetchNoticeDetail(noticeId) {
-          try {
-            const token = localStorage.getItem('accessToken');
-            const response = await fetch(`${process.env.VUE_APP_API_URL}/api/notification/${noticeId}`, {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              }
-            });
-            if (!response.ok) {
-              throw new Error('네트워크 응답이 정상이 아닙니다.');
-            }
-            const data = await response.json();
-            this.detailNotice = data;
-            this.isListModalVisible = false;
-            this.isDetailModalVisible = true;
-          } catch (error) {
-            console.error('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.', error);
-            alert('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.');
-          }
-        },
-        closeDetailModal() {
-          this.isDetailModalVisible = false;
-        },
-      },
-      getAuthToken() {
-        return localStorage.getItem('accessToken');
-      },
-      changeSection(section) {
-        this.activeSection = section;
-      },
-      openTrainerModal(type) {
-        this.trainerModalType = type;
-        this.isTrainerModalVisible = true;
-      },
-      closeTrainerModal() {
-        this.isTrainerModalVisible = false;
-      },
+        });
+        if (!response.ok) {
+          throw new Error('네트워크 응답이 정상이 아닙니다.');
+        }
+        const data = await response.json();
+        this.detailNotice = data;
+        this.isListModalVisible = false;
+        this.isDetailModalVisible = true;
+      } catch (error) {
+        console.error('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.', error);
+        alert('공지사항 상세 정보를 가져오는 중 오류가 발생했습니다.');
+      }
+    },
+    closeDetailModal() {
+      this.isDetailModalVisible = false;
+    },
+    getAuthToken() {
+      return localStorage.getItem('accessToken');
+    },
+    changeSection(section) {
+      this.activeSection = section;
+    },
+    openTrainerModal(type) {
+      this.trainerModalType = type;
+      this.isTrainerModalVisible = true;
+    },
+    closeTrainerModal() {
+      this.isTrainerModalVisible = false;
+    },
     storeClicked(storeId) {
       if (storeId) {
         this.$router.push({ name: 'store-edit', params: { id: storeId } });
@@ -363,18 +364,18 @@ export default {
       this.$router.push({ name: 'trainer-detail', params: { id: trainerId } });
     },
     registerStore() {
-       const payload = {
-         storeName: this.storeName,
-         address: this.storeAddress,
-         storeInfo: this.storeIntro,
-         storeHour: this.operatingHours,
-         storeTel: this.phoneNumber,
-         services: this.services ? this.services.split(',') : [],
-         memberships: this.membership ? this.membership.split('\n') : [],
-         ptConsultations: this.ptSession ? this.ptSession.split('\n') : [],
-         trainerList: this.trainerList ? this.trainerList.split(',') : [],
-         price: this.price,
-     };
+      const payload = {
+        storeName: this.storeName,
+        address: this.storeAddress,
+        storeInfo: this.storeIntro,
+        storeHour: this.operatingHours,
+        storeTel: this.phoneNumber,
+        services: this.services ? this.services.split(',') : [],
+        memberships: this.membership ? this.membership.split('\n') : [],
+        ptConsultations: this.ptSession ? this.ptSession.split('\n') : [],
+        trainerList: this.trainerList ? this.trainerList.split(',') : [],
+        price: this.price,
+      };
 
       fetch(`${process.env.VUE_APP_API_URL}/api/stores/owners`, {
         method: 'POST',
@@ -450,11 +451,6 @@ export default {
         this.errorDialog = true;
         console.error('There has been a problem with your fetch operation:', error);
       }
-    },
-    closeModal() {
-      this.isWriteModalVisible = false;
-      this.isListModalVisible = false;
-      this.isDetailModalVisible = false;
     }
   },
   mounted() {
