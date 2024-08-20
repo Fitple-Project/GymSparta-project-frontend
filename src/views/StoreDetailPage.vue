@@ -236,14 +236,6 @@ onMounted(() => {
   margin-bottom: 15px;
 }
 
-.membership-section, .pt-section {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 20px 0;
-}
-
 .membership-list {
   display: flex;
   flex-direction: column;
