@@ -26,8 +26,8 @@
       <span>소셜 로그인/회원가입</span>
     </div>
     <div class="social-login-buttons">
-      <img src="@/assets/Login_Button/Kakao_Button.svg" alt="카카오 로그인" class="social-button" />
-      <img src="@/assets/Login_Button/Naver_Button.svg" alt="네이버 로그인" class="social-button" />
+      <img src="@/assets/Login_Button/Kakao_Button.svg" alt="카카오 로그인" class="social-button" @click="handleKakaoLogin"/>
+      <img src="@/assets/Login_Button/Naver_Button.svg" alt="네이버 로그인" class="social-button" @click= "handleNaverLogin"/>
       <img src="@/assets/Login_Button/Google_Button.svg" alt="구글 로그인" class="social-button" @click="handleGoogleLogin" />
     </div>
     <div class="business-login">
@@ -81,7 +81,19 @@ export default {
       }
     },
     handleGoogleLogin() {
-      window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+      const clientId = '638690197100-smpr5ac8dh75pnnevkspenic03ufgiau.apps.googleusercontent.com'; // 여기에 클라이언트 ID를 입력하세요
+      const redirectUri = 'http://localhost:8080/api/user/social/google/callback'; // 여기에 리다이렉트 URI를 입력하세요
+      const scope = 'email profile'; // 요청할 권한 범위
+      const responseType = 'code'; // 응답 타입
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
+
+      window.location.href = authUrl; // 생성된 URL로 리다이렉트
+    },
+    handleNaverLogin() {
+      window.location.href = 'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=lCrwGp5COA3B9pAbLbba&redirect_uri=http://localhost:8080/api/user/social/naver/callback&state=1234';
+    },
+    handleKakaoLogin() {
+      window.location.href = 'https://kauth.kakao.com/oauth/authorize?client_id=008f89eefe38bdd7187a1020453c8498&redirect_uri=http://localhost:8080/api/user/social/kakao/callback&response_type=code';
     },
     goToBusinessSignupPage() {
       this.$router.push({ name: 'business-signup' });
