@@ -245,6 +245,7 @@
         <div class="input-group">
           <label for="business-number">사업자등록번호 <span class="required">*</span></label>
           <input type="text" id="business-number" v-model="businessNumber" placeholder="사업자등록번호" maxlength="10" required />
+          <button class="black-button" @click="businessNumberVerification">사업자등록번호 확인</button>
         </div>
       </div>
       <div class="section signup-section">
@@ -388,6 +389,54 @@ export default {
     };
   },
   methods: {
+    async businessNumberVerification() {
+      let num = this.businessNumber; // 사업자등록번호 가져오기
+      const data = {
+        "b_no": [num] // 사업자번호를 기본 형식에 맞춰 전송
+      };
+
+      try {
+        const response = await fetch("https://api.odcloud.kr/api/nts-businessman/v1/status?serviceKey=3dEqcDJBBwGEXkHR3hQe2kboWpB4LCECwIpMsrTmuVOhSGiJ7p6S51H6NC%2FrSJrhrddIiBr8kaspUQUjPYlVjg%3D%3D", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json; charset=UTF-8",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(data) // JSON 데이터를 문자열로 변환하여 전송
+        });
+
+        // 응답이 성공적으로 처리되었는지 확인
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json(); // 응답 데이터를 JSON으로 변환
+
+        // 상태 코드가 OK일 경우 사업자 상태 코드 추출
+        if (result.status_code === "OK") {
+          let valid = result.data[0]['b_stt_cd']; // 사업자 상태 코드
+
+          // 사업자 상태 코드가 "01"인 경우
+          if (valid === "01") {
+            this.msg1(); // 성공 메시지 함수 호출
+          } else {
+            this.msg2(); // 실패 메시지 함수 호출
+          }
+        } else {
+          alert("일단 오류");
+        }
+
+      } catch (error) {
+        // fetch 자체의 에러 처리
+        console.log("Error:", error.message);
+      }
+    },
+    msg1() {
+      alert("사업자등록번호가 인증되었습니다.");
+    },
+    msg2() {
+      alert("유효하지 않은 사업자등록번호입니다.");
+    },
     toggleAll() {
       const newValue = this.agreeAll;
       this.agreeTerms = newValue;
