@@ -27,7 +27,7 @@
     </div>
     <div class="social-login-buttons">
       <img src="@/assets/Login_Button/Kakao_Button.svg" alt="카카오 로그인" class="social-button" @click="handleKakaoLogin"/>
-      <img src="@/assets/Login_Button/Naver_Button.svg" alt="네이버 로그인" class="social-button" @click= "handleNaverLogin"/>
+      <img src="@/assets/Login_Button/Naver_Button.svg" alt="네이버 로그인" class="social-button" @click="handleNaverLogin"/>
       <img src="@/assets/Login_Button/Google_Button.svg" alt="구글 로그인" class="social-button" @click="handleGoogleLogin" />
     </div>
     <div class="business-login">
@@ -37,7 +37,10 @@
 </template>
 
 <script>
+import { Client } from '@stomp/stompjs';
 import eventBus from '@/eventBus';
+import SockJS from 'sockjs-client';
+
 
 export default {
   name: "LoginPage",
@@ -46,8 +49,11 @@ export default {
       userId: "",
       password: "",
       rememberMe: false,
+      subscriberId: "",  // 로그인한 사용자의 ID를 구독에 사용
+      stompClient: null,  // stompClient 인스턴스를 저장할 변수
     };
   },
+
   methods: {
     async handleLogin() {
       if (this.userId && this.password) {
@@ -68,7 +74,10 @@ export default {
             alert("로그인 성공");
             localStorage.setItem('accessToken', data.data.accessToken);
             eventBus.emit('login');
+            this.subscriberId = this.userId; // 로그인한 사용자 ID를 구독에 사용
             this.$router.push({ path: '/' });
+            this.connectWebSocket(); // 로그인 후 WebSocket 연결
+            this.subscribeToUser(); // 로그인 후 자동으로 구독 요청
           } else {
             const errorData = await response.json();
             alert("로그인 실패: " + (errorData.message || '알 수 없는 오류'));
@@ -80,14 +89,41 @@ export default {
         alert("아이디와 비밀번호를 입력해주세요.");
       }
     },
+
+    // WebSocket 연결 및 구독 기능
+    connectWebSocket() {
+      const socket = new SockJS("/ws");
+      this.stompClient = Stomp.over(socket);
+      this.stompClient.connect({}, (frame) => {
+        console.log("WebSocket 연결 성공: " + frame);
+      });
+    },
+
+    subscribeToUser() {
+      if (this.subscriberId && this.stompClient) {
+        const destination = `/user/${this.subscriberId}/queue/messages`;
+
+        // 구독을 추가
+        this.stompClient.subscribe(destination, (message) => {
+          const receivedMessage = JSON.parse(message.body);
+          console.log("Received message: ", receivedMessage);
+          alert(`Received message from ${this.subscriberId}: ${receivedMessage.text}`);
+        });
+
+        console.log(`Subscribed to: ${destination}`);
+      } else {
+        alert("수신자 ID를 입력하고 로그인 후 다시 시도해주세요.");
+      }
+    },
+
     handleGoogleLogin() {
-      const clientId = '638690197100-smpr5ac8dh75pnnevkspenic03ufgiau.apps.googleusercontent.com'; // 여기에 클라이언트 ID를 입력하세요
-      const redirectUri = 'http://localhost:8080/api/user/social/google/callback'; // 여기에 리다이렉트 URI를 입력하세요
-      const scope = 'email profile'; // 요청할 권한 범위
-      const responseType = 'code'; // 응답 타입
+      const clientId = '638690197100-smpr5ac8dh75pnnevkspenic03ufgiau.apps.googleusercontent.com';
+      const redirectUri = 'http://localhost:8080/api/user/social/google/callback';
+      const scope = 'email profile';
+      const responseType = 'code';
       const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=${responseType}&scope=${encodeURIComponent(scope)}`;
 
-      window.location.href = authUrl; // 생성된 URL로 리다이렉트
+      window.location.href = authUrl;
     },
     handleNaverLogin() {
       window.location.href = 'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=lCrwGp5COA3B9pAbLbba&redirect_uri=http://localhost:8080/api/user/social/naver/callback&state=1234';
@@ -99,6 +135,7 @@ export default {
       this.$router.push({ name: 'business-signup' });
     }
   },
+
   beforeRouteEnter (to, from, next) {
     const isLoggedIn = !!localStorage.getItem('accessToken');
     if (isLoggedIn) {
@@ -109,6 +146,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .login-page {
@@ -233,5 +271,18 @@ input {
   color: #0000EE;
   cursor: pointer;
   text-decoration: none;
+}
+
+.subscription-section {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.subscribe-button {
+  background: #FF8500;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 </style>

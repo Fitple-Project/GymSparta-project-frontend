@@ -19,6 +19,7 @@ import StoreEditPage from '@/views/StoreEditPage.vue';
 import TrainerEditPage from '@/views/TrainerEditPage.vue';
 import StoreManagementPage from '@/views/StoreManagementPage.vue';
 import TrainerProfilePage  from "@/views/TrainerProfilePage.vue";
+import ChatPage  from "@/views/ChatPage.vue";
 
 const routes = [
   {
@@ -121,6 +122,11 @@ const routes = [
     name: 'trainerProfile',
     component: TrainerProfilePage,
   },
+  {
+    path: '/chat',
+    name: 'ChatPage',
+    component: ChatPage,
+  }
 ];
 
 const router = createRouter({
