@@ -20,6 +20,7 @@ import TrainerEditPage from '@/views/TrainerEditPage.vue';
 import StoreManagementPage from '@/views/StoreManagementPage.vue';
 import StoreUpdatePage from '@/views/StoreUpdatePage.vue';
 import TrainerProfilePage  from "@/views/TrainerProfilePage.vue";
+import ChatPage  from "@/views/ChatPage.vue";
 
 
 const routes = [
@@ -138,6 +139,11 @@ const routes = [
     component: TrainerProfilePage,
     meta: { requiresAuth: true }
   },
+  {
+    path: '/chat',
+    name: 'ChatPage',
+    component: ChatPage,
+  }
 ];
 
 const router = createRouter({
